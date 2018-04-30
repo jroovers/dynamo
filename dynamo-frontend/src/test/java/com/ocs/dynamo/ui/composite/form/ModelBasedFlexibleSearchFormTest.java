@@ -23,7 +23,6 @@ import com.ocs.dynamo.ui.composite.layout.FormOptions;
 import com.ocs.dynamo.ui.composite.table.ServiceResultsTableWrapper;
 import com.ocs.dynamo.ui.container.QueryType;
 
-@Ignore
 public class ModelBasedFlexibleSearchFormTest extends BaseIntegrationTest {
 
 	@Inject

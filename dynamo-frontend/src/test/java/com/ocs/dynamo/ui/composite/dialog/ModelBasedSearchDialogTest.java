@@ -16,7 +16,6 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-@Ignore
 public class ModelBasedSearchDialogTest extends BaseIntegrationTest {
 
 	@Inject
@@ -41,7 +40,7 @@ public class ModelBasedSearchDialogTest extends BaseIntegrationTest {
 	@Test
 	public void testCreateSingleSelect() {
 		ModelBasedSearchDialog<Integer, TestEntity> dialog = new ModelBasedSearchDialog<>(testEntityService,
-		        entityModelFactory.getModel(TestEntity.class), new ArrayList<>(), null, false, true);
+				entityModelFactory.getModel(TestEntity.class), new ArrayList<>(), null, false, true);
 		dialog.setPageLength(4);
 		dialog.build();
 
@@ -58,7 +57,7 @@ public class ModelBasedSearchDialogTest extends BaseIntegrationTest {
 		filters.add(new Compare.Equal("name", "Bob"));
 
 		ModelBasedSearchDialog<Integer, TestEntity> dialog = new ModelBasedSearchDialog<>(testEntityService,
-		        entityModelFactory.getModel(TestEntity.class), filters, null, false, true);
+				entityModelFactory.getModel(TestEntity.class), filters, null, false, true);
 		dialog.build();
 
 		// only one item matches the filter
@@ -69,7 +68,7 @@ public class ModelBasedSearchDialogTest extends BaseIntegrationTest {
 	@Test
 	public void testCreateMultiSelect() {
 		ModelBasedSearchDialog<Integer, TestEntity> dialog = new ModelBasedSearchDialog<>(testEntityService,
-		        entityModelFactory.getModel(TestEntity.class), new ArrayList<>(), null, true, true);
+				entityModelFactory.getModel(TestEntity.class), new ArrayList<>(), null, true, true);
 		dialog.build();
 
 		// check that there are two items

@@ -24,7 +24,6 @@ import com.vaadin.ui.Layout;
  * @author bas.rutten
  *
  */
-@Ignore
 public class MultiDomainEditLayoutTest extends BaseIntegrationTest {
 
 	@Test

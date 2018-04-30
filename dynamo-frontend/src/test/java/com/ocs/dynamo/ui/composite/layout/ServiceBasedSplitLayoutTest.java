@@ -23,7 +23,6 @@ import com.vaadin.data.util.filter.Compare;
 import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.ui.TextField;
 
-@Ignore
 public class ServiceBasedSplitLayoutTest extends BaseIntegrationTest {
 
 	@Inject

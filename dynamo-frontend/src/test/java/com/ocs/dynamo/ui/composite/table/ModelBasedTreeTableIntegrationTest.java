@@ -38,7 +38,6 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-@Ignore
 public class ModelBasedTreeTableIntegrationTest extends BaseIntegrationTest {
 
 	@Inject
@@ -76,11 +75,10 @@ public class ModelBasedTreeTableIntegrationTest extends BaseIntegrationTest {
 		services.add(testEntityService);
 		services.add(testEntity2Service);
 
-		ModelBasedHierarchicalContainer<TestEntity> container = new ModelBasedHierarchicalContainer<>(
-				messageService, model, services, null);
+		ModelBasedHierarchicalContainer<TestEntity> container = new ModelBasedHierarchicalContainer<>(messageService,
+				model, services, null);
 
-		ModelBasedTreeTable<Integer, TestEntity> table = new ModelBasedTreeTable<>(container,
-				entityModelFactory, true);
+		ModelBasedTreeTable<Integer, TestEntity> table = new ModelBasedTreeTable<>(container, entityModelFactory, true);
 
 		Assert.assertEquals(1, table.getContainerDataSource().size());
 
@@ -128,7 +126,7 @@ public class ModelBasedTreeTableIntegrationTest extends BaseIntegrationTest {
 		services.add(testEntity2Service);
 
 		ServiceResultsTreeTableWrapper<Integer, TestEntity> wrapper = new ServiceResultsTreeTableWrapper<>(services,
-		        model, QueryType.PAGING, null, true);
+				model, QueryType.PAGING, null, true);
 		wrapper.build();
 
 		Assert.assertNotNull(wrapper.getContainer());
@@ -147,7 +145,7 @@ public class ModelBasedTreeTableIntegrationTest extends BaseIntegrationTest {
 		services.add(testEntity2Service);
 
 		ServiceResultsTreeTableWrapper<Integer, TestEntity> wrapper = new ServiceResultsTreeTableWrapper<>(services,
-		        model, QueryType.PAGING, Lists.newArrayList(new SortOrder("name", SortDirection.ASCENDING)), true);
+				model, QueryType.PAGING, Lists.newArrayList(new SortOrder("name", SortDirection.ASCENDING)), true);
 		wrapper.build();
 
 		Assert.assertNotNull(wrapper.getContainer());
