@@ -24,7 +24,6 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HasComponents;
 import com.vaadin.ui.HorizontalLayout;
 
-@Ignore
 public class SimpleEditLayoutTest extends BaseIntegrationTest {
 
     @Inject

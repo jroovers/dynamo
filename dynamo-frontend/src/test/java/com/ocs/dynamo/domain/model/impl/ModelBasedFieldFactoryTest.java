@@ -61,7 +61,6 @@ import com.vaadin.ui.Slider;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 
-@Ignore
 public class ModelBasedFieldFactoryTest extends BaseIntegrationTest {
 
 	@Inject

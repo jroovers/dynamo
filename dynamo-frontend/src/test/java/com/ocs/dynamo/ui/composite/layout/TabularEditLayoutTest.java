@@ -18,7 +18,6 @@ import com.vaadin.data.Container.Filter;
 import com.vaadin.data.util.filter.Compare;
 import com.vaadin.ui.VerticalLayout;
 
-@Ignore
 public class TabularEditLayoutTest extends BaseIntegrationTest {
 
     @Inject
