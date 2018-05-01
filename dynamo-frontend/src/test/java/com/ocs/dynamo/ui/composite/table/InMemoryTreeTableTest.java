@@ -18,7 +18,6 @@ import com.ocs.dynamo.service.TestEntityService;
 import com.ocs.dynamo.test.BaseIntegrationTest;
 import com.ocs.dynamo.utils.ClassUtils;
 
-@Ignore
 public class InMemoryTreeTableTest extends BaseIntegrationTest {
 
 	@Inject

@@ -38,7 +38,6 @@ import com.ocs.dynamo.filter.Modulo;
 import com.ocs.dynamo.filter.Or;
 import com.ocs.dynamo.test.BaseIntegrationTest;
 
-@Ignore
 public class JPAQueryBuilderTest extends BaseIntegrationTest {
 
 	@PersistenceContext

@@ -14,7 +14,6 @@ import com.ocs.dynamo.test.BaseIntegrationTest;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 
-@Ignore
 public class HorizontalDisplayLayoutTest extends BaseIntegrationTest {
 
     @Inject
