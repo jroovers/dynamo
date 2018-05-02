@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -237,6 +238,11 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 						ClassUtils.setFieldValue(getEntity(), fileNameFieldName, event.getFilename());
 						refreshLabel(fileNameFieldName);
 					}
+
+					if (afterUploadConsumer != null) {
+						afterUploadConsumer.accept(event.getFilename(), stream.toByteArray());
+					}
+
 				} else {
 					showNotifification(message("ocs.modelbasededitform.upload.format.invalid"),
 							Notification.Type.ERROR_MESSAGE);
@@ -347,6 +353,8 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 	private boolean nestedMode;
 
 	private Consumer<T> customSaveConsumer;
+
+	private BiConsumer<String, byte[]> afterUploadConsumer;
 
 	/**
 	 * Constructor
@@ -2008,6 +2016,14 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 
 	public void setCustomSaveConsumer(Consumer<T> customSaveConsumer) {
 		this.customSaveConsumer = customSaveConsumer;
+	}
+
+	public BiConsumer<String, byte[]> getAfterUploadConsumer() {
+		return afterUploadConsumer;
+	}
+
+	public void setAfterUploadConsumer(BiConsumer<String, byte[]> afterUploadConsumer) {
+		this.afterUploadConsumer = afterUploadConsumer;
 	}
 
 }
