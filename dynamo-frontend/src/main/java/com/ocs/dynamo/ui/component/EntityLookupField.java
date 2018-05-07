@@ -232,7 +232,7 @@ public class EntityLookupField<ID extends Serializable, T extends AbstractEntity
 			}
 
 			ModelBasedSearchDialog<ID, T> dialog = new ModelBasedSearchDialog<ID, T>(getService(), getEntityModel(),
-					filterList, sortOrders, multiSelect, true, joins) {
+					filterList, sortOrders, multiSelect, true, getJoins()) {
 
 				private static final long serialVersionUID = -3432107069929941520L;
 
@@ -384,6 +384,10 @@ public class EntityLookupField<ID extends Serializable, T extends AbstractEntity
 		if (label != null) {
 			label.setComponentError(componentError);
 		}
+	}
+
+	protected FetchJoinInformation[] getJoins() {
+		return joins;
 	}
 
 }
