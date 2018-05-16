@@ -18,14 +18,15 @@ public class PairField<L, R> extends CustomField<Pair<L, R>> {
 
 	private boolean maskChanges = false;
 
+	public PairField(Field<L> left) {
+		this(left, null);
+	}
+	
 	public PairField(Field<L> left, Field<R> right) {
 		this(left, right, null);
 	}
 
 	public PairField(Field<L> left, Field<R> right, Component middle) {
-		if (left == null || right == null) {
-			throw new IllegalArgumentException();
-		}
 		this.left = left;
 		this.right = right;
 		this.middle = middle;
@@ -34,20 +35,28 @@ public class PairField<L, R> extends CustomField<Pair<L, R>> {
 			synchronized (PairField.this) {
 				if (!maskChanges) {
 					maskChanges = true;
-					setValue(Pair.of(left.getValue(), right.getValue()));
+					setValue(Pair.of(left == null?null:left.getValue(), right == null?null:right.getValue()));
 					maskChanges = false;
 				}
 			}
 		};
-		left.addValueChangeListener(listener);
-		right.addValueChangeListener(listener);
+		if (left != null) {
+			left.addValueChangeListener(listener);
+		}
+		if (right != null) {
+			right.addValueChangeListener(listener);
+		}
 		
 		addValueChangeListener(e -> {
 			synchronized (PairField.this) {
 				if (!maskChanges) {
 					maskChanges = true;
-					left.setValue(getValue().getLeft());
-					right.setValue(getValue().getRight());
+					if (left != null) {
+						left.setValue(getValue().getLeft());
+					}
+					if (right != null) {
+						right.setValue(getValue().getRight());
+					}
 					maskChanges = false;
 				}
 			}
@@ -64,11 +73,15 @@ public class PairField<L, R> extends CustomField<Pair<L, R>> {
 		HorizontalLayout root = new HorizontalLayout();
 		root.setHeight(null);
 		root.setWidth(null);
-		root.addComponent(left);
+		if (left != null) {
+			root.addComponent(left);
+		}
 		if (middle != null) {
 			root.addComponent(middle);
 		}
-		root.addComponent(right);
+		if (right != null) {
+			root.addComponent(right);
+		}
 
 		return root;
 	}
