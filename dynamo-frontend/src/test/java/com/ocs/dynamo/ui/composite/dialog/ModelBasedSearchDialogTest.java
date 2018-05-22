@@ -1,5 +1,14 @@
 package com.ocs.dynamo.ui.composite.dialog;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
 import com.google.common.collect.Lists;
 import com.ocs.dynamo.domain.TestEntity;
 import com.ocs.dynamo.domain.model.EntityModelFactory;
@@ -7,14 +16,6 @@ import com.ocs.dynamo.service.TestEntityService;
 import com.ocs.dynamo.test.BaseIntegrationTest;
 import com.vaadin.data.Container.Filter;
 import com.vaadin.data.util.filter.Compare;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-
-import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ModelBasedSearchDialogTest extends BaseIntegrationTest {
 
