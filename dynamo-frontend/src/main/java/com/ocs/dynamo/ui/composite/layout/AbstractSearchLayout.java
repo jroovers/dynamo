@@ -1152,6 +1152,19 @@ public abstract class AbstractSearchLayout<ID extends Serializable, T extends Ab
 	public abstract void setSearchValue(String propertyId, Object value, Object auxValue);
 
 	/**
+	 * Sets the tab specified by the provided index to the provided visibility
+	 * 
+	 * @param index
+	 *            the index
+	 * @param visible
+	 */
+	public void setDetailsTabVisible(int index, boolean visible) {
+		if (tabLayout != null) {
+			tabLayout.getTab(index).setVisible(visible);
+		}
+	}
+
+	/**
 	 * Validate before a search is carried out - if the search criteria are not
 	 * correctly set, throw an OCSValidationException to abort the search process
 	 */
