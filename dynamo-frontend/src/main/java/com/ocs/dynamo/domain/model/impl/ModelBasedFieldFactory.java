@@ -629,7 +629,7 @@ public class ModelBasedFieldFactory<T> extends DefaultFieldGroupFieldFactory imp
 			// use custom time field, potentially with Java 8 date converter
 			TimeField tf = new TimeField();
 			tf.setResolution(Resolution.MINUTE);
-			tf.setLocale(VaadinUtils.getLocale());
+			tf.setLocale(VaadinUtils.getDateLocale());
 			if (DateUtils.isJava8DateType(attributeModel.getType())) {
 				tf.setConverter(ConverterFactory.createLocalTimeConverter());
 			}
