@@ -13,6 +13,15 @@
  */
 package com.ocs.dynamo.ui.composite.table;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
 import com.google.common.collect.Lists;
 import com.ocs.dynamo.constants.DynamoConstants;
 import com.ocs.dynamo.domain.TestEntity;
@@ -29,14 +38,6 @@ import com.ocs.dynamo.ui.container.hierarchical.ModelBasedHierarchicalContainer;
 import com.vaadin.data.sort.SortOrder;
 import com.vaadin.data.util.filter.Compare;
 import com.vaadin.shared.data.sort.SortDirection;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-
-import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ModelBasedTreeTableIntegrationTest extends BaseIntegrationTest {
 

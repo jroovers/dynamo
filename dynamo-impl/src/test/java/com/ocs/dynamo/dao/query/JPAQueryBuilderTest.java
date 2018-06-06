@@ -21,7 +21,6 @@ import javax.persistence.TypedQuery;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
