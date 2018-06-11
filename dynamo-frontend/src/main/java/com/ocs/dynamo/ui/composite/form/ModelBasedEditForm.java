@@ -114,6 +114,8 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 
 		private AttributeModel attributeModel;
 
+		private Button clearButton;
+
 		private UploadComponent(AttributeModel attributeModel) {
 			this.attributeModel = attributeModel;
 		}
@@ -153,7 +155,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 			buttonBar.addComponent(upload);
 
 			// a button used to clear the image
-			Button clearButton = new Button(message("ocs.clear"));
+			clearButton = new Button(message("ocs.clear"));
 			clearButton.addClickListener(event -> {
 				ClassUtils.clearFieldValue(getEntity(), attributeModel.getName(), byte[].class);
 				image.setVisible(false);
@@ -168,6 +170,10 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 			return main;
 		}
 
+		@SuppressWarnings("unused")
+		public Button getClearButton() {
+			return clearButton;
+		}
 	}
 
 	/**
@@ -249,6 +255,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 				}
 			}
 		}
+
 	}
 
 	private static final long serialVersionUID = 2201140375797069148L;
