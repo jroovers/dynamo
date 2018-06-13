@@ -87,6 +87,8 @@ import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TabSheet.Tab;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.Receiver;
+import com.vaadin.ui.Upload.StartedEvent;
+import com.vaadin.ui.Upload.StartedListener;
 import com.vaadin.ui.Upload.SucceededEvent;
 import com.vaadin.ui.Upload.SucceededListener;
 import com.vaadin.ui.VerticalLayout;
@@ -181,7 +183,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 	 * 
 	 * @author bas.rutten
 	 */
-	private final class UploadReceiver implements SucceededListener, Receiver {
+	private final class UploadReceiver implements SucceededListener, Receiver, StartedListener {
 
 		// the name of the field that must be updated
 		private String fieldName;
@@ -254,6 +256,12 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 							Notification.Type.ERROR_MESSAGE);
 				}
 			}
+		}
+
+		@Override
+		public void uploadStarted(StartedEvent event) {
+			long start = event.getContentLength();
+			System.out.println(start);
 		}
 
 	}
