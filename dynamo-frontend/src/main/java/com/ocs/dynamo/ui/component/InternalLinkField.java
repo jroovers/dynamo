@@ -58,6 +58,7 @@ public class InternalLinkField<ID extends Serializable, T extends AbstractEntity
 		T t = getValue();
 		String str = FormatUtils.formatEntity(attributeModel.getNestedEntityModel(), t);
 		linkButton = new Button(str);
+		linkButton.setSizeFull();
 		linkButton.setStyleName(ValoTheme.BUTTON_LINK);
 		linkButton.addClickListener(event -> {
 			BaseUI ui = (BaseUI) UI.getCurrent();
