@@ -195,7 +195,7 @@ public abstract class LazyTabLayout<ID extends Serializable, T extends AbstractE
 	 *            the currently selected tab
 	 */
 	@SuppressWarnings("unchecked")
-	private void initOrReload(Component selectedTab) {
+	protected void initOrReload(Component selectedTab) {
 		Tab tab = tabs.getTab(selectedTab);
 
 		// lazily load a tab
@@ -221,6 +221,11 @@ public abstract class LazyTabLayout<ID extends Serializable, T extends AbstractE
 				((Reloadable) next).reload();
 			}
 		}
+	}
+
+	protected Tab getTab(Component selectedTab) {
+		Tab tab = tabs.getTab(selectedTab);
+		return tab;
 	}
 
 	/**
