@@ -1199,7 +1199,11 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 						VaadinUtils.showConfirmDialog(getMessageService(), getMessageService().getMessage(
 								"ocs.confirm.save", VaadinUtils.getLocale(), getEntityModel().getDisplayName()), () -> {
 									try {
-										doSave();
+										if (customSaveConsumer != null) {
+											customSaveConsumer.accept(entity);
+										} else {
+											doSave();
+										}
 									} catch (RuntimeException ex) {
 										if (!handleCustomException(ex)) {
 											handleSaveException(ex);

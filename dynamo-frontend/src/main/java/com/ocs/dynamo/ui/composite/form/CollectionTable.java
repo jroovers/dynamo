@@ -453,5 +453,5 @@ public class CollectionTable<T extends Serializable> extends CustomField<Collect
 		}
 		return error;
 	}
-
 }
+
