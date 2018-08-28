@@ -5,7 +5,7 @@
 	<groupId>org.dynamoframework</groupId>
 	<artifactId>dynamo-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>1.2-CB5-SNAPSHOT</version>
+	<version>1.2.2-CB5-SNAPSHOT</version>
 	<name>Dynamo Framework</name>
 	<description>Dynamo Web Application Accelerator is a development framework that aims to increase productivity.</description>
 	<url>https://github.com/opencirclesolutions/dynamo</url>
@@ -83,6 +83,7 @@
 		<module>dynamo-integration-import</module>
 		<module>dynamo-frontend</module>
 		<module>dynamo-functional-domain</module>
+		<module>dynamo-functional-domain-frontend</module>		
 		<!-- 
 		<module>dynamo-jasperreports</module>
 		<module>dynamo-jasperreports-fixes</module>

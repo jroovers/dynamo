@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>org.dynamoframework</groupId>
 		<artifactId>dynamo-parent</artifactId>
-		<version>1.2-CB5-SNAPSHOT</version>
+		<version>1.2.2-CB5-SNAPSHOT</version>
 	</parent>
 	<organization>
 		<name>Open Circle Solutions</name>
@@ -23,12 +23,17 @@
 		</license>
 	</licenses>
 	<dependencies>
+		<!-- Hibernate -->
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>dynamo-frontend</artifactId>
+			<artifactId>dynamo-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<!-- Hibernate -->
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>dynamo-impl</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>
@@ -50,10 +55,6 @@
 			<artifactId>spring-tx</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.vaadin</groupId>
-			<artifactId>vaadin-server</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>com.mysema.querydsl</groupId>
 			<artifactId>querydsl-core</artifactId>
 		</dependency>
@@ -64,11 +65,6 @@
 		<dependency>
 			<groupId>com.mysema.querydsl</groupId>
 			<artifactId>querydsl-apt</artifactId>
-		</dependency>
-		<!-- JEE -->
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
 		</dependency>
 		<!-- Test -->
 		<dependency>
