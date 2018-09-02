@@ -204,6 +204,7 @@ public final class DynamoFilterUtil {
 			if (am.getNestedEntityModel() != null) {
 				replaceMasterAndDetailFilters(filter, am.getNestedEntityModel());
 			}
+
 		}
 	}
 

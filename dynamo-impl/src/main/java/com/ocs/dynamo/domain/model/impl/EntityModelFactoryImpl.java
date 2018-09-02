@@ -1003,6 +1003,10 @@ public class EntityModelFactoryImpl implements EntityModelFactory {
 			if (!StringUtils.isEmpty(attribute.replacementSearchPath())) {
 				model.setReplacementSearchPath(attribute.replacementSearchPath());
 			}
+			
+			if (!StringUtils.isEmpty(attribute.replacementSortPath())) {
+				model.setReplacementSortPath(attribute.replacementSortPath());
+			}
 
 			if (!StringUtils.isEmpty(attribute.quickAddPropertyName())) {
 				model.setQuickAddPropertyName(attribute.quickAddPropertyName());
@@ -1337,6 +1341,11 @@ public class EntityModelFactoryImpl implements EntityModelFactory {
 		msg = getAttributeMessage(entityModel, model, EntityModel.REPLACEMENT_SEARCH_PATH);
 		if (!StringUtils.isEmpty(msg)) {
 			model.setReplacementSearchPath(msg);
+		}
+		
+		msg = getAttributeMessage(entityModel, model, EntityModel.REPLACEMENT_SORT_PATH);
+		if (!StringUtils.isEmpty(msg)) {
+			model.setReplacementSortPath(msg);
 		}
 
 		msg = getAttributeMessage(entityModel, model, EntityModel.QUICK_ADD_PROPERTY);
