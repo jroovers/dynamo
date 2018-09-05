@@ -93,6 +93,8 @@ public abstract class DetailsEditTable<ID extends Serializable, T extends Abstra
 	 */
 	private BeanItemContainer<T> container;
 
+	private ModelBasedSearchDialog<ID, T> dialog;
+
 	/**
 	 * The entity model of the entity to display
 	 */
@@ -173,8 +175,6 @@ public abstract class DetailsEditTable<ID extends Serializable, T extends Abstra
 	 */
 	private UI ui = UI.getCurrent();
 
-	private ModelBasedSearchDialog<ID, T> dialog;
-
 	/**
 	 * Whether the table is in view mode. If this is the case, editing is not
 	 * allowed and no buttons will be displayed
@@ -205,8 +205,7 @@ public abstract class DetailsEditTable<ID extends Serializable, T extends Abstra
 	public void addEntity(T t) {
 		container.addBean(t);
 		if (receiver != null) {
-			receiver.signalDetailsComponentValid(DetailsEditTable.this,
-					VaadinUtils.allFixedTableFieldsValid(table));
+			receiver.signalDetailsComponentValid(DetailsEditTable.this, VaadinUtils.allFixedTableFieldsValid(table));
 		}
 	}
 
@@ -218,6 +217,10 @@ public abstract class DetailsEditTable<ID extends Serializable, T extends Abstra
 	 */
 	public void afterItemsSelected(Collection<T> selectedItems) {
 		// override in subclasses
+	}
+
+	public void afterValueSet(Collection<T> items) {
+		// overwrite in subclasses
 	}
 
 	/**
@@ -615,10 +618,13 @@ public abstract class DetailsEditTable<ID extends Serializable, T extends Abstra
 		this.items = list;
 		if (container != null) {
 			container.removeAllItems();
-			container.addAll(this.items);
+			for (T t : items) {
+				container.addItem(t);
+			}
 		}
 		// clear the selection
 		setSelectedItem(null);
+		afterValueSet(items);
 	}
 
 	public void setPageLength(int pageLength) {

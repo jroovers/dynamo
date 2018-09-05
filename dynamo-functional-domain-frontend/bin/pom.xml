@@ -2,9 +2,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>dynamo-envers</artifactId>
+	<artifactId>dynamo-functional-domain-frontend</artifactId>
 	<packaging>jar</packaging>
-	<name>Dynamo Framework - Envers</name>
+	<name>Dynamo Framework - Functional extension - Domain Frontend</name>
 	<url>https://github.com/opencirclesolutions/dynamo</url>
 	<parent>
 		<groupId>org.dynamoframework</groupId>
@@ -23,34 +23,20 @@
 		</license>
 	</licenses>
 	<dependencies>
-		<!-- Hibernate -->
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
-			<scope>provided</scope>
-		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>dynamo-api</artifactId>
+			<artifactId>dynamo-functional-domain</artifactId>
 			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>dynamo-impl</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+		</dependency>	
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>dynamo-frontend</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<!-- Hibernate -->
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-envers</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate</groupId>
@@ -69,6 +55,10 @@
 			<artifactId>spring-tx</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-server</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.mysema.querydsl</groupId>
 			<artifactId>querydsl-core</artifactId>
 		</dependency>
@@ -79,6 +69,11 @@
 		<dependency>
 			<groupId>com.mysema.querydsl</groupId>
 			<artifactId>querydsl-apt</artifactId>
+		</dependency>
+		<!-- JEE -->
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
 		</dependency>
 		<!-- Test -->
 		<dependency>
