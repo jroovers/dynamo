@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.ocs.dynamo.constants.DynamoConstants;
+import com.ocs.dynamo.domain.AbstractEntity;
+import com.ocs.dynamo.domain.model.AttributeModel;
 import com.ocs.dynamo.domain.model.EntityModel;
 import com.ocs.dynamo.exception.OCSRuntimeException;
 import com.ocs.dynamo.functional.domain.Domain;
@@ -35,6 +37,7 @@ import com.vaadin.data.util.filter.SimpleStringFilter;
 import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Field;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.VerticalLayout;
@@ -156,6 +159,11 @@ public class MultiDomainEditLayout extends BaseCustomComponent {
 		}
 	}
 
+	public <R extends AbstractEntity<?>> Field<?> constructCustomField(EntityModel<R> entityModel, AttributeModel attributeModel, boolean viewMode) {
+		// overwrite in subclasses
+		return null;
+	}
+
 	/**
 	 * Construct a split layout for a certain domain
 	 * 
@@ -199,6 +207,12 @@ public class MultiDomainEditLayout extends BaseCustomComponent {
 				@Override
 				protected void postProcessButtonBar(Layout buttonBar) {
 					MultiDomainEditLayout.this.postProcessButtonBar(buttonBar);
+				}
+
+				@Override
+				protected Field<?> constructCustomField(EntityModel<T> entityModel, AttributeModel attributeModel,
+						boolean viewMode, boolean searchMode) {
+					return MultiDomainEditLayout.this.constructCustomField(entityModel, attributeModel, viewMode);
 				}
 			};
 		} else {
