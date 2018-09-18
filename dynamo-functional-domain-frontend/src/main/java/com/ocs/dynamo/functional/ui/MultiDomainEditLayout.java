@@ -37,6 +37,7 @@ import com.vaadin.data.util.filter.SimpleStringFilter;
 import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.Field;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Layout;
@@ -159,7 +160,13 @@ public class MultiDomainEditLayout extends BaseCustomComponent {
 		}
 	}
 
-	public <R extends AbstractEntity<?>> Field<?> constructCustomField(EntityModel<R> entityModel, AttributeModel attributeModel, boolean viewMode) {
+	protected Component constructHeaderLayout() {
+		// overwrite in subclasses
+		return null;
+	}
+
+	protected <R extends AbstractEntity<?>> Field<?> constructCustomField(EntityModel<R> entityModel,
+			AttributeModel attributeModel, boolean viewMode) {
 		// overwrite in subclasses
 		return null;
 	}
@@ -180,7 +187,7 @@ public class MultiDomainEditLayout extends BaseCustomComponent {
 				.getServiceForEntity(domainClass);
 		if (baseService != null) {
 			EntityModel<T> em = getEntityModel(domainClass);
-			return new ServiceBasedSplitLayout<Integer, T>(baseService, em, QueryType.PAGING, formOptions,
+			return new ServiceBasedSplitLayout<Integer, T>(baseService, em, QueryType.ID_BASED, formOptions,
 					new SortOrder(Domain.ATTRIBUTE_NAME, SortDirection.ASCENDING)) {
 
 				private static final long serialVersionUID = -6504072714662771230L;
@@ -207,6 +214,11 @@ public class MultiDomainEditLayout extends BaseCustomComponent {
 				@Override
 				protected void postProcessButtonBar(Layout buttonBar) {
 					MultiDomainEditLayout.this.postProcessButtonBar(buttonBar);
+				}
+
+				@Override
+				protected Component constructHeaderLayout() {
+					return MultiDomainEditLayout.this.constructHeaderLayout();
 				}
 
 				@Override
