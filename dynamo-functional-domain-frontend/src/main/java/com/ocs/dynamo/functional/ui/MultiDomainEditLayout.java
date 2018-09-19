@@ -103,6 +103,10 @@ public class MultiDomainEditLayout extends BaseCustomComponent {
 		this.domainClasses = domainClasses;
 	}
 
+	public void afterSelectedDomainChanged() {
+
+	}
+
 	/**
 	 * Adds an entity model override
 	 * 
@@ -231,7 +235,6 @@ public class MultiDomainEditLayout extends BaseCustomComponent {
 				protected void postProcessLayout(Layout main) {
 					MultiDomainEditLayout.this.postProcessSplitLayout(main);
 				}
-
 			};
 		} else {
 			throw new OCSRuntimeException(message("ocs.no.service.class.found", domainClass));
@@ -347,5 +350,6 @@ public class MultiDomainEditLayout extends BaseCustomComponent {
 		ServiceBasedSplitLayout<?, ?> layout = constructSplitLayout(clazz, formOptions);
 		selectedDomainLayout.replaceComponent(splitLayout, layout);
 		splitLayout = layout;
+		afterSelectedDomainChanged();
 	}
 }
