@@ -160,13 +160,13 @@ public class MultiDomainEditLayout extends BaseCustomComponent {
 		}
 	}
 
-	protected Component constructHeaderLayout() {
+	protected <R extends AbstractEntity<?>> Field<?> constructCustomField(EntityModel<R> entityModel,
+			AttributeModel attributeModel, boolean viewMode) {
 		// overwrite in subclasses
 		return null;
 	}
 
-	protected <R extends AbstractEntity<?>> Field<?> constructCustomField(EntityModel<R> entityModel,
-			AttributeModel attributeModel, boolean viewMode) {
+	protected Component constructHeaderLayout() {
 		// overwrite in subclasses
 		return null;
 	}
@@ -193,6 +193,17 @@ public class MultiDomainEditLayout extends BaseCustomComponent {
 				private static final long serialVersionUID = -6504072714662771230L;
 
 				@Override
+				protected Field<?> constructCustomField(EntityModel<T> entityModel, AttributeModel attributeModel,
+						boolean viewMode, boolean searchMode) {
+					return MultiDomainEditLayout.this.constructCustomField(entityModel, attributeModel, viewMode);
+				}
+
+				@Override
+				protected Component constructHeaderLayout() {
+					return MultiDomainEditLayout.this.constructHeaderLayout();
+				}
+
+				@Override
 				protected Filter constructQuickSearchFilter(String value) {
 					return new Or(new SimpleStringFilter(Domain.ATTRIBUTE_NAME, value, true, false),
 							new SimpleStringFilter(Domain.ATTRIBUTE_CODE, value, true, false));
@@ -217,15 +228,10 @@ public class MultiDomainEditLayout extends BaseCustomComponent {
 				}
 
 				@Override
-				protected Component constructHeaderLayout() {
-					return MultiDomainEditLayout.this.constructHeaderLayout();
+				protected void postProcessLayout(Layout main) {
+					MultiDomainEditLayout.this.postProcessSplitLayout(main);
 				}
 
-				@Override
-				protected Field<?> constructCustomField(EntityModel<T> entityModel, AttributeModel attributeModel,
-						boolean viewMode, boolean searchMode) {
-					return MultiDomainEditLayout.this.constructCustomField(entityModel, attributeModel, viewMode);
-				}
 			};
 		} else {
 			throw new OCSRuntimeException(message("ocs.no.service.class.found", domainClass));
@@ -296,6 +302,15 @@ public class MultiDomainEditLayout extends BaseCustomComponent {
 	 * @param buttonBar
 	 */
 	protected void postProcessButtonBar(Layout buttonBar) {
+		// overwrite in subclasses
+	}
+
+	/**
+	 * Post processes the split layout after it has been created
+	 * 
+	 * @param main
+	 */
+	protected void postProcessSplitLayout(Layout main) {
 		// overwrite in subclasses
 	}
 
