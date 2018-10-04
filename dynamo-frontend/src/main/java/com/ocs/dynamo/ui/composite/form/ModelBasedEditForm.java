@@ -1022,7 +1022,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 				Integer fieldWidth = SystemPropertyUtils.getDefaultFieldWidth();
 
 				if (fieldWidth == null || sameRow || field instanceof DetailsEditLayout
-						|| !attributeModel.getGroupTogetherWith().isEmpty()) {
+						|| field instanceof FullWidthField || !attributeModel.getGroupTogetherWith().isEmpty()) {
 					field.setSizeFull();
 				} else {
 					field.setWidth(fieldWidth + "px");

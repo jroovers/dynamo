@@ -464,7 +464,7 @@ public interface EntityModel<T> {
 	boolean isAttributeGroupVisible(String group, boolean readOnly);
 
 	/**
-	 * @return whether only the default attribute gorup is used
+	 * @return whether only the default attribute group is used
 	 */
 	boolean usesDefaultGroupOnly();
 }
