@@ -1049,7 +1049,7 @@ public class EntityModelFactoryImpl implements EntityModelFactory, EntityModelCo
 			if (!StringUtils.isEmpty(attribute.replacementSearchPath())) {
 				model.setReplacementSearchPath(attribute.replacementSearchPath());
 			}
-			
+
 			if (!StringUtils.isEmpty(attribute.replacementSortPath())) {
 				model.setReplacementSortPath(attribute.replacementSortPath());
 			}
@@ -1388,7 +1388,7 @@ public class EntityModelFactoryImpl implements EntityModelFactory, EntityModelCo
 		if (!StringUtils.isEmpty(msg)) {
 			model.setReplacementSearchPath(msg);
 		}
-		
+
 		msg = getAttributeMessage(entityModel, model, EntityModel.REPLACEMENT_SORT_PATH);
 		if (!StringUtils.isEmpty(msg)) {
 			model.setReplacementSortPath(msg);
