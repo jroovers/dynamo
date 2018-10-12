@@ -52,7 +52,6 @@ import com.ocs.dynamo.filter.And;
 import com.ocs.dynamo.filter.Compare;
 import com.ocs.dynamo.filter.DynamoFilterUtil;
 import com.ocs.dynamo.filter.Filter;
-import com.ocs.dynamo.filter.FilterUtil;
 import com.ocs.dynamo.filter.In;
 import com.ocs.dynamo.filter.Like;
 import com.ocs.dynamo.filter.Not;

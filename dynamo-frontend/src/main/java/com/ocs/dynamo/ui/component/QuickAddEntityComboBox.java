@@ -46,13 +46,13 @@ public class QuickAddEntityComboBox<ID extends Serializable, T extends AbstractE
 		extends QuickAddEntityField<ID, T, T> implements Refreshable {
 
 	private static final long serialVersionUID = 4246187881499965296L;
-
+	
 	private final boolean quickAddAllowed;
-
+	
 	private final boolean directNavigationAllowed;
 
 	private static final float BUTTON_EXPAND_RATIO = 0.25f;
-
+	
 	/**
 	 * The combo box that we wrap this component around
 	 */
@@ -60,7 +60,7 @@ public class QuickAddEntityComboBox<ID extends Serializable, T extends AbstractE
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param entityModel
 	 *            the entity model
 	 * @param attributeModel
@@ -120,7 +120,11 @@ public class QuickAddEntityComboBox<ID extends Serializable, T extends AbstractE
 
 		// no caption needed (the wrapping component has the caption)
 		comboBox.setCaption(null);
-		comboBox.addValueChangeListener(event -> setValue((T) event.getProperty().getValue()));
+		comboBox.addValueChangeListener(event -> {
+			if (event.getProperty().getValue() != getValue()) {
+				setValue((T) event.getProperty().getValue());
+			}
+		});
 		comboBox.setSizeFull();
 
 		bar.addComponent(comboBox);
@@ -167,7 +171,7 @@ public class QuickAddEntityComboBox<ID extends Serializable, T extends AbstractE
 	public void setAdditionalFilter(Filter additionalFilter) {
 		super.setAdditionalFilter(additionalFilter);
 		if (comboBox != null) {
-			comboBox.refresh(getFilter() == null ? additionalFilter : new And(getFilter(), additionalFilter));
+			comboBox.refresh(getFilter() == null ? new And(additionalFilter) : new And(getFilter(), additionalFilter));
 		}
 	}
 
@@ -193,5 +197,4 @@ public class QuickAddEntityComboBox<ID extends Serializable, T extends AbstractE
 			comboBox.setComponentError(componentError);
 		}
 	}
-
 }

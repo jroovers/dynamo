@@ -58,7 +58,7 @@ public final class FormatUtils {
 
 	/**
 	 * Formats an entity
-	 * 
+	 *
 	 * @param entityModel
 	 *            the entity model
 	 * @param value
@@ -80,7 +80,7 @@ public final class FormatUtils {
 	/**
 	 * Formats a collection of entities (turns it into a comma-separated string
 	 * based on the value of the "displayProperty")
-	 * 
+	 *
 	 * @param entityModelFactory
 	 *            the entity model factory
 	 * @param collection
@@ -113,7 +113,7 @@ public final class FormatUtils {
 	/**
 	 * Formats a collection of entities into a comma-separated string that displays
 	 * the meaningful representations of the entities
-	 * 
+	 *
 	 * @param entityModelFactory
 	 *            the entity model factory
 	 * @param attributeModel
@@ -145,7 +145,7 @@ public final class FormatUtils {
 
 	/**
 	 * Formats a property value
-	 * 
+	 *
 	 * @param table
 	 *            the table in which the property occurs
 	 * @param entityModelFactory
@@ -197,7 +197,7 @@ public final class FormatUtils {
 
 	/**
 	 * Formats a property value
-	 * 
+	 *
 	 * @param entityModelFactory
 	 *            the entity model factory
 	 * @param entityModel
@@ -286,7 +286,7 @@ public final class FormatUtils {
 
 	/**
 	 * Restricts a value to its maximum length defined in the attribute model
-	 * 
+	 *
 	 * @param input
 	 *            the input value
 	 * @param am

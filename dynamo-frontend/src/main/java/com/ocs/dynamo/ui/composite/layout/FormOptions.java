@@ -92,12 +92,14 @@ public class FormOptions implements Serializable {
 	private boolean hideClearButton;
 
 	/**
+	 * 
 	 * Whether to open the form in view (read-only) mode
 	 */
 	private boolean openInViewMode;
 
 	/**
-	 * Whether to place the button bar at the top of the title label (rather than behind it)
+	 * Whether to place the button bar at the top of the title label (rather than
+	 * behind it)
 	 */
 	private boolean placeButtonBarAtTop;
 
@@ -132,8 +134,8 @@ public class FormOptions implements Serializable {
 	private boolean searchImmediately = true;
 
 	/**
-	 * Whether to display a back button inside an edit form. Usually managed by 
-	 * the framework.
+	 * Whether to display a back button inside an edit form. Usually managed by the
+	 * framework.
 	 */
 	private boolean showBackButton;
 
@@ -143,7 +145,8 @@ public class FormOptions implements Serializable {
 	private boolean showNextButton;
 
 	/**
-	 * Whether to display a "previous" button inside an edit form
+	 * 
+	 * Whether to display a "previous" buttoninside an edit form
 	 */
 	private boolean showPrevButton;
 
@@ -168,6 +171,7 @@ public class FormOptions implements Serializable {
 	private boolean showToggleButton;
 
 	/**
+	 * 
 	 * Indicates whether table export is allowed (read from system property)
 	 */
 	private boolean tableExportAllowed = SystemPropertyUtils.allowTableExport();
@@ -425,7 +429,7 @@ public class FormOptions implements Serializable {
 
 	/**
 	 * Shorthand method for showing/hiding the previous and next buttons
-	 * 
+	 *
 	 * @param show
 	 * @return
 	 */

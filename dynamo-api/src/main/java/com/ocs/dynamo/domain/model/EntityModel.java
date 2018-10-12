@@ -145,6 +145,11 @@ public interface EntityModel<T> {
 	String IMAGE = "image";
 
 	/**
+	 * Whether locales are restricted
+	 */
+	String LOCALES_RESTRICTED = "localesRestricted";
+
+	/**
 	 * Whether the attribute is the main attribute
 	 */
 	String MAIN = "main";
@@ -261,6 +266,11 @@ public interface EntityModel<T> {
 	String SEARCHABLE = "searchable";
 
 	/**
+	 * One or more styles for the field
+	 */
+	String STYLES = "styles";
+
+	/**
 	 * Indicates that a lookup field (rather than a combo box) must be used when
 	 * selecting the component
 	 */
@@ -324,7 +334,7 @@ public interface EntityModel<T> {
 
 	/**
 	 * Adds an attribute group
-	 * 
+	 *
 	 * @param attributeGroup
 	 *            the name of the attribute group
 	 */

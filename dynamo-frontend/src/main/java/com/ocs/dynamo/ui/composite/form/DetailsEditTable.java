@@ -174,16 +174,15 @@ public abstract class DetailsEditTable<ID extends Serializable, T extends Abstra
 	private UI ui = UI.getCurrent();
 
 	private ModelBasedSearchDialog<ID, T> dialog;
-
 	/**
-	 * Whether the table is in view mode. If this is the case, editing is not
+	 * Whether the table is in view mode. If this is the case, editing is not*
 	 * allowed and no buttons will be displayed
 	 */
 	private boolean viewMode;
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param items
 	 *            the entities to display
 	 * @param entityModel
@@ -205,15 +204,14 @@ public abstract class DetailsEditTable<ID extends Serializable, T extends Abstra
 	public void addEntity(T t) {
 		container.addBean(t);
 		if (receiver != null) {
-			receiver.signalDetailsComponentValid(DetailsEditTable.this,
-					VaadinUtils.allFixedTableFieldsValid(table));
+			receiver.signalDetailsComponentValid(DetailsEditTable.this, VaadinUtils.allFixedTableFieldsValid(table));
 		}
 	}
 
 	/**
 	 * Callback method that is called after selecting one or more items using the
 	 * search dialog
-	 * 
+	 *
 	 * @param selectedItems
 	 */
 	public void afterItemsSelected(Collection<T> selectedItems) {
@@ -222,7 +220,7 @@ public abstract class DetailsEditTable<ID extends Serializable, T extends Abstra
 
 	/**
 	 * Checks which buttons in the button bar must be enabled
-	 * 
+	 *
 	 * @param selectedItem
 	 */
 	protected void checkButtonState(T selectedItem) {
@@ -233,7 +231,7 @@ public abstract class DetailsEditTable<ID extends Serializable, T extends Abstra
 
 	/**
 	 * Constructs the button that is used for adding new items
-	 * 
+	 *
 	 * @param buttonBar
 	 *            the button bar
 	 */
@@ -254,7 +252,7 @@ public abstract class DetailsEditTable<ID extends Serializable, T extends Abstra
 
 	/**
 	 * Constructs the button bar
-	 * 
+	 *
 	 * @param parent
 	 *            the layout to which to add the button bar
 	 */
@@ -271,7 +269,7 @@ public abstract class DetailsEditTable<ID extends Serializable, T extends Abstra
 	/**
 	 * Method that is called to create a custom field. Override in subclasses if
 	 * needed
-	 * 
+	 *
 	 * @param entityModel
 	 *            the entity model of the entity that is displayed in the table
 	 * @param attributeModel
@@ -288,7 +286,7 @@ public abstract class DetailsEditTable<ID extends Serializable, T extends Abstra
 
 	/**
 	 * Constructs a button that brings up a search dialog
-	 * 
+	 *
 	 * @param buttonBar
 	 */
 	protected void constructSearchButton(Layout buttonBar) {
@@ -330,7 +328,7 @@ public abstract class DetailsEditTable<ID extends Serializable, T extends Abstra
 
 	/**
 	 * Creates a new entity - override in subclass
-	 * 
+	 *
 	 * @return
 	 */
 	protected abstract T createEntity();
@@ -501,12 +499,13 @@ public abstract class DetailsEditTable<ID extends Serializable, T extends Abstra
 
 		postConstruct();
 
+		postConstruct();
 		return layout;
 	}
 
 	/**
 	 * Indicates whether it is possible to add/modify items directly via the table
-	 * 
+	 *
 	 * @return
 	 */
 	private boolean isTableEditEnabled() {
@@ -520,7 +519,7 @@ public abstract class DetailsEditTable<ID extends Serializable, T extends Abstra
 	/**
 	 * Method that is called in order to enable/disable a button after selecting an
 	 * item in the table
-	 * 
+	 *
 	 * @param button
 	 * @return
 	 */
@@ -546,7 +545,7 @@ public abstract class DetailsEditTable<ID extends Serializable, T extends Abstra
 	/**
 	 * Callback method that is used to modify the button bar. Override in subclasses
 	 * if needed
-	 * 
+	 *
 	 * @param buttonBar
 	 */
 	protected void postProcessButtonBar(Layout buttonBar) {
@@ -561,7 +560,7 @@ public abstract class DetailsEditTable<ID extends Serializable, T extends Abstra
 	 * Registers a button that must be enabled/disabled after an item is selected.
 	 * use the "mustEnableButton" callback method to impose additional constraints
 	 * on when the button must be enabled
-	 * 
+	 *
 	 * @param button
 	 *            the button to register
 	 */
@@ -575,7 +574,7 @@ public abstract class DetailsEditTable<ID extends Serializable, T extends Abstra
 	/**
 	 * Callback method that is called when the remove button is clicked - allows
 	 * decoupling the entity from its master
-	 * 
+	 *
 	 * @param toRemove
 	 */
 	protected abstract void removeEntity(T toRemove);
@@ -600,7 +599,7 @@ public abstract class DetailsEditTable<ID extends Serializable, T extends Abstra
 
 	/**
 	 * Refreshes the items that are displayed in the table
-	 * 
+	 *
 	 * @param items
 	 *            the new set of items to be displayed
 	 */
@@ -627,7 +626,7 @@ public abstract class DetailsEditTable<ID extends Serializable, T extends Abstra
 
 	/**
 	 * This method is called to store a reference to the parent form
-	 * 
+	 *
 	 * @param parentForm
 	 */
 	private void setReceiver(ReceivesSignal receiver) {

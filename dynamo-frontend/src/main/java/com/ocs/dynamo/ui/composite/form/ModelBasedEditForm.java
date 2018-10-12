@@ -42,6 +42,7 @@ import com.ocs.dynamo.domain.model.AttributeType;
 import com.ocs.dynamo.domain.model.CascadeMode;
 import com.ocs.dynamo.domain.model.EditableType;
 import com.ocs.dynamo.domain.model.EntityModel;
+import com.ocs.dynamo.domain.model.impl.FieldFactoryContextImpl;
 import com.ocs.dynamo.domain.model.impl.ModelBasedFieldFactory;
 import com.ocs.dynamo.exception.OCSRuntimeException;
 import com.ocs.dynamo.service.BaseService;
@@ -49,6 +50,7 @@ import com.ocs.dynamo.ui.CanAssignEntity;
 import com.ocs.dynamo.ui.Refreshable;
 import com.ocs.dynamo.ui.component.Cascadable;
 import com.ocs.dynamo.ui.component.CollapsiblePanel;
+import com.ocs.dynamo.ui.component.CustomEntityField;
 import com.ocs.dynamo.ui.component.DefaultEmbedded;
 import com.ocs.dynamo.ui.component.DefaultHorizontalLayout;
 import com.ocs.dynamo.ui.component.DefaultVerticalLayout;
@@ -94,12 +96,12 @@ import com.vaadin.ui.VerticalLayout;
 
 /**
  * An edit form that is constructed based on an entity model
- * 
- * @author bas.rutten
+ *
  * @param <ID>
  *            the type of the primary key
  * @param <T>
  *            the type of the entity
+ * @author bas.rutten
  */
 @SuppressWarnings("serial")
 public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntity<ID>>
@@ -107,9 +109,8 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 
 	/**
 	 * A custom field that can be used to upload a file
-	 * 
-	 * @author bas.ruttent
 	 *
+	 * @author bas.ruttent
 	 */
 	private final class UploadComponent extends CustomField<byte[]> {
 
@@ -173,7 +174,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 
 	/**
 	 * Callback object for handling a file upload
-	 * 
+	 *
 	 * @author bas.rutten
 	 */
 	private final class UploadReceiver implements SucceededListener, Receiver {
@@ -193,7 +194,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 
 		/**
 		 * Constructor
-		 * 
+		 *
 		 * @param target
 		 *            the target component that must be updated after an upload
 		 * @param fieldName
@@ -360,7 +361,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param entity
 	 *            the entity
 	 * @param service
@@ -412,7 +413,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 
 	/**
 	 * Adds a field for a certain attribute
-	 * 
+	 *
 	 * @param parent
 	 *            the layout to which to add the field
 	 * @param entityModel
@@ -426,7 +427,6 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 		if (!alreadyBound.get(isViewMode()).contains(attributeModel.getPath()) && attributeModel.isVisible()
 				&& (AttributeType.BASIC.equals(type) || AttributeType.LOB.equals(type)
 						|| attributeModel.isComplexEditable())) {
-
 			if (EditableType.READ_ONLY.equals(attributeModel.getEditableType()) || isViewMode()) {
 				if (attributeModel.isUrl()) {
 					// display a complex component even in read-only mode
@@ -436,10 +436,15 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 					Component c = constructImagePreview(attributeModel);
 					parent.addComponent(c);
 					previews.get(isViewMode()).put(attributeModel, c);
+				} else if (AttributeType.LOB.equals(type) && attributeModel.isImage()) {
+					// image preview
+					Component c = constructImagePreview(attributeModel);
+					parent.addComponent(c);
+					previews.get(isViewMode()).put(attributeModel, c);
 				} else if (AttributeType.DETAIL.equals(type) && attributeModel.isComplexEditable()) {
 					Field<?> f = constructCustomField(entityModel, attributeModel, viewMode);
-					if (f instanceof UseInViewMode) {
-						// a details edit table or details edit layout must always be displayed
+					if (f instanceof DetailsEditTable) {
+						// a details edit table or details edit layoutmust alwaysbe displayed
 						constructField(parent, entityModel, attributeModel, true, tabIndex, sameRow);
 					} else {
 						constructLabel(parent, entityModel, attributeModel, tabIndex, sameRow);
@@ -448,7 +453,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 					Field<?> f = constructCustomField(entityModel, attributeModel, viewMode);
 					if (f instanceof UseInViewMode) {
 						constructField(parent, entityModel, attributeModel, true, tabIndex, sameRow);
-					} else {
+					} else { 
 						// otherwise display a label
 						constructLabel(parent, entityModel, attributeModel, tabIndex, sameRow);
 					}
@@ -472,7 +477,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 
 	/**
 	 * Add a listener to respond to a tab change and focus the first available field
-	 * 
+	 *
 	 * @param tabSheet
 	 */
 	private void addTabChangeListener(TabSheet tabSheet) {
@@ -491,7 +496,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 
 	/**
 	 * Method that is called after the user is done editing an entity
-	 * 
+	 *
 	 * @param cancel
 	 *            whether the user cancelled the editing
 	 * @param newObject
@@ -506,7 +511,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 	/**
 	 * Respond to the setting of a new entity as the selected entity. This can be
 	 * used to fetch any additionally required data
-	 * 
+	 *
 	 * @param entity
 	 *            the entity
 	 */
@@ -515,7 +520,6 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 	}
 
 	/**
-	 * 
 	 * @param layout
 	 * @param viewMode
 	 */
@@ -533,7 +537,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 
 	/**
 	 * Callback method that is called after a tab has been selected
-	 * 
+	 *
 	 * @param tabIndex
 	 *            the zero-based index of the selected tab
 	 */
@@ -543,7 +547,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 
 	/**
 	 * Called after the user navigates back to a search screen using the back button
-	 * 
+	 *
 	 * @return
 	 */
 	protected void back() {
@@ -594,7 +598,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 
 	/**
 	 * Constructs the main layout of the screen
-	 * 
+	 *
 	 * @param entityModel
 	 * @return
 	 */
@@ -602,6 +606,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 		VerticalLayout layout = new DefaultVerticalLayout(false, true);
 
 		titleLabels.put(isViewMode(), constructTitleLabel());
+
 		titleBars.put(isViewMode(), new DefaultHorizontalLayout(false, true, true));
 		titleBars.get(isViewMode()).addComponent(titleLabels.get(isViewMode()));
 
@@ -666,6 +671,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 				// just one layer of attribute groups
 				int tabIndex = 0;
 				for (String attributeGroup : entityModel.getAttributeGroups()) {
+
 					if (entityModel.isAttributeGroupVisible(attributeGroup, isViewMode())) {
 						Layout innerForm = constructAttributeGroupLayout(form, tabs, tabSheets.get(isViewMode()),
 								attributeGroup, true);
@@ -716,7 +722,6 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 			}
 
 		}
-
 		checkSaveButtonState();
 		disableCreateOnlyFields();
 		afterLayoutBuilt(form, isViewMode());
@@ -727,7 +732,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 	/**
 	 * Checks the state of the iteration (prev/next) buttons. These will be shown in
 	 * view mode or if the form only supports an edit mode
-	 * 
+	 *
 	 * @param checkEnabled
 	 *            whether to check if the buttons should be enabled
 	 */
@@ -751,7 +756,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 	}
 
 	/**
-	 * Sets the state (enabled/disabled) of the save button. The button is enabled
+	 * Sets the state (enabled/disabled) of the save button. The button is* enabled*
 	 * if the from is valid and all of its detail tables are as well
 	 */
 	private void checkSaveButtonState() {
@@ -767,8 +772,8 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 	}
 
 	/**
-	 * Check if the form is valid
-	 * 
+	 * Check if the form isvalid *
+	 *
 	 * @return
 	 */
 	public boolean isValid() {
@@ -779,14 +784,14 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 
 	/**
 	 * Construct the layout (form and panel) for an attribute group
-	 * 
+	 *
 	 * @param parent
 	 *            the parent component
 	 * @param tabs
 	 *            whether to include the component in a tab sheet
 	 * @param tabSheet
 	 *            the parent tab sheet (only used if the "tabs" parameter is true)
-	 * @param caption
+	 * @param messageKey
 	 *            caption of the panel or tab sheet
 	 * @param lowest
 	 *            indicates whether this is the lowest level
@@ -852,6 +857,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 			Button saveButton = constructSaveButton(bottom);
 			buttonBar.addComponent(saveButton);
 			buttons.get(isViewMode()).add(saveButton);
+
 		}
 
 		// create the edit button
@@ -935,7 +941,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 
 	/**
 	 * Creates a custom field
-	 * 
+	 *
 	 * @param entityModel
 	 *            the entity model to base the field on
 	 * @param attributeModel
@@ -958,7 +964,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 
 	/**
 	 * Constructs a field or label for a certain attribute
-	 * 
+	 *
 	 * @param parent
 	 *            the parent layout to which to add the field
 	 * @param entityModel
@@ -968,16 +974,21 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 	 * @param viewMode
 	 *            whether the screen is in view mode
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void constructField(Layout parent, EntityModel<T> entityModel, AttributeModel attributeModel,
 			boolean viewMode, int tabIndex, boolean sameRow) {
-
-		EntityModel<?> em = getFieldEntityModel(attributeModel);
 		// allow the user to override the construction of a field
 		Field<?> field = constructCustomField(entityModel, attributeModel, viewMode);
 		if (field == null) {
 			// if no custom field is defined, then use the default
-			field = fieldFactory.constructField(attributeModel, getFieldFilters(), em);
+			FieldFactoryContextImpl c = new FieldFactoryContextImpl()
+					.setFieldEntityModel((EntityModel) getFieldEntityModel(attributeModel));
+			c.setAttributeModel(attributeModel);
+			c.setFieldFilters(getFieldFilters());
+			c.setParentEntity(entity);
+			c.setViewMode(viewMode);
+
+			field = fieldFactory.constructField(c);
 		}
 
 		if (field instanceof URLField) {
@@ -1009,14 +1020,12 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 					field.setWidth(fieldWidth + "px");
 				}
 			}
-
 			groups.get(viewMode).bind(field, attributeModel.getName());
 
 			if (!attributeModel.getGroupTogetherWith().isEmpty()) {
 				// multiple fields behind each other
 				HorizontalLayout horizontal = constructRowLayout(attributeModel, attributeModel.isRequired(),
 						!(field instanceof CheckBox));
-
 				Integer fieldWidth = SystemPropertyUtils.getDefaultFieldWidth();
 				if (fieldWidth == null || nestedMode) {
 					horizontal.setSizeFull();
@@ -1045,9 +1054,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 				horizontal.addComponent(fl);
 
 				float ep = attributeModel.getExpansionFactor() / sums;
-				horizontal.setExpandRatio(fl, ep);
-
-				// form layout for any of the other fields
+				horizontal.setExpandRatio(fl, ep); // form layout for any of the other fields
 				for (String path : attributeModel.getGroupTogetherWith()) {
 					AttributeModel nestedAm = getEntityModel().getAttributeModel(path);
 					if (nestedAm != null) {
@@ -1080,13 +1087,13 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 
 	/**
 	 * Constructs a label
-	 * 
+	 *
 	 * @param parent
 	 *            the parent component to which the label must be added
 	 * @param entityModel
 	 *            the entity model
 	 * @param attributeModel
-	 *            the attribute model for the attribute for which to create a label
+	 *            the attribute model for the attribute for which to create a* label
 	 * @param tabIndex
 	 *            the number of components added so far
 	 */
@@ -1113,6 +1120,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 					horizontal.addComponent(fl2);
 					addField(fl2, getEntityModel(), am, tabIndex, sameRow);
 				}
+
 			}
 		} else {
 			parent.addComponent(label);
@@ -1122,7 +1130,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 	/**
 	 * Constructs a form layout that is nested inside a horizontal layout when
 	 * displaying multiple attributes in the same row
-	 * 
+	 *
 	 * @param first
 	 *            whether this is the layout for the first component
 	 * @return
@@ -1139,14 +1147,13 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 	}
 
 	/**
-	 * Constructs a layout that serves as the basis for displaying multiple input
+	 * Constructs a layout that serves as the basis for displaying multiple* input*
 	 * components in a single row
-	 * 
+	 *
 	 * @param attributeModel
 	 *            the attribute model for the first attribute
 	 * @param required
 	 *            whether to mark the first field as required
-	 * 
 	 * @return
 	 */
 	private HorizontalLayout constructRowLayout(AttributeModel attributeModel, boolean required, boolean setCaption) {
@@ -1157,14 +1164,15 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 		horizontal.setStyleName(DynamoConstants.CSS_NESTED, true);
 		if (required) {
 			horizontal.setStyleName(DynamoConstants.CSS_NESTED + " " + DynamoConstants.CSS_REQUIRED, true);
+
 		}
 		return horizontal;
 	}
 
 	/**
 	 * Constructs the save button
-	 * 
-	 * @param boolean
+	 *
+	 * @param bottom
 	 *            indicates whether this is the button at the bottom of the screen
 	 */
 	private Button constructSaveButton(boolean bottom) {
@@ -1257,8 +1265,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 
 	/**
 	 * Constructs an upload field
-	 * 
-	 * @param entityModel
+	 *
 	 * @param attributeModel
 	 */
 	private UploadComponent constructUploadField(AttributeModel attributeModel) {
@@ -1312,7 +1319,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 	 * Sets the "required" status for a field. Convenience method that also
 	 * correctly handles the situation in which there are multiple fields behind
 	 * each other on the same row
-	 * 
+	 *
 	 * @param propertyName
 	 * @param required
 	 */
@@ -1362,7 +1369,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 
 	/**
 	 * Method that is called to select the next entity in a data set
-	 * 
+	 *
 	 * @param current
 	 *            the currently selected entity
 	 * @return
@@ -1377,7 +1384,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 	 * group must be mentioned in the result of the
 	 * <code>getParentGroupHeaders</code> method. The childGroup must be the name of
 	 * an attribute group from the entity model
-	 * 
+	 *
 	 * @param childGroup
 	 * @return
 	 */
@@ -1389,7 +1396,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 	 * Returns the group headers of any additional parent groups that must be
 	 * included in the form. These can be used to add an extra layer of nesting of
 	 * the attribute groups
-	 * 
+	 *
 	 * @return
 	 */
 	protected String[] getParentGroupHeaders() {
@@ -1430,7 +1437,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 
 	/**
 	 * Check whether a certain attribute group is visible
-	 * 
+	 *
 	 * @param key
 	 *            the message key by which the group is identifier
 	 * @return
@@ -1442,7 +1449,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 
 	/**
 	 * Indicates whether it is allowed to edit this component
-	 * 
+	 *
 	 * @return
 	 */
 	protected boolean isEditAllowed() {
@@ -1451,7 +1458,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 
 	/**
 	 * Check if a certain attribute group is visible
-	 * 
+	 *
 	 * @param c
 	 *            the component representing the attribute group
 	 * @return
@@ -1477,7 +1484,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 
 	/**
 	 * Post-processes the button bar that is displayed above/below the edit form
-	 * 
+	 *
 	 * @param buttonBar
 	 * @param viewMode
 	 */
@@ -1496,7 +1503,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 
 	/**
 	 * Processes all fields that are part of a property group
-	 * 
+	 *
 	 * @param parentGroupHeader
 	 *            the group header
 	 * @param innerForm
@@ -1505,7 +1512,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 	 *            whether we are displaying tabs
 	 * @param innerTabSheet
 	 *            the tab sheet to which to add the fields
-	 * @param startCount
+	 * @param tabIndex
 	 */
 	private void processParentHeaderGroup(String parentGroupHeader, Layout innerForm, boolean innerTabs,
 			TabSheet innerTabSheet, int tabIndex) {
@@ -1570,7 +1577,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 
 	/**
 	 * Replaces a label (in response to a change)
-	 * 
+	 *
 	 * @param propertyName
 	 */
 	public void refreshLabel(String propertyName) {
@@ -1593,7 +1600,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 
 	/**
 	 * Replaces an existing label by a label with the provided value
-	 * 
+	 *
 	 * @param propertyName
 	 *            the name of the property for which to replace the label
 	 * @param value
@@ -1647,7 +1654,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 
 	/**
 	 * Selects the tab specified by the provided index
-	 * 
+	 *
 	 * @param index
 	 */
 	public void selectTab(int index) {
@@ -1667,8 +1674,8 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 
 	/**
 	 * Shows/hides an attribute group
-	 * 
-	 * @param caption
+	 *
+	 * @param key
 	 *            the message key by which the group is identified
 	 * @param visible
 	 *            whether to show/hide the group
@@ -1693,9 +1700,9 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 	}
 
 	/**
-	 * Shows or hides the component for a certain property - this will work
+	 * Shows or hides the component for a certain property - this will work*
 	 * regardless of the view
-	 * 
+	 *
 	 * @param propertyName
 	 *            the name of the property for which to show/hide the property
 	 * @param visible
@@ -1718,12 +1725,22 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 
 	private void setEntity(T entity, boolean checkIterationButtons) {
 		this.entity = entity;
-		afterEntitySet(this.entity);
+		// refresh any fields that need it
+		for (Field<?> f : groups.get(isViewMode()).getFields()) {
+			Object pid = groups.get(viewMode).getPropertyId(f);
+			if (f instanceof CustomEntityField && getFieldFilters().containsKey(pid)) {
+				Filter ff = getFieldFilters().get(pid);
+				((CustomEntityField) f).refresh(ff);
+			} else if (f instanceof Refreshable) {
+				((Refreshable) f).refresh();
+			}
+		}
 
-		// inform all children
+		// Inform all children
 		for (CanAssignEntity<ID, T> field : assignEntityToFields) {
 			field.assignEntity(entity);
 		}
+		afterEntitySet(this.entity);
 
 		setViewMode(getFormOptions().isOpenInViewMode() && entity.getId() != null, checkIterationButtons);
 
@@ -1755,13 +1772,6 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 			}
 		}
 
-		// refresh any fields that need it
-		for (Field<?> f : groups.get(isViewMode()).getFields()) {
-			if (f instanceof Refreshable) {
-				((Refreshable) f).refresh();
-			}
-		}
-
 		// enable/disable fields for create only mode
 		disableCreateOnlyFields();
 
@@ -1790,7 +1800,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 
 	/**
 	 * Hides/shows a group of components
-	 * 
+	 *
 	 * @param c
 	 *            the parent component of the group
 	 * @param visible
@@ -1808,7 +1818,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 
 	/**
 	 * Shows or hides a label
-	 * 
+	 *
 	 * @param propertyName
 	 *            the name of the property for which to show/hide the label
 	 * @param visible
@@ -1841,7 +1851,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 
 	/**
 	 * Switches the form from or to view mode
-	 * 
+	 *
 	 * @param viewMode
 	 *            the new view mode
 	 */
@@ -1886,7 +1896,6 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 		}
 
 		resetComponentErrors();
-
 		if (oldMode != this.viewMode) {
 			afterModeChanged(isViewMode());
 			for (Field<?> f : groups.get(isViewMode()).getFields()) {
@@ -1900,7 +1909,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 
 	/**
 	 * Overwrite the value of the title label
-	 * 
+	 *
 	 * @param value
 	 *            the desired value
 	 */
@@ -1910,12 +1919,13 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 
 	/**
 	 * Method used the notify this form that a detail component is valid or not
-	 * 
+	 *
 	 * @param component
 	 *            the component
 	 * @param valid
 	 *            whether the component is valid
 	 */
+	@Override
 	public void signalDetailsComponentValid(SignalsParent component, boolean valid) {
 		if (ValidationMode.DISABLE_BUTTON.equals(getFormOptions().getValidationMode())) {
 			detailComponentsValid.put(component, valid);
@@ -1928,7 +1938,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 
 	/**
 	 * Apply styling to a label
-	 * 
+	 *
 	 * @param propertyName
 	 *            the name of the property
 	 * @param className
@@ -1995,9 +2005,10 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 
 	/**
 	 * Validates all fields and returns true if an error occurs
-	 * 
+	 *
 	 * @return
 	 */
+	@Override
 	public boolean validateAllFields() {
 		boolean error = false;
 		if (ValidationMode.VALIDATE_DIRECTLY.equals(getFormOptions().getValidationMode())) {

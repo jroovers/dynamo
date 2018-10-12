@@ -123,7 +123,7 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param searchable
 	 * @param entityModel
 	 * @param formOptions
@@ -149,7 +149,7 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 	/**
 	 * Callback method that is called when the user toggles the visibility of the
 	 * search form
-	 * 
+	 *
 	 * @param visible
 	 *            indicates if the search fields are visible now
 	 */
@@ -173,13 +173,13 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 			filterLayout = constructFilterLayout();
 			if (filterLayout.isVisible()) {
 
-				// add a wrapper for adding an action handler
+				// add a wrapper for adding an action handlers
 				wrapperPanel = new Panel();
 				main.addComponent(wrapperPanel);
 
 				wrapperPanel.setContent(filterLayout);
 
-				// action handler for carrying out a search after an Enter press
+				// action handlers for carrying out a search after an Enter press
 				wrapperPanel.addActionHandler(new Handler() {
 
 					private static final long serialVersionUID = -2136828212405809213L;
@@ -250,7 +250,7 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 
 	/**
 	 * Creates buttons and adds them to the button bar
-	 * 
+	 *
 	 * @param buttonBar
 	 *            the button bar
 	 */
@@ -272,7 +272,7 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 
 	/**
 	 * Creates a custom field - override in subclasses if needed
-	 * 
+	 *
 	 * @param entityModel
 	 *            the entity model of the entity to search for
 	 * @param attributeModel
@@ -286,7 +286,7 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 
 	/**
 	 * Constructs the layout that holds all the filter components
-	 * 
+	 *
 	 * @return
 	 */
 	protected abstract Layout constructFilterLayout();
@@ -388,7 +388,7 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 
 	/**
 	 * Checks whether a filter is set for a certain attribute
-	 * 
+	 *
 	 * @param path
 	 *            the path to the attribute
 	 * @return
@@ -403,7 +403,7 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 	}
 
 	/**
-	 * 
+	 *
 	 * @return the number of filters
 	 */
 	public int getFilterCount() {
@@ -413,7 +413,7 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 	/**
 	 * Searching is allowed when there are no required attributes or all required
 	 * attributes are in the composite filter.
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean isSearchAllowed() {
@@ -442,18 +442,21 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 	 */
 	@Override
 	public void onFilterChange(FilterChangeEvent event) {
-		if (event.getOldFilter() != null) {
-			currentFilters.remove(event.getOldFilter());
-		}
-		if (event.getNewFilter() != null) {
-			currentFilters.add(event.getNewFilter());
+		AttributeModel am = getEntityModel().getAttributeModel(event.getPropertyId());
+		if (am == null || !am.isTransient()) {
+			if (event.getOldFilter() != null) {
+				currentFilters.remove(event.getOldFilter());
+			}
+			if (event.getNewFilter() != null) {
+				currentFilters.add(event.getNewFilter());
+			}
 		}
 		searchButton.setEnabled(isSearchAllowed());
 	}
 
 	/**
 	 * Callback method that allows the user to modify the button bar
-	 * 
+	 *
 	 * @param groups
 	 */
 	protected void postProcessButtonBar(Layout buttonBar) {
@@ -462,7 +465,7 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 
 	/**
 	 * Perform any actions necessary after the layout has been build
-	 * 
+	 *
 	 * @param main
 	 *            the layout
 	 */
@@ -473,7 +476,7 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 	/**
 	 * Pre-process the layout - this method is called directly after the main layout
 	 * has been created
-	 * 
+	 *
 	 * @param main
 	 *            the layout
 	 */
@@ -503,7 +506,7 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 
 	/**
 	 * Carries out a search
-	 * 
+	 *
 	 * @param skipValidation
 	 *            whether to skip validation before searching
 	 * @param matchAny
@@ -540,7 +543,7 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 
 	/**
 	 * Sets the searchable
-	 * 
+	 *
 	 * @param searchable
 	 *            the searchable
 	 */
@@ -550,7 +553,7 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 
 	/**
 	 * Toggles the visibility of the search form
-	 * 
+	 *
 	 * @param show
 	 *            whether to show or hide the form
 	 */

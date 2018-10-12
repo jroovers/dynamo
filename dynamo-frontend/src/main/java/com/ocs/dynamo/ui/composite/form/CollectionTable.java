@@ -82,27 +82,33 @@ public class CollectionTable<T extends Serializable> extends CustomField<Collect
 	 */
 	private Button addButton;
 	/**
-	 * Form options that determine which buttons and functionalities are available
+	 * 
+	 * Form options that determine which buttons and functionalities are* available
 	 */
 	private FormOptions formOptions;
 	/**
+	 * 
 	 * The number of rows to display
 	 */
 	private int pageLength = SystemPropertyUtils.getDefaultListSelectRows();
+
 	/**
 	 * The parent form in which this component is embedded
 	 */
 	private ModelBasedEditForm<?, ?> parentForm;
+
 	/**
 	 * Whether to propagate change events (disabled during construction)
 	 */
 	private boolean propagateChanges = true;
 	/**
+	 * 
 	 * the currently selected item in the table
 	 */
 	private Object selectedItem;
 	/**
-	 * Whether the table is in view mode. If this is the case, editing is not
+	 * 
+	 * Whether the table is in view mode. If this is the case, editing is not*
 	 * allowed
 	 */
 	private boolean viewMode;
@@ -145,7 +151,7 @@ public class CollectionTable<T extends Serializable> extends CustomField<Collect
 
 	/**
 	 * Constructs the button bar
-	 *
+	 * 
 	 * @param parent
 	 *            the parent layout
 	 */
@@ -183,7 +189,7 @@ public class CollectionTable<T extends Serializable> extends CustomField<Collect
 
 	/**
 	 * Extracts the values from the table and returns them as a Set
-	 *
+	 * 
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
@@ -354,6 +360,7 @@ public class CollectionTable<T extends Serializable> extends CustomField<Collect
 						parentForm.signalDetailsComponentValid(CollectionTable.this,
 								VaadinUtils.allFixedTableFieldsValid(table));
 						propagateChanges = true;
+
 					}
 				});
 				return f;

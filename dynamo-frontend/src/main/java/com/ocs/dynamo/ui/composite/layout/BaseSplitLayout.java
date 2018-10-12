@@ -91,7 +91,7 @@ public abstract class BaseSplitLayout<ID extends Serializable, T extends Abstrac
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param service
 	 *            the service used to query the database
 	 * @param entityModel
@@ -111,7 +111,7 @@ public abstract class BaseSplitLayout<ID extends Serializable, T extends Abstrac
 	/**
 	 * Perform any actions after the screen reloads after an entity was saved.
 	 * Override in subclasses if needed
-	 * 
+	 *
 	 * @param entity
 	 */
 	protected void afterReload(T entity) {
@@ -236,7 +236,7 @@ public abstract class BaseSplitLayout<ID extends Serializable, T extends Abstrac
 	/**
 	 * Constructs a header layout (displayed above the actual tabular content). By
 	 * defualt this is empty, overwrite in subclasses if you want to modify this
-	 * 
+	 *
 	 * @return
 	 */
 	protected Component constructHeaderLayout() {
@@ -267,17 +267,17 @@ public abstract class BaseSplitLayout<ID extends Serializable, T extends Abstrac
 
 	/**
 	 * Constructs the quick search field - overridden in subclasses.
-	 * 
+	 *
 	 * Do not override this method as an end user - implement the
 	 * "constructQuickSearchFilter" instead
-	 * 
+	 *
 	 * @return
 	 */
 	protected abstract TextField constructSearchField();
 
 	/**
 	 * Fills the detail part of the screen with a custom component
-	 * 
+	 *
 	 * @param component
 	 *            the custom component
 	 */
@@ -288,7 +288,7 @@ public abstract class BaseSplitLayout<ID extends Serializable, T extends Abstrac
 
 	/**
 	 * Shows the details of a selected entity
-	 * 
+	 *
 	 * @param parent
 	 *            the parent of the entity
 	 * @param entity
@@ -306,11 +306,15 @@ public abstract class BaseSplitLayout<ID extends Serializable, T extends Abstrac
 
 				@Override
 				protected void afterEditDone(boolean cancel, boolean newObject, T entity) {
-					// update the selected item so master and detail are in sync
-					// again
-					reload();
-					detailsMode(entity);
-					afterReload(entity);
+					if (!cancel) {
+						// update the selected item so master and detail are in sync
+						// again
+						reload();
+						detailsMode(entity);
+						afterReload(entity);
+					} else {
+						reload();
+					}
 				}
 
 				@Override
@@ -374,7 +378,6 @@ public abstract class BaseSplitLayout<ID extends Serializable, T extends Abstrac
 			detailFormLayout.addComponent(editForm);
 		} else {
 			// reset the form's view mode if needed
-			editForm.setViewMode(getFormOptions().isOpenInViewMode());
 			editForm.setEntity(entity);
 			editForm.resetTab();
 		}
@@ -442,7 +445,7 @@ public abstract class BaseSplitLayout<ID extends Serializable, T extends Abstrac
 
 	/**
 	 * Indicates whether the panel is in horizontal mode
-	 * 
+	 *
 	 * @return
 	 */
 	protected boolean isHorizontalMode() {
@@ -457,7 +460,7 @@ public abstract class BaseSplitLayout<ID extends Serializable, T extends Abstrac
 	/**
 	 * Replaces the contents of a label by its current value. Use in response to an
 	 * automatic update if a field
-	 * 
+	 *
 	 * @param propertyName
 	 *            the name of the property for which to replace the label
 	 */
@@ -519,7 +522,7 @@ public abstract class BaseSplitLayout<ID extends Serializable, T extends Abstrac
 
 	/**
 	 * Reselects the entity
-	 * 
+	 *
 	 * @param t
 	 *            entity to reselect
 	 */
@@ -549,4 +552,5 @@ public abstract class BaseSplitLayout<ID extends Serializable, T extends Abstrac
 			editForm.setViewMode(viewMode);
 		}
 	}
+
 }

@@ -47,10 +47,10 @@ public class AttributeModelImpl implements AttributeModel {
 
 	private AttributeType attributeType;
 
-	private Map<String, String> cascadeAttributes = new HashMap<>();
+	private final Map<String, String> cascadeAttributes = new HashMap<>();
 
 	private Map<String, CascadeMode> cascadeModes = new HashMap<>();
-
+	
 	private CheckboxMode checkboxMode;
 
 	private String collectionTableFieldName;
@@ -85,9 +85,11 @@ public class AttributeModelImpl implements AttributeModel {
 
 	private String fileNameProperty;
 
-	private List<String> groupTogetherWith = new ArrayList<>();
+	private final List<String> groupTogetherWith = new ArrayList<>();
 
 	private boolean image;
+
+	private boolean localesRestricted;
 
 	private boolean mainAttribute;
 
@@ -145,9 +147,11 @@ public class AttributeModelImpl implements AttributeModel {
 
 	private AttributeSelectMode selectMode;
 
+	private String styles;
+
 	private boolean sortable;
 
-	private AttributeTextFieldMode textFieldMode;
+    private AttributeTextFieldMode textFieldMode;
 
 	private boolean trans;
 
@@ -166,18 +170,18 @@ public class AttributeModelImpl implements AttributeModel {
 	private boolean week;
 
 	@Override
-	public void addCascade(String cascadeTo, String filterPath, CascadeMode mode) {
+	public void addCascade(final String cascadeTo, final String filterPath, final CascadeMode mode) {
 		this.cascadeAttributes.put(cascadeTo, filterPath);
 		this.cascadeModes.put(cascadeTo, mode);
 	}
 
 	@Override
-	public void addGroupTogetherWith(String path) {
+	public void addGroupTogetherWith(final String path) {
 		groupTogetherWith.add(path);
 	}
 
 	@Override
-	public int compareTo(AttributeModel o) {
+	public int compareTo(final AttributeModel o) {
 		return this.getOrder() - o.getOrder();
 	}
 
@@ -197,12 +201,12 @@ public class AttributeModelImpl implements AttributeModel {
 	}
 
 	@Override
-	public String getCascadeFilterPath(String cascadeTo) {
+	public String getCascadeFilterPath(final String cascadeTo) {
 		return this.cascadeAttributes.get(cascadeTo);
 	}
 
 	@Override
-	public CascadeMode getCascadeMode(String cascadeTo) {
+	public CascadeMode getCascadeMode(final String cascadeTo) {
 		return this.cascadeModes.get(cascadeTo);
 	}
 
@@ -246,6 +250,7 @@ public class AttributeModelImpl implements AttributeModel {
 		return displayName;
 	}
 
+	@Override
 	public EditableType getEditableType() {
 		return editableType;
 	}
@@ -332,8 +337,8 @@ public class AttributeModelImpl implements AttributeModel {
 
 	@Override
 	public String getPath() {
-		String reference = entityModel.getReference();
-		int p = reference.indexOf('.');
+		final String reference = entityModel.getReference();
+		final int p = reference.indexOf('.');
 
 		if (p <= 0) {
 			return name;
@@ -376,10 +381,26 @@ public class AttributeModelImpl implements AttributeModel {
 		return selectMode;
 	}
 
-	@Override
-	public AttributeTextFieldMode getTextFieldMode() {
-		return textFieldMode;
+    /**
+	 * @return the styles
+	 */
+    @Override
+	public String getStyles() {
+		return styles;
 	}
+
+	/**
+	 * @param styles
+	 *            the styles to set
+	 */
+	public void setStyles(String styles) {
+		this.styles = styles;
+	}
+
+	@Override
+    public AttributeTextFieldMode getTextFieldMode() {
+        return textFieldMode;
+    }
 
 	@Override
 	public String getTrueRepresentation() {
@@ -424,6 +445,11 @@ public class AttributeModelImpl implements AttributeModel {
 	@Override
 	public boolean isImage() {
 		return image;
+	}
+
+	@Override
+	public boolean isLocalesRestricted() {
+		return localesRestricted;
 	}
 
 	@Override
@@ -491,6 +517,7 @@ public class AttributeModelImpl implements AttributeModel {
 		return sortable;
 	}
 
+	@Override
 	public boolean isTransient() {
 		return trans;
 	}
@@ -609,6 +636,10 @@ public class AttributeModelImpl implements AttributeModel {
 		this.image = image;
 	}
 
+	public void setLocalesRestricted(boolean localesRestricted) {
+		this.localesRestricted = localesRestricted;
+	}
+
 	@Override
 	public void setMainAttribute(boolean mainAttribute) {
 		this.mainAttribute = mainAttribute;
@@ -652,10 +683,6 @@ public class AttributeModelImpl implements AttributeModel {
 
 	public void setNestedEntityModel(EntityModel<?> nestedEntityModel) {
 		this.nestedEntityModel = nestedEntityModel;
-	}
-
-	public void setNumberSelectMode(NumberSelectMode numberSelectMode) {
-		this.numberSelectMode = numberSelectMode;
 	}
 
 	public void setOrder(Integer order) {
@@ -767,4 +794,7 @@ public class AttributeModelImpl implements AttributeModel {
 		return ReflectionToStringBuilder.toStringExclude(this, "entityModel");
 	}
 
+    public void setNumberSelectMode(NumberSelectMode numberSelectMode) {
+        this.numberSelectMode = numberSelectMode;
+    }
 }
