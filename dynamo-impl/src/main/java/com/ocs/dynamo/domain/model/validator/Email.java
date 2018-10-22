@@ -29,7 +29,7 @@ import javax.validation.Payload;
 @Constraint(validatedBy = EmailValidator.class)
 public @interface Email {
 
-    String message() default "";
+    String message() default "{email.address.not.valid}";
 
     Class<?>[] groups() default {};
 
