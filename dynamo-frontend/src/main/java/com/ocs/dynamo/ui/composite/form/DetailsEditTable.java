@@ -478,7 +478,6 @@ public abstract class DetailsEditTable<ID extends Serializable, T extends Abstra
 			onSelect(table.getValue());
 			checkButtonState(selectedItem);
 		});
-		table.updateTableCaption();
 
 		// add the buttons
 		constructButtonBar(layout);
@@ -490,7 +489,11 @@ public abstract class DetailsEditTable<ID extends Serializable, T extends Abstra
 
 		postConstruct();
 
-        postConstruct();return layout;
+		if (table.isUpdateTableCaption()) {
+			table.updateTableCaption();
+		}
+
+		return layout;
     }
 
 	/**

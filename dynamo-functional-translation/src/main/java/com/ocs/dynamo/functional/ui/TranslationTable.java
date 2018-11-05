@@ -14,21 +14,20 @@
 package com.ocs.dynamo.functional.ui;
 
 import java.util.Collection;
-import java.util.Set;
-import java.util.stream.Collectors;
+
 import com.ocs.dynamo.domain.model.AttributeModel;
 import com.ocs.dynamo.domain.model.EntityModel;
 import com.ocs.dynamo.exception.OCSRuntimeException;
 import com.ocs.dynamo.functional.domain.AbstractEntityTranslated;
-import com.ocs.dynamo.functional.domain.Locale;
 import com.ocs.dynamo.functional.domain.Translation;
 import com.ocs.dynamo.service.BaseService;
 import com.ocs.dynamo.service.ServiceLocatorFactory;
 import com.ocs.dynamo.ui.CanAssignEntity;
 import com.ocs.dynamo.ui.composite.form.DetailsEditTable;
 import com.ocs.dynamo.ui.composite.layout.FormOptions;
-import com.vaadin.ui.Component;
+import com.ocs.dynamo.ui.composite.table.ModelBasedTable;
 import com.vaadin.ui.Field;
+import com.vaadin.ui.Layout;
 import com.vaadin.ui.TextArea;
 
 /**
@@ -64,10 +63,19 @@ public class TranslationTable<ID, E extends AbstractEntityTranslated<ID, Transla
 	}
 
 	@Override
-	protected Component initContent() {
-		Component result = super.initContent();
-		getTable().setUpdateTableCaption(false);
-		return result;
+	protected void constructButtonBar(Layout parent) {
+		if (!localesRestricted) {
+			super.constructButtonBar(parent);
+		}
+	}
+
+	@Override
+	protected void postConstruct() {
+		ModelBasedTable<?, ?> t = getTable();
+		t.setCaption(null);
+		t.setUpdateTableCaption(false);
+		t.setPageLength(0);
+		t.setColumnWidth("locale", 160);
 	}
 
 	@Override

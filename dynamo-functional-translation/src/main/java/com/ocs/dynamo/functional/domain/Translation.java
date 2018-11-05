@@ -49,7 +49,7 @@ import com.ocs.dynamo.utils.StringUtils;
 @DiscriminatorColumn(name = "type")
 @Model(displayProperty = "fullDescription")
 @DiscriminatorOptions(force=true)
-public abstract class Translation<E> extends AbstractEntity<Integer> {
+public abstract class Translation<E> extends AbstractEntity<Integer> implements Comparable<Translation<E>> {
 
 	private static final long serialVersionUID = 3155835503400960383L;
 
@@ -74,11 +74,12 @@ public abstract class Translation<E> extends AbstractEntity<Integer> {
 	@NotNull
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "locale")
-	@Attribute(showInTable = VisibilityType.SHOW)
+	@Attribute(visible = VisibilityType.SHOW, complexEditable = true, showInTable = VisibilityType.SHOW, groupTogetherWith = {
+			"translation" })
 	private Locale locale;
 
 	@NotNull
-	@Attribute(showInTable = VisibilityType.SHOW)
+	@Attribute(visible = VisibilityType.SHOW, showInTable = VisibilityType.SHOW)
 	private String translation;
 
 	public Translation() {
@@ -145,6 +146,17 @@ public abstract class Translation<E> extends AbstractEntity<Integer> {
 	public String getFullDescription() {
 		return StringUtils.camelCaseToHumanFriendly(getField(), false) + " - " + getLocale().getName() + " - "
 				+ getTranslation();
+	}
+
+	@Override
+	public int compareTo(Translation<E> o) {
+		if (o == null || o.getTranslation() == null) {
+			return 1;
+		}
+		if (getTranslation() == null) {
+			return -1;
+		}
+		return getTranslation().compareTo(o.getTranslation());
 	}
 
 	/*

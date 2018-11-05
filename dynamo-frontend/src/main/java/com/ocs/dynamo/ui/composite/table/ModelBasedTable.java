@@ -90,6 +90,8 @@ public class ModelBasedTable<ID extends Serializable, T extends AbstractEntity<I
      */
     private MessageService messageService;
 
+	private ItemSetChangeListener updateTableCaptionListener = e -> updateTableCaption();
+
 	/**
 	 * Constructor
 	 *
@@ -128,8 +130,8 @@ public class ModelBasedTable<ID extends Serializable, T extends AbstractEntity<I
 		}
 
         // update the table caption to reflect the number of items
-        if (isUpdateTableCaption()) {addItemSetChangeListener(e -> updateTableCaption());
-    }}
+		setUpdateTableCaption(true);
+	}
 
 	/**
 	 * Adds a column to the table
@@ -387,6 +389,11 @@ public class ModelBasedTable<ID extends Serializable, T extends AbstractEntity<I
 
 	public void setUpdateTableCaption(boolean updateTableCaption) {
 		this.updateTableCaption = updateTableCaption;
+		if (updateTableCaption) {
+			addItemSetChangeListener(updateTableCaptionListener);
+		} else {
+			removeItemSetChangeListener(updateTableCaptionListener);
+		}
 	}
 
 }
