@@ -1541,17 +1541,19 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
     public void refreshLabel(String propertyName) {
         AttributeModel am = getEntityModel().getAttributeModel(propertyName);
         if (am != null) {
-            Component replacement = constructLabel(getEntity(), am);
             Component oldLabel = labels.get(isViewMode()).get(am);
+			if (oldLabel != null) {
+				Component replacement = constructLabel(getEntity(), am);
 
-            // label is displayed in view mode or when its an existing entity
-            replacement.setVisible(true);
+				// label is displayed in view mode or when its an existing entity
+				replacement.setVisible(true);
 
-            // replace all existing labels with new labels
-            HasComponents hc = labels.get(isViewMode()).get(am).getParent();
-            if (hc instanceof Layout) {
-                ((Layout) hc).replaceComponent(oldLabel, replacement);
-                labels.get(isViewMode()).put(am, replacement);
+				// replace all existing labels with new labels
+				HasComponents hc = oldLabel.getParent();
+				if (hc instanceof Layout) {
+					((Layout) hc).replaceComponent(oldLabel, replacement);
+					labels.get(isViewMode()).put(am, replacement);
+				}
             }
         }
     }
