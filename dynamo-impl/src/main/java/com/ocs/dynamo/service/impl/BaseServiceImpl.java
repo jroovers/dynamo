@@ -223,13 +223,16 @@ public abstract class BaseServiceImpl<ID, T extends AbstractEntity<ID>> implemen
 		return other != null && (t.getId() == null || !t.getId().equals(other.getId()));
 	}
 
-	/**
-	 * 
-	 * @param key
-	 * @return
-	 */
 	protected String message(String key) {
 		return messageService.getMessage(key, Locale.getDefault());
+	}
+
+	protected String message(String key, Locale locale) {
+		return messageService.getMessage(key, locale);
+	}
+
+	protected String messageWithLocale(String key, Locale locale, Object... args) {
+		return messageService.getMessage(key, locale, args);
 	}
 
 	protected String message(String key, Object... args) {
