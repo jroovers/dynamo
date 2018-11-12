@@ -405,7 +405,8 @@ public abstract class DetailsEditTable<ID extends Serializable, T extends Abstra
         if (!isViewMode() && formOptions.isShowRemoveButton()) {
             final String removeMsg = messageService.getMessage("ocs.detail.remove", VaadinUtils.getLocale());
             table.addGeneratedColumn(removeMsg, (ColumnGenerator) (source, itemId, columnId) -> {
-                Button remove = new Button(removeMsg);remove.setIcon(FontAwesome.TRASH);
+				Button remove = new Button(removeMsg);
+				remove.setIcon(FontAwesome.TRASH);
                 remove.addClickListener(event -> {
                     container.removeItem(itemId);
                     items.remove(itemId);
@@ -420,6 +421,7 @@ public abstract class DetailsEditTable<ID extends Serializable, T extends Abstra
 				});
 				return remove;
 			});
+			table.setColumnWidth(removeMsg, 100);
 		}
 
 		// overwrite the field factory to deal with validation
