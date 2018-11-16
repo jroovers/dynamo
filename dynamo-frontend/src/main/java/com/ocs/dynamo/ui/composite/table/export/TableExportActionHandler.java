@@ -944,7 +944,8 @@ public class TableExportActionHandler implements Handler {
 						// a model based tree table has multiple levels - the
 						// built-in
 						// totals calculation doesn't work in that case
-						export.setDisplayTotals(!(sender instanceof ModelBasedTreeTable));
+						export.setDisplayTotals(!(sender instanceof ModelBasedTreeTable)
+								&& totalsRow);
 					}
 					export.setExportFileName((reportTitle + " " + getFormattedDate() + ".xlsx").replace(' ', '_'));
 					service.export(export);

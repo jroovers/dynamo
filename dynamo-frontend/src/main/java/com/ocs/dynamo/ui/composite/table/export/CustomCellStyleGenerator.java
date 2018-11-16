@@ -37,7 +37,7 @@ public interface CustomCellStyleGenerator {
      * @param item
      *            the item from the table or the grid
      * @param rootItemId
-     *            the ID fot he item
+     *            the ID for he item
      * @param propId
      *            the ID of the property that is displayed in the cell
      * @param value
