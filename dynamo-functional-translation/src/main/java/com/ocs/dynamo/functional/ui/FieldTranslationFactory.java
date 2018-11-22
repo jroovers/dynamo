@@ -197,4 +197,8 @@ public class FieldTranslationFactory<ID extends Serializable, T extends Abstract
 		}
 		return entityModel;
 	}
+
+	protected ServiceLocator getServiceLocator() {
+		return serviceLocator;
+	}
 }
