@@ -14,6 +14,7 @@
 package com.ocs.dynamo.dao.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -53,6 +54,8 @@ public abstract class BaseDaoImpl<ID, T extends AbstractEntity<ID>> implements B
 
 	@PersistenceContext
 	private EntityManager entityManager;
+
+	private HashMap<String, Object> queryHints = new HashMap<>();
 
 	/**
 	 * Adds a parameter to a query but only if the provided value is not null
@@ -157,6 +160,7 @@ public abstract class BaseDaoImpl<ID, T extends AbstractEntity<ID>> implements B
 			query.setFirstResult(pageable.getOffset());
 			query.setMaxResults(pageable.getPageSize());
 		}
+		addHintsToQuery(query);
 		return query.getResultList();
 	}
 
@@ -176,6 +180,7 @@ public abstract class BaseDaoImpl<ID, T extends AbstractEntity<ID>> implements B
 			FetchJoinInformation... joins) {
 		TypedQuery<Object[]> query = JpaQueryBuilder.createSelectQuery(filter, getEntityManager(), getEntityClass(),
 				selectProperties, orders, (joins != null && joins.length > 0) ? joins : getFetchJoins());
+		addHintsToQuery(query);
 		return query.getResultList();
 	}
 
@@ -195,6 +200,7 @@ public abstract class BaseDaoImpl<ID, T extends AbstractEntity<ID>> implements B
 			query.setFirstResult(pageable.getOffset());
 			query.setMaxResults(pageable.getPageSize());
 		}
+		addHintsToQuery(query);
 		return query.getResultList();
 	}
 
@@ -202,6 +208,7 @@ public abstract class BaseDaoImpl<ID, T extends AbstractEntity<ID>> implements B
 	public T fetchById(ID id, FetchJoinInformation... joins) {
 		TypedQuery<T> query = JpaQueryBuilder.createFetchSingleObjectQuery(entityManager, getEntityClass(), id,
 				(joins != null && joins.length > 0) ? joins : getFetchJoins());
+		addHintsToQuery(query);
 		return getFirstValue(query.getResultList());
 	}
 
@@ -212,6 +219,7 @@ public abstract class BaseDaoImpl<ID, T extends AbstractEntity<ID>> implements B
 		}
 		TypedQuery<T> query = JpaQueryBuilder.createFetchQuery(entityManager, getEntityClass(), ids, sortOrders,
 				(joins != null && joins.length > 0) ? joins : getFetchJoins());
+		addHintsToQuery(query);
 		return query.getResultList();
 	}
 
@@ -221,6 +229,7 @@ public abstract class BaseDaoImpl<ID, T extends AbstractEntity<ID>> implements B
 		CriteriaQuery<T> cq = JpaQueryBuilder.createUniquePropertyFetchQuery(entityManager, getEntityClass(),
 				(joins == null || joins.length == 0) ? getFetchJoins() : joins, propertyName, value, caseSensitive);
 		TypedQuery<T> query = entityManager.createQuery(cq);
+		addHintsToQuery(query);
 		try {
 			return query.getSingleResult();
 		} catch (NoResultException ex) {
@@ -255,7 +264,7 @@ public abstract class BaseDaoImpl<ID, T extends AbstractEntity<ID>> implements B
 			query.setFirstResult(pageable.getOffset());
 			query.setMaxResults(pageable.getPageSize());
 		}
-
+		addHintsToQuery(query);
 		return query.getResultList();
 	}
 
@@ -284,6 +293,7 @@ public abstract class BaseDaoImpl<ID, T extends AbstractEntity<ID>> implements B
 		CriteriaQuery<T> cq = JpaQueryBuilder.createUniquePropertyQuery(entityManager, getEntityClass(), propertyName,
 				value, caseSensitive);
 		TypedQuery<T> query = entityManager.createQuery(cq);
+		addHintsToQuery(query);
 		try {
 			return query.getSingleResult();
 		} catch (NoResultException ex) {
@@ -299,6 +309,7 @@ public abstract class BaseDaoImpl<ID, T extends AbstractEntity<ID>> implements B
 		TypedQuery<Tuple> query = JpaQueryBuilder.createDistinctQuery(filter, entityManager, getEntityClass(),
 				distinctField, orders);
 
+		addHintsToQuery(query);
 		List<Tuple> temp = query.getResultList();
 		List<S> result = new ArrayList<>();
 
@@ -324,6 +335,7 @@ public abstract class BaseDaoImpl<ID, T extends AbstractEntity<ID>> implements B
 	@SuppressWarnings("unchecked")
 	public List<ID> findIds(Filter filter, SortOrder... sortOrders) {
 		TypedQuery<Tuple> query = JpaQueryBuilder.createIdQuery(entityManager, getEntityClass(), filter, sortOrders);
+		addHintsToQuery(query);
 		List<Tuple> temp = query.getResultList();
 		List<ID> result = new ArrayList<>();
 
@@ -393,4 +405,29 @@ public abstract class BaseDaoImpl<ID, T extends AbstractEntity<ID>> implements B
 		}
 		return t;
 	}
+
+	public HashMap<String, Object> getQueryHints() {
+		return queryHints;
+	}
+
+	public void setQueryHints(HashMap<String, Object> queryHints) {
+		this.queryHints = queryHints;
+	}
+
+	public void addQueryHint(String name, Object value) {
+		this.queryHints.put(name, value);
+	}
+
+	/**
+	 * Add query hint(s) to query when applicable for this entity
+	 * 
+	 * @param query
+	 */
+	protected void addHintsToQuery(Query query) {
+		if (query != null && queryHints != null && !queryHints.isEmpty()) {
+			for (String hint : queryHints.keySet()) {
+				query.setHint(hint, queryHints.get(hint));
+			}
+		}
+	};
 }

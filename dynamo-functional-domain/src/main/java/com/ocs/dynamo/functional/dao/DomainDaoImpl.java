@@ -15,6 +15,7 @@ package com.ocs.dynamo.functional.dao;
 
 import java.util.List;
 
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
 
 import org.springframework.stereotype.Repository;
@@ -39,10 +40,16 @@ public class DomainDaoImpl extends DefaultDaoImpl<Integer, Domain> implements Do
 
 	public DomainDaoImpl() {
 		super(QDomain.domain, Domain.class);
+		initialize();
 	}
 
 	public DomainDaoImpl(EntityPathBase<Domain> dslRoot, Class<Domain> entityClass) {
 		super(dslRoot, entityClass);
+		initialize();
+	}
+
+	protected void initialize() {
+		addQueryHint("org.hibernate.cacheable", true);
 	}
 
 	@SuppressWarnings({ "unchecked" })
@@ -57,6 +64,8 @@ public class DomainDaoImpl extends DefaultDaoImpl<Integer, Domain> implements Do
 	public <D extends Domain> List<D> findAllByType(Class<D> type) {
 		CriteriaQuery<D> cq = getEntityManager().getCriteriaBuilder().createQuery(type);
 		cq.from(type);
-		return getEntityManager().createQuery(cq).getResultList();
+		TypedQuery<D> query = getEntityManager().createQuery(cq);
+		addHintsToQuery(query);
+		return query.getResultList();
 	}
 }
