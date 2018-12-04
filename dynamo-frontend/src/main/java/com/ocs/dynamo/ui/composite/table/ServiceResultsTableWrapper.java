@@ -118,14 +118,12 @@ public class ServiceResultsTableWrapper<ID extends Serializable, T extends Abstr
 	}
 
 	/**
-	 * Sets the provided filter as the component filter and then refreshes the
-	 * container
+	 * Sets the provided filter as the component filter
 	 * 
 	 * @param filter
 	 */
 	public void setFilter(Filter filter) {
 		this.filter = filter;
-		search(filter);
 	}
 
 	public void setMaxResults(Integer maxResults) {
