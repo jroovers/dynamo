@@ -191,16 +191,14 @@ public class ServiceBasedSplitLayout<ID extends Serializable, T extends Abstract
 	}
 
 	/**
-	 * Reloads the component - this will first rebuild the filter and then
-	 * reload
-	 * the container using that filter
+	 * Reloads the component - this will first rebuild the filter and then reload the container using that filter
 	 */
 	@Override
 	public void reload() {
 		buildFilter();
+		getTableWrapper().setFilter(filter);
 		super.reload();
 		refresh();
-		getTableWrapper().setFilter(filter);
 	}
 
 	@SuppressWarnings("unchecked")
