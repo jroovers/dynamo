@@ -750,17 +750,27 @@ public final class JpaQueryBuilder {
 		Path<Object> path = null;
 		for (int i = 0; i < propertyIdParts.length; i++) {
 			String part = propertyIdParts[i];
-			if (path == null) {
-				path = root.get(part);
-			} else {
-				path = path.get(part);
-			}
-			// Just one collection in the path supported!
-			if (join && java.util.Collection.class.isAssignableFrom(path.type().getJavaType())) {
-				path = root.join(propertyIdParts[0]);
-				for (int k = 1; k <= i; k++) {
-					part = propertyIdParts[k];
-					path = ((From<?, ?>) path).join(part);
+			try {
+				if (path == null) {
+					path = root.get(part);
+				} else {
+					path = path.get(part);
+				}
+				// Just one collection in the path supported!
+				if (join && java.util.Collection.class.isAssignableFrom(path.type().getJavaType())) {
+					path = root.join(propertyIdParts[0]);
+					for (int k = 1; k <= i; k++) {
+						part = propertyIdParts[k];
+						path = ((From<?, ?>) path).join(part);
+					}
+				}
+			} catch (Exception e) {
+				// FIXME When hibernate mapping exception occurs due to bug HHH-6562 then try join. Is solved from
+				// hibernate v5.2.3
+				if ("MappingException".equals(e.getClass().getSimpleName())) {
+					path = root.join(part);
+				} else {
+					throw e;
 				}
 			}
 		}
