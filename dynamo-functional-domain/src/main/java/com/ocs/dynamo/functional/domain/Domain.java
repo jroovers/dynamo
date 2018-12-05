@@ -13,6 +13,15 @@
  */
 package com.ocs.dynamo.functional.domain;
 
+import com.ocs.dynamo.domain.AbstractEntity;
+import com.ocs.dynamo.domain.model.EditableType;
+import com.ocs.dynamo.domain.model.VisibilityType;
+import com.ocs.dynamo.domain.model.annotation.Attribute;
+import com.ocs.dynamo.domain.model.annotation.Model;
+import com.ocs.dynamo.functional.DomainConstants;
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;
@@ -20,16 +29,6 @@ import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-
-import com.ocs.dynamo.domain.AbstractEntity;
-import com.ocs.dynamo.domain.model.EditableType;
-import com.ocs.dynamo.domain.model.VisibilityType;
-import com.ocs.dynamo.domain.model.annotation.Attribute;
-import com.ocs.dynamo.domain.model.annotation.Model;
-import com.ocs.dynamo.functional.DomainConstants;
 
 /**
  * Base class for reference information.
@@ -134,9 +133,11 @@ public abstract class Domain extends AbstractEntity<Integer> {
 		if (this.id != null && other.id != null) {
 			// first, check if the IDs match
 			return ObjectUtils.equals(this.id, other.id);
-		} else {
+		} else if (this.code != null && other.code != null) {
 			// if this is not the case, check for code and type
-			return ObjectUtils.equals(this.code, other.code);
+			return ObjectUtils.equals(this.code, other.code) && ObjectUtils.equals(this.type, other.type);
+		} else {
+			return ObjectUtils.equals(this.name, other.name) && ObjectUtils.equals(this.type, other.type);
 		}
 
 	}
