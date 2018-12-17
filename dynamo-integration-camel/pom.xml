@@ -25,7 +25,7 @@
 
     <properties>
         <!-- matches the spring version in Dynamo -->
-        <camel.version>2.15.6</camel.version>
+        <camel.version>2.23.0</camel.version>
     </properties>
 
     <dependencies>

@@ -32,6 +32,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -56,8 +57,6 @@ import com.vaadin.ui.Grid;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TreeTable;
 import com.vaadin.ui.UI;
-
-import junitx.util.PrivateAccessor;
 
 public class TableExportActionHandlerTest extends BaseMockitoTest {
 
@@ -88,11 +87,7 @@ public class TableExportActionHandlerTest extends BaseMockitoTest {
 		System.setProperty("ocs.default.locale", "de");
 		MockUtil.mockMessageService(messageService);
 		Mockito.when(ui.getPage()).thenReturn(page);
-		try {
-			PrivateAccessor.setField(entityModelFactory, "messageService", messageService);
-		} catch (NoSuchFieldException e) {
-			Assert.fail();
-		}
+		ReflectionTestUtils.setField(entityModelFactory, "messageService", messageService);
 
 		// set the default values for the system properties
 		System.setProperty(DynamoConstants.SP_EXPORT_CSV_SEPARATOR, ";");

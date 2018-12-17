@@ -15,12 +15,11 @@ package com.ocs.dynamo.ui.converter;
 
 import java.math.BigDecimal;
 
-import junitx.util.PrivateAccessor;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import com.ocs.dynamo.domain.TestEntity;
 import com.ocs.dynamo.domain.model.EntityModel;
@@ -44,11 +43,9 @@ public class ConverterFactoryTest extends BaseMockitoTest {
 
     @Before
     public void setupTableUtilsTest() throws NoSuchFieldException {
-
         em = factory.getModel(TestEntity.class);
-
         MockUtil.mockMessageService(messageService);
-        PrivateAccessor.setField(factory, "messageService", messageService);
+        ReflectionTestUtils.setField(factory, "messageService", messageService);
     }
 
     @Test
