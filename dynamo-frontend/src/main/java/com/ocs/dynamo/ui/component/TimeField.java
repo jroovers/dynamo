@@ -148,7 +148,9 @@ public class TimeField extends CustomField<Date> {
 
 		for (int i = minHours; i <= maxHours; i++) {
 			hourSelect.addItem(i);
-			if (!use24HourClock) {
+			if (use24HourClock) {
+				hourSelect.setItemCaption(i, i < 10 ? "0" + i : Integer.toString(i));
+			} else {
 				Integer val = i == 0 || i == 12 ? 12 : i % 12;
 
 				String suffix;
