@@ -24,6 +24,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import com.ocs.dynamo.constants.DynamoConstants;
 import com.ocs.dynamo.domain.TestEntity;
@@ -39,8 +40,6 @@ import com.ocs.dynamo.test.BaseMockitoTest;
 import com.ocs.dynamo.test.MockUtil;
 import com.ocs.dynamo.utils.DateUtils;
 import com.vaadin.ui.Label;
-
-import junitx.util.PrivateAccessor;
 
 public class BaseCustomComponentTest extends BaseMockitoTest {
 
@@ -59,10 +58,10 @@ public class BaseCustomComponentTest extends BaseMockitoTest {
 	private MessageService messageService;
 
 	@Before
-	public void setupBaseCustomComponentTest() throws NoSuchFieldException {
+	public void setupBaseCustomComponentTest() {
 		System.setProperty(DynamoConstants.SP_DEFAULT_LOCALE, "de");
 		MockUtil.mockMessageService(messageService);
-		PrivateAccessor.setField(component, "messageService", messageService);
+		ReflectionTestUtils.setField(component, "messageService", messageService);
 	}
 
 	@Test

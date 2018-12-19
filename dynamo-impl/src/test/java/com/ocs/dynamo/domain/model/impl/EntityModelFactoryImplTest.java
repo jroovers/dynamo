@@ -45,6 +45,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.context.support.ResourceBundleMessageSource;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import com.ocs.dynamo.domain.model.AttributeDateType;
 import com.ocs.dynamo.domain.model.AttributeModel;
@@ -67,8 +68,6 @@ import com.ocs.dynamo.service.impl.MessageServiceImpl;
 import com.ocs.dynamo.test.BaseMockitoTest;
 import com.ocs.dynamo.utils.DateUtils;
 
-import junitx.util.PrivateAccessor;
-
 @SuppressWarnings("unused")
 public class EntityModelFactoryImplTest extends BaseMockitoTest {
 
@@ -82,8 +81,8 @@ public class EntityModelFactoryImplTest extends BaseMockitoTest {
 	public void setupEntityModelFactoryTest() throws NoSuchFieldException {
 		wireTestSubject(factory);
 		source.setBasename("entitymodel");
-		PrivateAccessor.setField(messageService, "source", source);
-		PrivateAccessor.setField(factory, "messageService", messageService);
+		ReflectionTestUtils.setField(messageService, "source", source);
+		ReflectionTestUtils.setField(factory, "messageService", messageService);
 	}
 
 	/**
