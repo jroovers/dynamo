@@ -28,6 +28,7 @@ import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Fetch;
 import javax.persistence.criteria.FetchParent;
 import javax.persistence.criteria.From;
+import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.ParameterExpression;
 import javax.persistence.criteria.Path;
@@ -39,8 +40,10 @@ import javax.persistence.metamodel.Attribute;
 import com.google.common.collect.Lists;
 import com.ocs.dynamo.constants.DynamoConstants;
 import com.ocs.dynamo.dao.FetchJoinInformation;
+import com.ocs.dynamo.dao.QueryFunction;
 import com.ocs.dynamo.dao.SortOrder;
 import com.ocs.dynamo.dao.SortOrders;
+import com.ocs.dynamo.exception.OCSRuntimeException;
 import com.ocs.dynamo.filter.And;
 import com.ocs.dynamo.filter.Between;
 import com.ocs.dynamo.filter.Compare;
@@ -137,7 +140,7 @@ public final class JpaQueryBuilder {
 		if (sortOrders != null && sortOrders.length > 0) {
 			List<javax.persistence.criteria.Order> orders = new ArrayList<>();
 			for (SortOrder sortOrder : sortOrders) {
-				Expression<?> property = getPropertyPath(root, sortOrder.getProperty());
+				Expression<?> property = getPropertyPath(root, sortOrder.getProperty(), true);
 				ms.add(property);
 				orders.add(sortOrder.isAscending() ? builder.asc(property) : builder.desc(property));
 			}
@@ -307,7 +310,7 @@ public final class JpaQueryBuilder {
 		Root<T> root = cq.from(entityClass);
 
 		// select only the distinctField
-		cq.multiselect(root.get(distinctField));
+		cq.multiselect(getPropertyPath(root, distinctField, true));
 
 		// Set where clause
 		Map<String, Object> pars = createParameterMap();
@@ -457,9 +460,9 @@ public final class JpaQueryBuilder {
 	private static Predicate createLikePredicate(CriteriaBuilder builder, Root<?> root, Filter filter) {
 		Like like = (Like) filter;
 		if (like.isCaseSensitive()) {
-			return builder.like((Expression) getPropertyPath(root, like.getPropertyId()), like.getValue());
+			return builder.like((Expression) getPropertyPath(root, like.getPropertyId(), true), like.getValue());
 		} else {
-			return builder.like(builder.lower((Expression) getPropertyPath(root, like.getPropertyId())),
+			return builder.like(builder.lower((Expression) getPropertyPath(root, like.getPropertyId(), true)),
 					like.getValue().toLowerCase());
 		}
 	}
@@ -567,7 +570,8 @@ public final class JpaQueryBuilder {
 	}
 
 	/**
-	 * Creates a query that fetches properties instead of entities
+	 * Creates a query that fetches properties instead of entities. Supports aggregated functions; when used will
+	 * automatically add group by expressions for all properties in the select list without an aggregated function.
 	 * 
 	 * @param filter
 	 *            the filter
@@ -583,12 +587,14 @@ public final class JpaQueryBuilder {
 	 *            the desired fetch joins
 	 * @return
 	 */
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static <ID, T> TypedQuery<Object[]> createSelectQuery(Filter filter, EntityManager entityManager,
 			Class<T> entityClass, String[] selectProperties, SortOrders sortOrders, FetchJoinInformation[] fetchJoins) {
 		CriteriaBuilder builder = entityManager.getCriteriaBuilder();
 		CriteriaQuery<Object[]> cq = builder.createQuery(Object[].class);
 		Root<T> root = cq.from(entityClass);
+		ArrayList<Expression<?>> grouping = new ArrayList<>();
+		boolean aggregated = false;
 
 		// Set select
 		if (selectProperties != null && selectProperties.length > 0) {
@@ -598,11 +604,37 @@ public final class JpaQueryBuilder {
 
 				// Support nested properties
 				String[] ppath = sp.split("\\.");
-				Path path = root;
-				for (String prop : ppath) {
-					path = path.get(prop);
+				// Test for function
+				QueryFunction f = null;
+				Path path = null;
+				try {
+					if (ppath.length > 1) {
+						f = QueryFunction.valueOf(ppath[ppath.length - 1]);
+						path = getPropertyPath(root, sp.substring(0, sp.lastIndexOf(".")), true);
+					}
+				} catch (Exception e) {
+					// Do nothing; not a supported function; assume property name
 				}
-				selections[i] = path;
+				if (f != null) {
+					switch (f) {
+					case AF_AVG:
+						selections[i] = builder.avg(path);
+						break;
+					case AF_COUNT:
+						selections[i] = builder.count(path);
+						break;
+					case AF_SUM:
+						selections[i] = builder.sum(path);
+						break;
+					default:
+						throw new OCSRuntimeException("Unsupported function");
+					}
+					aggregated = true;
+				} else {
+					path = getPropertyPath(root, sp, true);
+					selections[i] = path;
+					grouping.add(path);
+				}
 				i++;
 			}
 			cq.select(builder.array(selections));
@@ -615,6 +647,9 @@ public final class JpaQueryBuilder {
 		Predicate p = createPredicate(filter, builder, root, pars);
 		if (p != null) {
 			cq.where(p);
+		}
+		if (aggregated) {
+			cq.groupBy(grouping);
 		}
 		cq = addSortInformation(builder, cq, root, sortOrders == null ? null : sortOrders.toArray());
 		TypedQuery<Object[]> query = entityManager.createQuery(cq);
@@ -747,7 +782,7 @@ public final class JpaQueryBuilder {
 	private static Path<Object> getPropertyPath(Root<?> root, Object propertyId, boolean join) {
 		String[] propertyIdParts = ((String) propertyId).split("\\.");
 
-		Path<Object> path = null;
+		Path<?> path = null;
 		for (int i = 0; i < propertyIdParts.length; i++) {
 			String part = propertyIdParts[i];
 			try {
@@ -758,10 +793,24 @@ public final class JpaQueryBuilder {
 				}
 				// Just one collection in the path supported!
 				if (join && java.util.Collection.class.isAssignableFrom(path.type().getJavaType())) {
-					path = root.join(propertyIdParts[0]);
-					for (int k = 1; k <= i; k++) {
-						part = propertyIdParts[k];
-						path = ((From<?, ?>) path).join(part);
+					// Reuse existing join
+					boolean reuse = false;
+					if (root.getJoins() != null) {
+						for (Join<?, ?> j : root.getJoins()) {
+							if (propertyIdParts[0].equals(j.getAttribute().getName())) {
+								path = j;
+								reuse = true;
+								break;
+							}
+						}
+					}
+					// when no existing join then add new
+					if (!reuse) {
+						path = root.join(propertyIdParts[0]);
+						for (int k = 1; k <= i; k++) {
+							part = propertyIdParts[k];
+							path = ((From<?, ?>) path).join(part);
+						}
 					}
 				}
 			} catch (Exception e) {
@@ -774,7 +823,7 @@ public final class JpaQueryBuilder {
 				}
 			}
 		}
-		return path;
+		return (Path<Object>) path;
 	}
 
 	/**
