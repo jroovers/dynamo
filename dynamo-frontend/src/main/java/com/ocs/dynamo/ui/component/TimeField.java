@@ -17,6 +17,7 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import com.vaadin.server.ErrorMessage;
 import com.vaadin.shared.ui.datefield.Resolution;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomField;
@@ -479,4 +480,8 @@ public class TimeField extends CustomField<Date> {
 		this.maxHours = maxHours;
 		updateFields();
 	}
+	
+    public void setComponentError(ErrorMessage componentError) {
+    	hourSelect.setComponentError(componentError);
+    }
 }
