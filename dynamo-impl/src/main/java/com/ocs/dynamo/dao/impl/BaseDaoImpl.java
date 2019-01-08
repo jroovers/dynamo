@@ -179,7 +179,7 @@ public abstract class BaseDaoImpl<ID, T extends AbstractEntity<ID>> implements B
 	public List<Object[]> fetchSelect(Filter filter, String[] selectProperties, SortOrders orders,
 			FetchJoinInformation... joins) {
 		TypedQuery<Object[]> query = JpaQueryBuilder.createSelectQuery(filter, getEntityManager(), getEntityClass(),
-				selectProperties, orders, (joins != null && joins.length > 0) ? joins : getFetchJoins());
+				selectProperties, orders, joins);
 		addHintsToQuery(query);
 		return query.getResultList();
 	}
@@ -195,7 +195,7 @@ public abstract class BaseDaoImpl<ID, T extends AbstractEntity<ID>> implements B
 			FetchJoinInformation... joins) {
 		SortOrders sortOrders = pageable == null ? null : pageable.getSortOrders();
 		TypedQuery<Object[]> query = JpaQueryBuilder.createSelectQuery(filter, getEntityManager(), getEntityClass(),
-				selectProperties, sortOrders, (joins != null && joins.length > 0) ? joins : getFetchJoins());
+				selectProperties, sortOrders, joins);
 		if (pageable != null) {
 			query.setFirstResult(pageable.getOffset());
 			query.setMaxResults(pageable.getPageSize());
