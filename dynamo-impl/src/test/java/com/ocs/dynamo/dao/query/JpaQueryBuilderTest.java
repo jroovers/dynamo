@@ -43,20 +43,24 @@ import com.ocs.dynamo.filter.Modulo;
 import com.ocs.dynamo.filter.Or;
 import com.ocs.dynamo.test.BaseIntegrationTest;
 
-public class JpaQueryBuilderIntegrationTest extends BaseIntegrationTest {
+public class JpaQueryBuilderTest extends BaseIntegrationTest {
 
 	@PersistenceContext
 	private EntityManager entityManager;
 
 	@Before
 	public void setUp() {
+		TestEntity m1 = save("Manager 1", 30, TestEnum.C);
+		TestEntity m2 = save("Manager 2", 40, TestEnum.C);
 
 		TestEntity2 t1 = new TestEntity2();
 		t1.setName("Likes science fiction");
 		t1.setValue(12);
+		t1.setTestEntityAlt(m1);
 		TestEntity2 t2 = new TestEntity2();
 		t2.setName("Likes adventure");
 		t2.setValue(24);
+		t2.setTestEntityAlt(m2);
 		TestEntity2 t3 = new TestEntity2();
 		t3.setName("Not into much");
 		t3.setValue(0);
@@ -71,7 +75,7 @@ public class JpaQueryBuilderIntegrationTest extends BaseIntegrationTest {
 		TypedQuery<Long> tQuery = JpaQueryBuilder.createCountQuery(entityManager, TestEntity.class, null, false);
 		long count = tQuery.getSingleResult();
 
-		Assert.assertEquals(3, count);
+		Assert.assertEquals(5, count);
 	}
 
 	@Test
@@ -89,7 +93,7 @@ public class JpaQueryBuilderIntegrationTest extends BaseIntegrationTest {
 				new Compare.Greater("age", 25L), false);
 		long count = tQuery.getSingleResult();
 
-		Assert.assertEquals(2, count);
+		Assert.assertEquals(4, count);
 	}
 
 	@Test
@@ -97,7 +101,7 @@ public class JpaQueryBuilderIntegrationTest extends BaseIntegrationTest {
 		TypedQuery<Long> tQuery = JpaQueryBuilder.createCountQuery(entityManager, TestEntity.class,
 				new Compare.GreaterOrEqual("age", 25L), false);
 		long count = tQuery.getSingleResult();
-		Assert.assertEquals(3, count);
+		Assert.assertEquals(5, count);
 	}
 
 	@Test
@@ -139,7 +143,7 @@ public class JpaQueryBuilderIntegrationTest extends BaseIntegrationTest {
 				new Like("name", "%a%", false), false);
 		long count = tQuery.getSingleResult();
 		// "Sally" should match
-		Assert.assertEquals(1, count);
+		Assert.assertEquals(3, count);
 	}
 
 	@Test
@@ -147,7 +151,7 @@ public class JpaQueryBuilderIntegrationTest extends BaseIntegrationTest {
 		TypedQuery<Long> tQuery = JpaQueryBuilder.createCountQuery(entityManager, TestEntity.class,
 				new com.ocs.dynamo.filter.Between("age", 20L, 30L), false);
 		long count = tQuery.getSingleResult();
-		Assert.assertEquals(1, count);
+		Assert.assertEquals(2, count);
 	}
 
 	@Test
@@ -171,7 +175,7 @@ public class JpaQueryBuilderIntegrationTest extends BaseIntegrationTest {
 		TypedQuery<Long> tQuery = JpaQueryBuilder.createCountQuery(entityManager, TestEntity.class,
 				new Modulo("age", 4, 0), false);
 		long count = tQuery.getSingleResult();
-		Assert.assertEquals(1, count);
+		Assert.assertEquals(2, count);
 	}
 
 	@Test
@@ -179,7 +183,7 @@ public class JpaQueryBuilderIntegrationTest extends BaseIntegrationTest {
 		TypedQuery<Long> tQuery = JpaQueryBuilder.createCountQuery(entityManager, TestEntity.class,
 				new Modulo("age", "age", 0), false);
 		long count = tQuery.getSingleResult();
-		Assert.assertEquals(3, count);
+		Assert.assertEquals(5, count);
 	}
 
 	@Test
@@ -238,7 +242,7 @@ public class JpaQueryBuilderIntegrationTest extends BaseIntegrationTest {
 		Assert.assertEquals(e1, entity);
 	}
 
-	private void save(String name, long age, TestEnum te, TestEntity2... testEntities2) {
+	private TestEntity save(String name, long age, TestEnum te, TestEntity2... testEntities2) {
 		TestEntity entity = new TestEntity(name, age);
 		entity.setSomeEnum(te);
 		if (testEntities2 != null) {
@@ -247,6 +251,7 @@ public class JpaQueryBuilderIntegrationTest extends BaseIntegrationTest {
 			}
 		}
 		entityManager.persist(entity);
+		return entity;
 	}
 
 	@Test
@@ -259,7 +264,7 @@ public class JpaQueryBuilderIntegrationTest extends BaseIntegrationTest {
 		SortOrder sortName=new SortOrder("name");
 		Filter filter = new In("name", Lists.newArrayList(e1.getName(), e2.getName()));
 		TypedQuery<Object[]> tQuery = JpaQueryBuilder.createSelectQuery(filter, entityManager, TestEntity.class,
-				new String[] { "name", "age" }, new SortOrders(sortName), null);
+				new String[] { "name", "age" }, new SortOrders(sortName));
 		List<Object[]> result = tQuery.getResultList();
 
 		Assert.assertEquals(2, result.size());
@@ -277,7 +282,7 @@ public class JpaQueryBuilderIntegrationTest extends BaseIntegrationTest {
 		TypedQuery<Object[]> tQuery = JpaQueryBuilder.createSelectQuery(null, entityManager, TestEntity.class,
 				new String[] { QueryFunction.AF_AVG.with("age"), QueryFunction.AF_COUNT.with("age"),
 						QueryFunction.AF_SUM.with("age") },
-				null, null);
+				null);
 		List<Object[]> result = tQuery.getResultList();
 
 		Assert.assertEquals(1, result.size());
@@ -298,10 +303,10 @@ public class JpaQueryBuilderIntegrationTest extends BaseIntegrationTest {
 				.createSelectQuery(
 						null, entityManager, TestEntity.class, new String[] { QueryFunction.AF_AVG.with("age"),
 								QueryFunction.AF_COUNT.with("age"), QueryFunction.AF_SUM.with("age"), "someEnum" },
-						new SortOrders(new SortOrder("someEnum")), null);
+						new SortOrders(new SortOrder("someEnum")));
 		List<Object[]> result = tQuery.getResultList();
 
-		Assert.assertEquals(2, result.size());
+		Assert.assertEquals(3, result.size());
 		Object[] br = base.get(0);
 		Assert.assertTrue(br[0].equals(result.get(0)[0]));
 		Assert.assertTrue(br[1].equals(result.get(0)[1]));
@@ -317,10 +322,27 @@ public class JpaQueryBuilderIntegrationTest extends BaseIntegrationTest {
 
 		TypedQuery<Object[]> tQuery = JpaQueryBuilder.createSelectQuery(null, entityManager, TestEntity.class,
 				new String[] { "name", QueryFunction.AF_SUM.with("testEntities.value") },
-				new SortOrders(new SortOrder("name")), null);
+				new SortOrders(new SortOrder("name")));
 		List<Object[]> result = tQuery.getResultList();
 
 		Assert.assertEquals(1, result.size());
+		Object[] br = base.get(0);
+		Assert.assertTrue(br[0].equals(result.get(0)[0]));
+		Assert.assertTrue(br[1].equals(result.get(0)[1]));
+	}
+
+	@Test
+	public void testCreateSelectAggregateJoinAndGroupQuery2() {
+		List<Object[]> base = entityManager.createQuery(
+				"select t2.value, sum(t3.age) from TestEntity t1 join t1.testEntities t2 join t2.testEntityAlt t3 group by t2.value order by t2.value")
+				.getResultList();
+
+		TypedQuery<Object[]> tQuery = JpaQueryBuilder.createSelectQuery(null, entityManager, TestEntity.class,
+				new String[] { "testEntities.value", QueryFunction.AF_SUM.with("testEntities.testEntityAlt.age") },
+				new SortOrders(new SortOrder("testEntities.value")));
+		List<Object[]> result = tQuery.getResultList();
+
+		Assert.assertEquals(2, result.size());
 		Object[] br = base.get(0);
 		Assert.assertTrue(br[0].equals(result.get(0)[0]));
 		Assert.assertTrue(br[1].equals(result.get(0)[1]));

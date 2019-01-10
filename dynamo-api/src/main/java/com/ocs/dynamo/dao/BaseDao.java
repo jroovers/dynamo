@@ -101,7 +101,7 @@ public interface BaseDao<ID, T extends AbstractEntity<ID>> {
     List<T> fetch(Filter filter, SortOrders orders, FetchJoinInformation... joins);
 
     /**
-	 * Fetches and sorts properties (NOT ENTITIES) that match the provided filter
+	 * Selects and sorts properties (NOT ENTITIES) that match the provided filter
 	 * 
 	 * @param filter
 	 *            the filter
@@ -109,15 +109,12 @@ public interface BaseDao<ID, T extends AbstractEntity<ID>> {
 	 *            the properties to use in the selection
 	 * @param orders
 	 *            the sort info
-	 * @param joins
-	 *            the desired relations to fetch
 	 * @return
 	 */
-	List<Object[]> fetchSelect(Filter filter, String[] selectProperties, SortOrders orders,
-			FetchJoinInformation... joins);
+	List<?> fetchSelect(Filter filter, String[] selectProperties, SortOrders orders);
 
 	/**
-	 * Fetches and sorts properties (NOT ENTITIES) that match the provided filter
+	 * Selects and sorts properties (NOT ENTITIES) that match the provided filter
 	 * 
 	 * @param filter
 	 *            the filter
@@ -125,12 +122,9 @@ public interface BaseDao<ID, T extends AbstractEntity<ID>> {
 	 *            the properties to use in the selection
 	 * @param pageable
 	 *            object containing the paging data
-	 * @param joins
-	 *            the desired relations to fetch
 	 * @return
 	 */
-	List<Object[]> fetchSelect(Filter filter, String[] selectProperties, Pageable pageable,
-			FetchJoinInformation... joins);
+	List<?> fetchSelect(Filter filter, String[] selectProperties, Pageable pageable);
 
 	/**
 	 * Fetches an entity (and its relations) based on its ID

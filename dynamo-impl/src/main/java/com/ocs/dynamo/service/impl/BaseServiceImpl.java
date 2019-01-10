@@ -157,25 +157,24 @@ public abstract class BaseServiceImpl<ID, T extends AbstractEntity<ID>> implemen
 	 * (non-Javadoc)
 	 * 
 	 * @see com.ocs.dynamo.service.BaseService#fetchSelect(com.ocs.dynamo.filter.Filter, java.lang.String[],
-	 * com.ocs.dynamo.dao.SortOrders, com.ocs.dynamo.dao.FetchJoinInformation[])
+	 * com.ocs.dynamo.dao.SortOrders)
 	 */
 	@Override
-	public List<Object[]> fetchSelect(Filter filter, String[] selectProperties, SortOrders sortOrders,
-			FetchJoinInformation... joins) {
-		return getDao().fetchSelect(filter, selectProperties, sortOrders, joins);
+	public List<?> fetchSelect(Filter filter, String[] selectProperties, SortOrders sortOrders) {
+		return getDao().fetchSelect(filter, selectProperties, sortOrders);
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see com.ocs.dynamo.service.BaseService#fetchSelect(com.ocs.dynamo.filter.Filter, java.lang.String[], int, int,
-	 * com.ocs.dynamo.dao.SortOrders, com.ocs.dynamo.dao.FetchJoinInformation[])
+	 * com.ocs.dynamo.dao.SortOrders)
 	 */
 	@Override
-	public List<Object[]> fetchSelect(Filter filter, String[] selectProperties, int pageNumber, int pageSize,
-			SortOrders sortOrders, FetchJoinInformation... joins) {
+	public List<?> fetchSelect(Filter filter, String[] selectProperties, int pageNumber, int pageSize,
+			SortOrders sortOrders) {
 		return getDao().fetchSelect(filter, selectProperties,
-				constructPageRequest(pageNumber, pageSize, sortOrders == null ? null : sortOrders.toArray()), joins);
+				constructPageRequest(pageNumber, pageSize, sortOrders == null ? null : sortOrders.toArray()));
 	}
 
 	@Override

@@ -263,7 +263,9 @@ public class TestEntityDaoTest extends BaseIntegrationTest {
 
 		SortOrder sortName = new SortOrder("name");
 		Filter filter = new In("name", Lists.newArrayList(e1.getName(), e2.getName()));
-		List<Object[]> result = dao.fetchSelect(filter, new String[] { "name", "age" }, new SortOrders(sortName));
+		@SuppressWarnings("unchecked")
+		List<Object[]> result = (List<Object[]>) dao.fetchSelect(filter, new String[] { "name", "age" },
+				new SortOrders(sortName));
 
 		Assert.assertEquals(2, result.size());
 		Assert.assertEquals(e1.getName(), result.get(0)[0]);

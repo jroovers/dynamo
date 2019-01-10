@@ -14,10 +14,12 @@
 package com.ocs.dynamo.dao.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
@@ -27,7 +29,6 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Fetch;
 import javax.persistence.criteria.FetchParent;
-import javax.persistence.criteria.From;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.ParameterExpression;
@@ -583,13 +584,11 @@ public final class JpaQueryBuilder {
 	 *            the properties to use in the selection
 	 * @param sortOrders
 	 *            the sorting information
-	 * @param fetchJoins
-	 *            the desired fetch joins
 	 * @return
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static <ID, T> TypedQuery<Object[]> createSelectQuery(Filter filter, EntityManager entityManager,
-			Class<T> entityClass, String[] selectProperties, SortOrders sortOrders, FetchJoinInformation[] fetchJoins) {
+			Class<T> entityClass, String[] selectProperties, SortOrders sortOrders) {
 		CriteriaBuilder builder = entityManager.getCriteriaBuilder();
 		CriteriaQuery<Object[]> cq = builder.createQuery(Object[].class);
 		Root<T> root = cq.from(entityClass);
@@ -639,9 +638,6 @@ public final class JpaQueryBuilder {
 			}
 			cq.select(builder.array(selections));
 		}
-
-		boolean distinct = addFetchJoinInformation(root, fetchJoins);
-		cq.distinct(distinct);
 
 		Map<String, Object> pars = createParameterMap();
 		Predicate p = createPredicate(filter, builder, root, pars);
@@ -779,10 +775,12 @@ public final class JpaQueryBuilder {
 	 *            set to true if you want implicit joins to be created for ALL collections
 	 * @return the path to property
 	 */
+	@SuppressWarnings("unchecked")
 	private static Path<Object> getPropertyPath(Root<?> root, Object propertyId, boolean join) {
 		String[] propertyIdParts = ((String) propertyId).split("\\.");
 
 		Path<?> path = null;
+		Join<?,?> curJoin = null;
 		for (int i = 0; i < propertyIdParts.length; i++) {
 			String part = propertyIdParts[i];
 			try {
@@ -791,26 +789,29 @@ public final class JpaQueryBuilder {
 				} else {
 					path = path.get(part);
 				}
-				// Just one collection in the path supported!
-				if (join && java.util.Collection.class.isAssignableFrom(path.type().getJavaType())) {
+				// Check collection join
+				if (join && Collection.class.isAssignableFrom(path.type().getJavaType())) {
 					// Reuse existing join
-					boolean reuse = false;
-					if (root.getJoins() != null) {
-						for (Join<?, ?> j : root.getJoins()) {
-							if (propertyIdParts[0].equals(j.getAttribute().getName())) {
+					Join<?, ?> detailJoin = null;
+					Collection<Join<?, ?>> joins = (Collection<Join<?, ?>>) (curJoin == null ? root.getJoins()
+							: curJoin.getJoins());
+					if (joins != null) {
+						for (Join<?, ?> j : (Set<Join<?,?>>)joins) {
+							if (propertyIdParts[i].equals(j.getAttribute().getName())) {
 								path = j;
-								reuse = true;
+								detailJoin = j;
 								break;
 							}
 						}
 					}
 					// when no existing join then add new
-					if (!reuse) {
-						path = root.join(propertyIdParts[0]);
-						for (int k = 1; k <= i; k++) {
-							part = propertyIdParts[k];
-							path = ((From<?, ?>) path).join(part);
+					if (detailJoin == null) {
+						if (curJoin == null) {
+							curJoin = root.join(propertyIdParts[i]);
+						} else {
+							curJoin = curJoin.join(propertyIdParts[i]);
 						}
+						path = curJoin;
 					}
 				}
 			} catch (Exception e) {

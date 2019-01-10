@@ -173,13 +173,12 @@ public abstract class BaseDaoImpl<ID, T extends AbstractEntity<ID>> implements B
 	 * (non-Javadoc)
 	 * 
 	 * @see com.ocs.dynamo.dao.BaseDao#fetchSelect(com.ocs.dynamo.filter.Filter, java.lang.String[],
-	 * com.ocs.dynamo.dao.SortOrders, com.ocs.dynamo.dao.FetchJoinInformation[])
+	 * com.ocs.dynamo.dao.SortOrders)
 	 */
 	@Override
-	public List<Object[]> fetchSelect(Filter filter, String[] selectProperties, SortOrders orders,
-			FetchJoinInformation... joins) {
+	public List<?> fetchSelect(Filter filter, String[] selectProperties, SortOrders orders) {
 		TypedQuery<Object[]> query = JpaQueryBuilder.createSelectQuery(filter, getEntityManager(), getEntityClass(),
-				selectProperties, orders, joins);
+				selectProperties, orders);
 		addHintsToQuery(query);
 		return query.getResultList();
 	}
@@ -188,14 +187,13 @@ public abstract class BaseDaoImpl<ID, T extends AbstractEntity<ID>> implements B
 	 * (non-Javadoc)
 	 * 
 	 * @see com.ocs.dynamo.dao.BaseDao#fetchSelect(com.ocs.dynamo.filter.Filter, java.lang.String[],
-	 * com.ocs.dynamo.dao.Pageable, com.ocs.dynamo.dao.FetchJoinInformation[])
+	 * com.ocs.dynamo.dao.Pageable)
 	 */
 	@Override
-	public List<Object[]> fetchSelect(Filter filter, String[] selectProperties, Pageable pageable,
-			FetchJoinInformation... joins) {
+	public List<?> fetchSelect(Filter filter, String[] selectProperties, Pageable pageable) {
 		SortOrders sortOrders = pageable == null ? null : pageable.getSortOrders();
 		TypedQuery<Object[]> query = JpaQueryBuilder.createSelectQuery(filter, getEntityManager(), getEntityClass(),
-				selectProperties, sortOrders, joins);
+				selectProperties, sortOrders);
 		if (pageable != null) {
 			query.setFirstResult(pageable.getOffset());
 			query.setMaxResults(pageable.getPageSize());

@@ -41,6 +41,7 @@ public class TranslationServiceImpl extends BaseServiceImpl<Integer, Translation
 	@Autowired
 	private BaseDao<Integer, Translation<?>> translationDao;
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<Object[]> fetchByIds(Class<?> entity, String field, String locale, List<Integer> ids) {
 		if (ids.isEmpty()) {
@@ -52,7 +53,7 @@ public class TranslationServiceImpl extends BaseServiceImpl<Integer, Translation
 				new Like("locale.code", locale, false), //
 				new In("key", ids));
 		SortOrders so = new SortOrders(new SortOrder("translation"));
-		return fetchSelect(filter, new String[] { "key", "translation" }, so);
+		return (List<Object[]>) fetchSelect(filter, new String[] { "key", "translation" }, so);
 	}
 
 	@Override
