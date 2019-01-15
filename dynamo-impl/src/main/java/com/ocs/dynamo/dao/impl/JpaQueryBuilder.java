@@ -556,6 +556,10 @@ public final class JpaQueryBuilder {
 			if (in.getValues() != null && !in.getValues().isEmpty()) {
 				Expression<?> exp = getPropertyPath(root, in.getPropertyId());
 				String parName = in.getPropertyId().replace('.', '_');
+				// Support multiple parameters
+				if (parameters.containsKey(parName)) {
+					parName = parName + System.currentTimeMillis();
+				}
 				ParameterExpression<List> p = builder.parameter(List.class, parName);
 				parameters.put(parName, in.getValues());
 				return exp.in(p);

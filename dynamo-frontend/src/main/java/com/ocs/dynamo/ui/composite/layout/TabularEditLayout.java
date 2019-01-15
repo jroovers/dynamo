@@ -447,8 +447,12 @@ public class TabularEditLayout<ID extends Serializable, T extends AbstractEntity
 				// the lazy query container returns an array of IDs of the
 				// selected items
 				Collection<?> col = (Collection<?>) selectedItems;
-				ID id = (ID) col.iterator().next();
-				setSelectedItem(getEntityFromTable(id));
+				if (!col.isEmpty()) {
+					ID id = (ID) col.iterator().next();
+					setSelectedItem(getEntityFromTable(id));
+				} else {
+					setSelectedItem(null);
+				}
 			} else {
 				ID id = (ID) selectedItems;
 				setSelectedItem(getEntityFromTable(id));

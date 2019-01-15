@@ -20,6 +20,7 @@ import com.vaadin.data.Container.Filter;
 import com.vaadin.data.util.filter.And;
 import com.vaadin.data.util.filter.Between;
 import com.vaadin.data.util.filter.Compare;
+import com.vaadin.data.util.filter.In;
 import com.vaadin.data.util.filter.IsNull;
 import com.vaadin.data.util.filter.Like;
 import com.vaadin.data.util.filter.Not;
@@ -107,6 +108,9 @@ public class FilterConverter implements Converter<Filter, com.ocs.dynamo.filter.
 			final SimpleStringFilter like = (SimpleStringFilter) filter;
 			result = new com.ocs.dynamo.filter.Like(like.getPropertyId().toString(),
 					(like.isOnlyMatchPrefix() ? "" : "%") + like.getFilterString() + "%", !like.isIgnoreCase());
+		} else if (filter instanceof In) {
+			final In in = (In) filter;
+			result = new com.ocs.dynamo.filter.In(in.getPropertyId().toString(), in.getValues());
 		} else {
 			throw new UnsupportedOperationException("Filter: " + filter.getClass().getName() + " is not supported.");
 		}
