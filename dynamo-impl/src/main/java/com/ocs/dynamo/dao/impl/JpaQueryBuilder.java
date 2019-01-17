@@ -626,6 +626,9 @@ public final class JpaQueryBuilder {
 					case AF_COUNT:
 						selections[i] = builder.count(path);
 						break;
+					case AF_COUNT_DISTINCT:
+						selections[i] = builder.countDistinct(path);
+						break;
 					case AF_SUM:
 						selections[i] = builder.sum(path);
 						break;

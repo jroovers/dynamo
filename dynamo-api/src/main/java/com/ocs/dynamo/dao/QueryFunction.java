@@ -31,6 +31,11 @@ public enum QueryFunction {
 	AF_SUM,
 
 	/**
+	 * Aggregate function for count distinct on a property
+	 */
+	AF_COUNT_DISTINCT,
+
+	/**
 	 * Aggregate function for count on a property
 	 */
 	AF_COUNT;

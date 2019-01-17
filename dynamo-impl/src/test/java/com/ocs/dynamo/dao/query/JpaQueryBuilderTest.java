@@ -356,4 +356,17 @@ public class JpaQueryBuilderTest extends BaseIntegrationTest {
 		Assert.assertEquals(2, result.size());
 	}
 
+	@Test
+	public void testCreateSelectDistinctCountQuery() {
+		List<Long> base = entityManager.createQuery("select count( distinct age) from TestEntity").getResultList();
+
+		TypedQuery<Object[]> tQuery = JpaQueryBuilder.createSelectQuery(null, entityManager, TestEntity.class,
+				new String[] { QueryFunction.AF_COUNT_DISTINCT.with("age") }, null);
+		List<?> result = tQuery.getResultList();
+
+		Assert.assertEquals(1, result.size());
+		Long b = base.get(0);
+		Long r = (Long) result.get(0);
+		Assert.assertTrue(b.equals(r));
+	}
 }
