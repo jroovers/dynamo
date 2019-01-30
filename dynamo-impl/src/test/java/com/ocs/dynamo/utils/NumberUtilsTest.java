@@ -59,7 +59,7 @@ public class NumberUtilsTest extends BaseMockitoTest {
 	@Test
 	public void testIsInteger2() {
 		Assert.assertTrue(NumberUtils.isInteger(4));
-		Assert.assertTrue(NumberUtils.isInteger(new Integer(12)));
+		Assert.assertTrue(NumberUtils.isInteger(Integer.valueOf(12)));
 		Assert.assertFalse(NumberUtils.isInteger(5L));
 		Assert.assertFalse(NumberUtils.isInteger(null));
 	}
@@ -69,11 +69,11 @@ public class NumberUtilsTest extends BaseMockitoTest {
 		Assert.assertTrue(NumberUtils.isDouble(double.class));
 		Assert.assertTrue(NumberUtils.isDouble(Double.class));
 	}
-	
+
 	@Test
 	public void testIsDouble2() {
 		Assert.assertTrue(NumberUtils.isDouble(4.2));
-		Assert.assertTrue(NumberUtils.isDouble(new Double(12.23)));
+		Assert.assertTrue(NumberUtils.isDouble(Double.valueOf(12.23)));
 		Assert.assertFalse(NumberUtils.isDouble(5L));
 		Assert.assertFalse(NumberUtils.isDouble(null));
 	}

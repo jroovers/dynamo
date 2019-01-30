@@ -20,7 +20,6 @@ import java.util.Locale;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.ocs.dynamo.ui.utils.VaadinUtils;
 import com.vaadin.data.Result;
 import com.vaadin.data.ValueContext;
 
@@ -60,9 +59,8 @@ public class CurrencyBigDecimalConverter extends BigDecimalConverter {
 
 		if (!StringUtils.isEmpty(value) && !value.startsWith(currencySymbol)) {
 			String oldValue = value.trim();
-			value = currencySymbol;
-			value += this.getDecimalFormat(context.getLocale().orElse(VaadinUtils.getLocale())).getPositivePrefix()
-					.length() > 1 ? " " : "";
+			value = getDecimalFormat(context.getLocale().orElse(null)).getDecimalFormatSymbols().getCurrencySymbol();
+			value += " ";
 			value += oldValue;
 		}
 		return super.convertToModel(value, context);

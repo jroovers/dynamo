@@ -69,7 +69,7 @@ public class PasteUtilsTest {
 
     @Test
     public void testToInt() {
-        Assert.assertEquals(new Integer(1234), PasteUtils.toInt("1234"));
+        Assert.assertEquals(Integer.valueOf(1234), PasteUtils.toInt("1234"));
         Assert.assertEquals(new Integer(1234), PasteUtils.toInt("1,234"));
         Assert.assertEquals(new Integer(1234), PasteUtils.toInt("1.234"));
     }
