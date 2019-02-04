@@ -18,9 +18,7 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.Locale;
 
-import com.ocs.dynamo.ui.utils.VaadinUtils;
 import com.vaadin.data.util.converter.Converter;
-import com.vaadin.ui.UI;
 
 /**
  * Vaadin converter for converting a legacy date to a LocalDate
@@ -37,7 +35,7 @@ public class LocalDateToDateConverter implements Converter<Date, LocalDate> {
 		if (value == null) {
 			return null;
 		}
-		ZoneId tz = VaadinUtils.getTimeZone(UI.getCurrent()).toZoneId();
+		ZoneId tz = ZoneId.systemDefault();
 		return value.toInstant().atZone(tz).toLocalDate();
 	}
 
@@ -46,7 +44,7 @@ public class LocalDateToDateConverter implements Converter<Date, LocalDate> {
 		if (value == null) {
 			return null;
 		}
-		ZoneId tz = VaadinUtils.getTimeZone(UI.getCurrent()).toZoneId();
+		ZoneId tz = ZoneId.systemDefault();
 		return Date.from(value.atStartOfDay(tz).toInstant());
 	}
 
