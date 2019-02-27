@@ -114,7 +114,6 @@ public class FilterGroup<T> {
 				Result<?> result = ConvertUtils.convertToModelValue(FilterGroup.this.attributeModel, event.getValue());
 				result.ifError(r -> auxField.setComponentError(new UserError(r)));
 				result.ifOk(r -> FilterGroup.this.valueChange(FilterGroup.this.auxField, r));
-
 			});
 		}
 	}

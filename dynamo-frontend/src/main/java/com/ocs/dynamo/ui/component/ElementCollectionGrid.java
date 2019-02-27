@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import com.jarektoro.responsivelayout.ResponsiveLayout;
 import com.ocs.dynamo.domain.AbstractEntity;
 import com.ocs.dynamo.domain.model.AttributeModel;
 import com.ocs.dynamo.service.MessageService;
@@ -56,7 +57,6 @@ import com.vaadin.ui.Grid.Column;
 import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
 
 /**
  * A grid for editing a collection of simple values stored in a collection table
@@ -380,7 +380,7 @@ public class ElementCollectionGrid<ID extends Serializable, U extends AbstractEn
 		// add a remove button directly in the grid
 		constructRemoveColumn();
 
-		VerticalLayout layout = new DefaultVerticalLayout(false, true);
+		ResponsiveLayout layout = new ResponsiveLayout();
 		layout.addComponent(grid);
 
 		// add the buttons

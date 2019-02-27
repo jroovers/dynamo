@@ -13,8 +13,12 @@
  */
 package com.ocs.dynamo.ui.component;
 
+import com.jarektoro.responsivelayout.ResponsiveColumn;
+import com.jarektoro.responsivelayout.ResponsiveLayout;
+import com.jarektoro.responsivelayout.ResponsiveRow;
+import com.jarektoro.responsivelayout.ResponsiveColumn.ColumnComponentAlignment;
 import com.vaadin.server.ThemeResource;
-import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.Image;
 
 /**
@@ -23,45 +27,54 @@ import com.vaadin.ui.Image;
  * @author bas.rutten
  *
  */
-public class BaseBanner extends DefaultHorizontalLayout {
+public class BaseBanner extends ResponsiveLayout {
 
-    private static final long serialVersionUID = -6796904385035752461L;
+	private static final long serialVersionUID = -6796904385035752461L;
 
-    /**
-     * The image component
-     */
-    private final Image image;
+	/**
+	 * The image component
+	 */
+	private final Image image;
 
-    /**
-     * The path to the image
-     */
-    private final String imagePath;
+	/**
+	 * The path to the image
+	 */
+	private final String imagePath;
 
-    /**
-     * Constructor
-     * 
-     * @param imagePath
-     *            the path to the image
-     */
-    public BaseBanner(String imagePath) {
-        super(true, false, false);
-        this.imagePath = imagePath;
+	private final ResponsiveRow responsiveRow;
 
-        setId("banner");
-        setSizeFull();
+	/**
+	 * Constructor
+	 * 
+	 * @param imagePath the path to the image
+	 */
+	public BaseBanner(String imagePath) {
+		this.imagePath = imagePath;
 
-        image = new Image(null, new ThemeResource(imagePath));
-        image.setWidth(null);
-        addComponent(image);
-        setComponentAlignment(image, Alignment.MIDDLE_CENTER);
-    }
+		setId("banner");
+		setFlexible();
 
-    public Image getImage() {
-        return image;
-    }
+		responsiveRow = new ResponsiveRow();
+		addComponent(responsiveRow);
 
-    public String getImagePath() {
-        return imagePath;
-    }
+		image = new Image(null, new ThemeResource(imagePath));
+		image.setWidth(null);
 
+		addComponent(image, "firstCol", ColumnComponentAlignment.LEFT);
+	}
+
+	public Image getImage() {
+		return image;
+	}
+
+	public String getImagePath() {
+		return imagePath;
+	}
+
+	public void addComponent(Component component, String styleName, ColumnComponentAlignment align) {
+		ResponsiveColumn col = new ResponsiveColumn().withStyleName(styleName)/*.withDisplayRules(12, 6, 4, 4)*/
+				.withComponent(component);
+		//col.setAlignment(align);
+		responsiveRow.addColumn(col);
+	}
 }

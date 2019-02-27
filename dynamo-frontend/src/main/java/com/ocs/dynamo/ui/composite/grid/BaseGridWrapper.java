@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import com.jarektoro.responsivelayout.ResponsiveLayout;
 import com.ocs.dynamo.dao.FetchJoinInformation;
 import com.ocs.dynamo.domain.AbstractEntity;
 import com.ocs.dynamo.domain.model.AttributeModel;
@@ -41,7 +42,6 @@ import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.Layout;
-import com.vaadin.ui.VerticalLayout;
 
 /**
  * A base class for objects that wrap around a ModelBasedTable
@@ -108,7 +108,7 @@ public abstract class BaseGridWrapper<ID extends Serializable, T extends Abstrac
 	/**
 	 * The layout that contains the grid
 	 */
-	private VerticalLayout layout;
+	private ResponsiveLayout layout;
 
 	/**
 	 * The type of the query
@@ -180,7 +180,7 @@ public abstract class BaseGridWrapper<ID extends Serializable, T extends Abstrac
 	 */
 	@Override
 	public void build() {
-		layout = new VerticalLayout();
+		layout = new ResponsiveLayout().withFullSize().withFlexible();
 
 		this.dataProvider = constructDataProvider();
 		grid = getGrid();

@@ -27,6 +27,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.jarektoro.responsivelayout.ResponsiveColumn;
+import com.jarektoro.responsivelayout.ResponsiveLayout;
+import com.jarektoro.responsivelayout.ResponsiveRow;
+import com.jarektoro.responsivelayout.ResponsiveRow.MarginSize;
+import com.jarektoro.responsivelayout.ResponsiveRow.SpacingSize;
 import com.ocs.dynamo.constants.DynamoConstants;
 import com.ocs.dynamo.domain.AbstractEntity;
 import com.ocs.dynamo.domain.model.AttributeModel;
@@ -50,8 +55,6 @@ import com.ocs.dynamo.filter.listener.FilterListener;
 import com.ocs.dynamo.ui.Refreshable;
 import com.ocs.dynamo.ui.Searchable;
 import com.ocs.dynamo.ui.component.Cascadable;
-import com.ocs.dynamo.ui.component.DefaultHorizontalLayout;
-import com.ocs.dynamo.ui.component.DefaultVerticalLayout;
 import com.ocs.dynamo.ui.component.FancyListSelect;
 import com.ocs.dynamo.ui.composite.layout.FormOptions;
 import com.ocs.dynamo.ui.composite.type.FlexibleFilterType;
@@ -171,7 +174,8 @@ public class ModelBasedFlexibleSearchForm<ID extends Serializable, T extends Abs
 		 */
 		FilterRegion(FilterListener<T> listener) {
 			this.listener = listener;
-			layout = new DefaultHorizontalLayout(true, true, true);
+			layout = new ResponsiveRow().withSpacing(SpacingSize.SMALL, true)
+					.withStyleName(DynamoConstants.CSS_FLEX_FILTER_ROW);
 
 			removeButton = new Button(message("ocs.remove"));
 			removeButton.setIcon(VaadinIcons.TRASH);
@@ -188,7 +192,8 @@ public class ModelBasedFlexibleSearchForm<ID extends Serializable, T extends Abs
 							.onFilterChange(new FilterChangeEvent<T>(am.getPath(), fieldFilter, null));
 				}
 			});
-			layout.addComponent(removeButton);
+			layout.addComponent(new ResponsiveColumn().withStyleName(DynamoConstants.CSS_FLEX_FILTER_ROW_FIRST)
+					.withComponent(removeButton));
 
 			attributeFilterComboBox = new ComboBox<>(message("ocs.filter"));
 			attributeFilterComboBox.setStyleName(DynamoConstants.CSS_NESTED);
@@ -641,7 +646,7 @@ public class ModelBasedFlexibleSearchForm<ID extends Serializable, T extends Abs
 	private void addFilter() {
 		FilterRegion region = new FilterRegion(this);
 		regions.add(region);
-		getFilterLayout().addComponent(region.getLayout());
+		getFilterLayout().addComponent(new ResponsiveRow().withComponents(region.getLayout()));
 		toggle(true);
 	}
 
@@ -723,7 +728,7 @@ public class ModelBasedFlexibleSearchForm<ID extends Serializable, T extends Abs
 	}
 
 	@Override
-	protected void constructButtonBar(Layout buttonBar) {
+	protected void fillButtonBar(ResponsiveRow buttonBar) {
 
 		// construct button for adding a new filter
 		addFilterButton = new Button(message("ocs.add.filter"));
@@ -741,7 +746,7 @@ public class ModelBasedFlexibleSearchForm<ID extends Serializable, T extends Abs
 	@Override
 	protected Layout constructFilterLayout() {
 		// just an empty layout - filters will be added on the fly
-		return new DefaultVerticalLayout();
+		return new ResponsiveLayout();
 	}
 
 	/**

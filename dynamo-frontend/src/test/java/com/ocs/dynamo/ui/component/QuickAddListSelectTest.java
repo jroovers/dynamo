@@ -95,10 +95,7 @@ public class QuickAddListSelectTest extends BaseMockitoTest {
 
 		// list must now contain an extra item
 		Assert.assertEquals(4, select.getListSelect().getDataProviderSize());
-		
-		Assert.assertNotNull(select.getDirectNavigationButton());
-		select.getDirectNavigationButton().click();
-		Mockito.verify(ui).navigateToEntityScreen(Mockito.any());
+
 	}
 
 	@Test

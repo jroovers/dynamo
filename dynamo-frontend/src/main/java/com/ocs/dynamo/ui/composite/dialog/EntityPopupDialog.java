@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jarektoro.responsivelayout.ResponsiveRow;
 import com.ocs.dynamo.domain.AbstractEntity;
 import com.ocs.dynamo.domain.model.EntityModel;
 import com.ocs.dynamo.service.BaseService;
@@ -139,7 +140,7 @@ public class EntityPopupDialog<ID extends Serializable, T extends AbstractEntity
 			}
 
 			@Override
-			protected void postProcessButtonBar(Layout buttonBar, boolean viewMode) {
+			protected void postProcessButtonBar(ResponsiveRow buttonBar, boolean viewMode) {
 				EntityPopupDialog.this.postProcessButtonBar(buttonBar, viewMode);
 			}
 
@@ -185,7 +186,7 @@ public class EntityPopupDialog<ID extends Serializable, T extends AbstractEntity
 		return entityModel.getDisplayName(VaadinUtils.getLocale());
 	}
 
-	protected void postProcessButtonBar(Layout buttonBar, boolean viewMode) {
+	protected void postProcessButtonBar(ResponsiveRow buttonBar, boolean viewMode) {
 		// overwrite in subclasses when needed
 	}
 

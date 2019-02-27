@@ -18,6 +18,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.jarektoro.responsivelayout.ResponsiveLayout;
+import com.jarektoro.responsivelayout.ResponsiveRow;
+import com.jarektoro.responsivelayout.ResponsiveRow.SpacingSize;
+import com.ocs.dynamo.constants.DynamoConstants;
 import com.ocs.dynamo.domain.AbstractEntity;
 import com.ocs.dynamo.domain.model.AttributeModel;
 import com.ocs.dynamo.domain.model.EntityModel;
@@ -30,8 +34,6 @@ import com.ocs.dynamo.filter.listener.FilterChangeEvent;
 import com.ocs.dynamo.filter.listener.FilterListener;
 import com.ocs.dynamo.ui.Refreshable;
 import com.ocs.dynamo.ui.Searchable;
-import com.ocs.dynamo.ui.component.DefaultHorizontalLayout;
-import com.ocs.dynamo.ui.component.DefaultVerticalLayout;
 import com.ocs.dynamo.ui.composite.layout.FormOptions;
 import com.ocs.dynamo.ui.utils.VaadinUtils;
 import com.vaadin.event.Action;
@@ -42,11 +44,9 @@ import com.vaadin.server.SerializablePredicate;
 import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Panel;
-import com.vaadin.ui.VerticalLayout;
 
 /**
  * An abstract model search form that servers as the basis for other model based
@@ -98,6 +98,9 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 	 */
 	private Button toggleButton;
 
+	/**
+	 * The button to search based on any criteria
+	 */
 	private Button searchAnyButton;
 
 	/**
@@ -108,12 +111,12 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 	/**
 	 * The button bar
 	 */
-	private HorizontalLayout buttonBar;
+	private ResponsiveRow buttonBar;
 
 	/**
 	 * The main layout (constructed only once)
 	 */
-	private VerticalLayout main;
+	private ResponsiveLayout main;
 
 	/**
 	 * Field factory singleton for constructing fields
@@ -163,7 +166,7 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 	@Override
 	public void build() {
 		if (main == null) {
-			main = new DefaultVerticalLayout(false, true);
+			main = new ResponsiveLayout().withSpacing();
 			preProcessLayout(main);
 
 			// create the search form
@@ -197,9 +200,10 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 				});
 
 				// create the button bar
-				buttonBar = new DefaultHorizontalLayout();
+				buttonBar = new ResponsiveRow().withSpacing(SpacingSize.SMALL, true)
+						.withStyleName(DynamoConstants.CSS_DYNAMO_BUTTON_BAR);
 				main.addComponent(buttonBar);
-				constructButtonBar(buttonBar);
+				fillButtonBar(buttonBar);
 				// add custom buttons
 				postProcessButtonBar(buttonBar);
 
@@ -255,10 +259,10 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 	 *
 	 * @param buttonBar the button bar
 	 */
-	protected abstract void constructButtonBar(Layout buttonBar);
+	protected abstract void fillButtonBar(ResponsiveRow buttonBar);
 
 	/**
-	 * Constructs the "clear" button
+	 * Constructs the Clear button
 	 * 
 	 * @return
 	 */
@@ -300,6 +304,7 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 		searchAnyButton.setIcon(VaadinIcons.SEARCH);
 		searchAnyButton.setVisible(getFormOptions().isShowSearchAnyButton());
 		searchAnyButton.addClickListener(this);
+		searchAnyButton.setId("searchAnyButton");
 		return searchAnyButton;
 	}
 
@@ -312,6 +317,7 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 		searchButton = new Button(message("ocs.search"));
 		searchButton.setIcon(VaadinIcons.SEARCH);
 		searchButton.addClickListener(this);
+		searchButton.setId("searchButton");
 		return searchButton;
 	}
 
@@ -324,6 +330,7 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 		toggleButton = new Button(message("ocs.hide"));
 		toggleButton.setIcon(VaadinIcons.ARROWS);
 		toggleButton.addClickListener(this);
+		toggleButton.setId("toggleButton");
 		toggleButton.setVisible(getFormOptions().isShowToggleButton());
 		return toggleButton;
 	}
@@ -355,7 +362,7 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 		return null;
 	}
 
-	public HorizontalLayout getButtonBar() {
+	public ResponsiveRow getButtonBar() {
 		return buttonBar;
 	}
 
@@ -471,7 +478,7 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 	 *
 	 * @param main the layout
 	 */
-	protected void postProcessLayout(VerticalLayout layout) {
+	protected void postProcessLayout(Layout layout) {
 		// override in subclass
 	}
 
@@ -481,7 +488,7 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 	 *
 	 * @param main the layout
 	 */
-	protected void preProcessLayout(VerticalLayout layout) {
+	protected void preProcessLayout(Layout layout) {
 		// override in subclass
 	}
 

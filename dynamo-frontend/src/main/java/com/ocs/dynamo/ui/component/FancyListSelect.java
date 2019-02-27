@@ -18,22 +18,23 @@ import java.util.Collection;
 import java.util.Set;
 
 import com.google.common.collect.Lists;
+import com.jarektoro.responsivelayout.ResponsiveLayout;
+import com.jarektoro.responsivelayout.ResponsiveRow;
+import com.ocs.dynamo.constants.DynamoConstants;
 import com.ocs.dynamo.domain.AbstractEntity;
 import com.ocs.dynamo.domain.model.AttributeModel;
 import com.ocs.dynamo.domain.model.EntityModel;
 import com.ocs.dynamo.service.BaseService;
 import com.ocs.dynamo.ui.Refreshable;
-import com.ocs.dynamo.ui.utils.VaadinUtils;
 import com.ocs.dynamo.utils.EntityModelUtils;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.data.provider.SortOrder;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.SerializablePredicate;
 import com.vaadin.shared.Registration;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.ListSelect;
-import com.vaadin.ui.VerticalLayout;
 
 /**
  * A ListSelect component with an extra combo box for easily searching items.
@@ -191,22 +192,18 @@ public class FancyListSelect<ID extends Serializable, T extends AbstractEntity<I
 	@Override
 	@SuppressWarnings("unchecked")
 	protected Component initContent() {
-		VerticalLayout layout = new DefaultVerticalLayout(false, false);
-
-		HorizontalLayout firstBar = new DefaultHorizontalLayout(false, true, true);
-		firstBar.setSizeFull();
+		ResponsiveLayout layout = new ResponsiveLayout().withFullSize();
+		ResponsiveRow firstBar = ResponsiveUtil.createRowWithSpacing();
+		layout.addRow(firstBar);
 
 		comboBox.setCaption(null);
-		comboBox.setSizeFull();
-		firstBar.addComponent(comboBox);
 
-		layout.addComponent(firstBar);
-
-		HorizontalLayout secondBar = new DefaultHorizontalLayout(false, true, true);
-		firstBar.addComponent(secondBar);
+		firstBar.addColumn().withDisplayRules(DynamoConstants.MAX_COLUMNS, 6, 6, 6).withComponent(comboBox);
 
 		// button for selecting an item
-		selectButton = new Button(getMessageService().getMessage("ocs.select", VaadinUtils.getLocale()));
+		selectButton = new Button();
+		selectButton.setSizeFull();
+		selectButton.setIcon(VaadinIcons.SELECT);
 		selectButton.addClickListener(event -> {
 			if (comboBox.getValue() != null && !dataProvider.getItems().contains(comboBox.getValue())) {
 				dataProvider.getItems().add(comboBox.getValue());
@@ -214,10 +211,12 @@ public class FancyListSelect<ID extends Serializable, T extends AbstractEntity<I
 			}
 			comboBox.setValue(null);
 		});
-		secondBar.addComponent(selectButton);
+		firstBar.addColumn().withDisplayRules(4, 2, 2, 2).withComponent(selectButton);
 
 		// adds a button for removing the selected items from the list select
-		removeButton = new Button(getMessageService().getMessage("ocs.remove", VaadinUtils.getLocale()));
+		removeButton = new Button("");
+		removeButton.setSizeFull();
+		removeButton.setIcon(VaadinIcons.TRASH);
 		removeButton.addClickListener(event -> {
 			Object value = listSelect.getValue();
 			if (value instanceof Collection) {
@@ -228,28 +227,32 @@ public class FancyListSelect<ID extends Serializable, T extends AbstractEntity<I
 				}
 			}
 		});
-		secondBar.addComponent(removeButton);
+		firstBar.addColumn().withDisplayRules(4, 2, 2, 2).withComponent(removeButton);
 
 		// add a button for removing all items at once
-		clearButton = new Button(getMessageService().getMessage("ocs.clear", VaadinUtils.getLocale()));
+		clearButton = new Button("");
+		clearButton.setIcon(VaadinIcons.ERASER);
+		clearButton.setSizeFull();
 		clearButton.addClickListener(event -> {
 			// clear the container
 			listSelect.deselectAll();
 			dataProvider.getItems().clear();
 			listSelect.getDataProvider().refreshAll();
 		});
-		secondBar.addComponent(clearButton);
+		firstBar.addColumn().withDisplayRules(4, 2, 2, 2).withComponent(clearButton);
+
+		listSelect.setItemCaptionGenerator(t -> EntityModelUtils.getDisplayPropertyValue(t, getEntityModel()));
+		ResponsiveRow secondBar = ResponsiveUtil.createRowWithSpacing();
+		layout.addRow(secondBar);
+
+		ResponsiveUtil.addFullWidthComponent(secondBar, listSelect);
 
 		// add a quick add button
 		if (addAllowed) {
 			Button addButton = constructAddButton();
-			secondBar.addComponent(addButton);
+			ResponsiveRow thirdBar = ResponsiveUtil.createRowWithSpacing();
+			ResponsiveUtil.addFullWidthComponent(thirdBar, addButton);
 		}
-
-		// the list select component shows the currently selected values
-		listSelect.setSizeFull();
-		listSelect.setItemCaptionGenerator(t -> EntityModelUtils.getDisplayPropertyValue(t, getEntityModel()));
-		layout.addComponent(listSelect);
 
 		return layout;
 	}

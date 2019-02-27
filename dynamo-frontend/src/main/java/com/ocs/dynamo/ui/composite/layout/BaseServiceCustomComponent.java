@@ -99,11 +99,6 @@ public abstract class BaseServiceCustomComponent<ID extends Serializable, T exte
 	private FormOptions formOptions;
 
 	/**
-	 * The width of the title caption above the form (in pixels)
-	 */
-	private Integer formTitleWidth;
-
-	/**
 	 * The service used for retrieving data
 	 */
 	private BaseService<ID, T> service;
@@ -214,10 +209,6 @@ public abstract class BaseServiceCustomComponent<ID extends Serializable, T exte
 		return formOptions;
 	}
 
-	public Integer getFormTitleWidth() {
-		return formTitleWidth;
-	}
-
 	public BaseService<ID, T> getService() {
 		return service;
 	}
@@ -269,10 +260,6 @@ public abstract class BaseServiceCustomComponent<ID extends Serializable, T exte
 	 */
 	public final void removeFieldEntityModel(String path) {
 		fieldEntityModels.remove(path);
-	}
-
-	public void setFormTitleWidth(Integer formTitleWidth) {
-		this.formTitleWidth = formTitleWidth;
 	}
 
 	public void setService(BaseService<ID, T> service) {

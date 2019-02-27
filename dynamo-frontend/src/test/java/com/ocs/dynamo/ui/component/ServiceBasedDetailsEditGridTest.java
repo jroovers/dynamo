@@ -6,21 +6,18 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import com.google.common.collect.Lists;
 import com.ocs.dynamo.domain.TestEntity;
 import com.ocs.dynamo.domain.TestEntity2;
 import com.ocs.dynamo.domain.model.AttributeModel;
 import com.ocs.dynamo.domain.model.EntityModel;
 import com.ocs.dynamo.domain.model.EntityModelFactory;
 import com.ocs.dynamo.domain.model.impl.EntityModelFactoryImpl;
-import com.ocs.dynamo.filter.Filter;
 import com.ocs.dynamo.service.TestEntityService;
 import com.ocs.dynamo.test.BaseMockitoTest;
 import com.ocs.dynamo.test.MockUtil;
 import com.ocs.dynamo.ui.composite.dialog.ModelBasedSearchDialog;
 import com.ocs.dynamo.ui.composite.layout.FormOptions;
 import com.ocs.dynamo.ui.provider.IdBasedDataProvider;
-import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.ui.UI;
 
 public class ServiceBasedDetailsEditGridTest extends BaseMockitoTest {
@@ -59,7 +56,7 @@ public class ServiceBasedDetailsEditGridTest extends BaseMockitoTest {
 		ServiceBasedDetailsEditGrid<Integer, TestEntity, Integer, TestEntity2> grid = createGrid(em,
 				em.getAttributeModel("testEntities"), false, false, new FormOptions().setShowRemoveButton(true));
 		Assert.assertTrue(grid.getAddButton().isVisible());
-		Assert.assertFalse(grid.getSearchDialogButton().isVisible());
+		Assert.assertNull(grid.getSearchDialogButton());
 
 		grid.setValue(parent);
 
@@ -82,7 +79,7 @@ public class ServiceBasedDetailsEditGridTest extends BaseMockitoTest {
 		Assert.assertEquals(0, provider.getSize());
 
 		// adding is not possible
-		Assert.assertFalse(grid.getAddButton().isVisible());
+		Assert.assertNull(grid.getAddButton());
 		// but bringing up the search dialog is
 		Assert.assertTrue(grid.getSearchDialogButton().isVisible());
 
@@ -104,8 +101,8 @@ public class ServiceBasedDetailsEditGridTest extends BaseMockitoTest {
 
 		ServiceBasedDetailsEditGrid<Integer, TestEntity, Integer, TestEntity2> grid = createGrid(em,
 				em.getAttributeModel("testEntities"), true, false, new FormOptions());
-		Assert.assertFalse(grid.getAddButton().isVisible());
-		Assert.assertFalse(grid.getSearchDialogButton().isVisible());
+		Assert.assertNull(grid.getAddButton());
+		Assert.assertNull(grid.getSearchDialogButton());
 	}
 
 	private ServiceBasedDetailsEditGrid<Integer, TestEntity, Integer, TestEntity2> createGrid(

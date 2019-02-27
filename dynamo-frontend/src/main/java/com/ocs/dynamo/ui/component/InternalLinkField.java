@@ -46,15 +46,22 @@ public class InternalLinkField<ID extends Serializable, T extends AbstractEntity
 
 	private EntityModel<T> entityModel;
 
+	/**
+	 * Constructor
+	 * 
+	 * @param attributeModel the attribute model
+	 * @param entityModel    the entity model
+	 */
 	public InternalLinkField(AttributeModel attributeModel, EntityModel<T> entityModel) {
 		this(attributeModel, entityModel, null);
 	}
 
 	/**
+	 * Constructor
 	 * 
 	 * @param attributeModel
 	 * @param entityModel
-	 * @param value
+	 * @param value          the initial value
 	 */
 	public InternalLinkField(AttributeModel attributeModel, EntityModel<T> entityModel, T value) {
 		this.value = value;

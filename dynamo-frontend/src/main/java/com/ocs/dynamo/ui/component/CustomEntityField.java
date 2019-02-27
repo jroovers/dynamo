@@ -61,7 +61,7 @@ public abstract class CustomEntityField<ID extends Serializable, T extends Abstr
 	private final EntityModel<T> entityModel;
 
 	/**
-	 * The attribute model used to define the behaviour of the component
+	 * The attribute model used to define the behavior of the component
 	 */
 	private final AttributeModel attributeModel;
 
@@ -80,6 +80,7 @@ public abstract class CustomEntityField<ID extends Serializable, T extends Abstr
 		this.attributeModel = attributeModel;
 		this.messageService = ServiceLocatorFactory.getServiceLocator().getMessageService();
 		setFilter(filter);
+		setResponsive(true);
 	}
 
 	public AttributeModel getAttributeModel() {

@@ -15,6 +15,8 @@ package com.ocs.dynamo.ui.component;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.jarektoro.responsivelayout.ResponsiveLayout;
+import com.jarektoro.responsivelayout.ResponsiveRow;
 import com.ocs.dynamo.domain.model.AttributeModel;
 import com.ocs.dynamo.ui.utils.VaadinUtils;
 import com.vaadin.server.ErrorMessage;
@@ -23,7 +25,6 @@ import com.vaadin.shared.Registration;
 import com.vaadin.shared.ui.BorderStyle;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomField;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.TextField;
@@ -40,7 +41,7 @@ public class URLField extends CustomField<String> {
 
 	private AttributeModel attributeModel;
 
-	private HorizontalLayout bar;
+	private ResponsiveRow bar;
 
 	private boolean editable;
 
@@ -74,11 +75,10 @@ public class URLField extends CustomField<String> {
 
 	@Override
 	protected Component initContent() {
-		main = new DefaultHorizontalLayout(false, false, true);
-		main.setSizeFull();
+		main = new ResponsiveLayout().withFullSize();
 		setCaption(attributeModel.getDisplayName(VaadinUtils.getLocale()));
 
-		bar = new DefaultHorizontalLayout(false, true, true);
+		bar = new ResponsiveRow();
 		updateLink(getValue());
 		setMode();
 		return main;

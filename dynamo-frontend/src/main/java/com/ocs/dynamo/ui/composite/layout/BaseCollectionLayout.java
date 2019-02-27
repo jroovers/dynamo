@@ -22,6 +22,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+import com.jarektoro.responsivelayout.ResponsiveRow;
+import com.jarektoro.responsivelayout.ResponsiveRow.MarginSize;
+import com.jarektoro.responsivelayout.ResponsiveRow.SpacingSize;
 import com.ocs.dynamo.constants.DynamoConstants;
 import com.ocs.dynamo.dao.FetchJoinInformation;
 import com.ocs.dynamo.domain.AbstractEntity;
@@ -29,7 +32,6 @@ import com.ocs.dynamo.domain.model.EntityModel;
 import com.ocs.dynamo.service.BaseService;
 import com.ocs.dynamo.ui.Refreshable;
 import com.ocs.dynamo.ui.Reloadable;
-import com.ocs.dynamo.ui.component.DefaultHorizontalLayout;
 import com.ocs.dynamo.ui.composite.form.ModelBasedEditForm;
 import com.ocs.dynamo.ui.composite.grid.BaseGridWrapper;
 import com.ocs.dynamo.utils.ClassUtils;
@@ -39,7 +41,6 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.SerializablePredicate;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Grid.Column;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Layout;
 
 /**
@@ -63,7 +64,8 @@ public abstract class BaseCollectionLayout<ID extends Serializable, T extends Ab
 	/**
 	 * The main button bar that appears below the search results grid
 	 */
-	private HorizontalLayout buttonBar = new DefaultHorizontalLayout();
+	private ResponsiveRow buttonBar = new ResponsiveRow().withSpacing(SpacingSize.SMALL, true)
+			.withStyleName(DynamoConstants.CSS_DYNAMO_BUTTON_BAR);
 
 	/**
 	 * The relations to fetch when retrieving a single entity
@@ -279,7 +281,7 @@ public abstract class BaseCollectionLayout<ID extends Serializable, T extends Ab
 		detailsMode(getSelectedItem());
 	}
 
-	public HorizontalLayout getButtonBar() {
+	public ResponsiveRow getButtonBar() {
 		return buttonBar;
 	}
 

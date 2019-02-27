@@ -19,17 +19,16 @@ import java.util.Set;
 
 import org.springframework.util.StringUtils;
 
+import com.jarektoro.responsivelayout.ResponsiveLayout;
 import com.ocs.dynamo.domain.AbstractEntity;
 import com.ocs.dynamo.ui.CanAssignEntity;
 import com.ocs.dynamo.ui.Reloadable;
-import com.ocs.dynamo.ui.component.DefaultVerticalLayout;
 import com.vaadin.server.Resource;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TabSheet.Tab;
-import com.vaadin.ui.VerticalLayout;
 
 /**
  * A layout that contains a tab sheet with tabs that are lazily loaded. Use the
@@ -96,20 +95,24 @@ public abstract class LazyTabLayout<ID extends Serializable, T extends AbstractE
 	public void build() {
 		if (tabs == null) {
 			tabs = new TabSheet();
-			tabs.setSizeFull();
+			tabs.setResponsive(true);
+			// tabs.setSizeFull();
 
 			String title = createTitle();
 			if (!StringUtils.isEmpty(title)) {
 				panel = new Panel();
 				panel.setCaptionAsHtml(true);
 				panel.setCaption(createTitle());
+				panel.setResponsive(true);
 
-				VerticalLayout main = new DefaultVerticalLayout(true, true);
+				ResponsiveLayout main = new ResponsiveLayout();
 				panel.setContent(main);
 				main.addComponent(tabs);
 				setCompositionRoot(panel);
 			} else {
-				setCompositionRoot(tabs);
+				ResponsiveLayout main = new ResponsiveLayout();
+				main.addComponent(tabs);
+				setCompositionRoot(main);
 			}
 			setupLazySheet(tabs);
 		}
@@ -235,6 +238,12 @@ public abstract class LazyTabLayout<ID extends Serializable, T extends AbstractE
 		tabs.setSelectedTab(index);
 	}
 
+	/**
+	 * Sets the currently selected entity
+	 * 
+	 * @param entity      the entity
+	 * @param preserveTab whether to preserve the selected tab
+	 */
 	public void setEntity(T entity, boolean preserveTab) {
 		this.entity = entity;
 		if (!preserveTab) {
@@ -255,7 +264,7 @@ public abstract class LazyTabLayout<ID extends Serializable, T extends AbstractE
 		// build up placeholder tabs that only contain an empty layout
 		int i = 0;
 		for (String caption : getTabCaptions()) {
-			Tab t = tabs.addTab(new DefaultVerticalLayout(false, false), caption);
+			Tab t = tabs.addTab(new ResponsiveLayout(), caption);
 			t.setIcon(getIconForTab(i));
 			t.setDescription(getTabDescription(i++));
 		}

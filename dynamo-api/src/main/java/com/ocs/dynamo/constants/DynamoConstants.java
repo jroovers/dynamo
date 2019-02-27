@@ -23,19 +23,14 @@ import java.util.Locale;
 public final class DynamoConstants {
 
 	/**
-	 * Maximum cache size (for lazy query container)
+	 * CSS style for add button
 	 */
-	public static final int CACHE_SIZE = 10000;
+	public static final String CSS_ADD_BUTTON = "addButton";
 
 	/**
 	 * CSS style for additional columns
 	 */
 	public static final String CSS_ADDITIONAL = "additional";
-
-	/**
-	 * CSS style for button bar components
-	 */
-	public static final String CSS_BUTTON_BAR = "buttonBar";
 
 	/**
 	 * Custom style for forms that should span 50% of the screen
@@ -59,9 +54,41 @@ public final class DynamoConstants {
 	public static final String CSS_DIVIDER = "divider";
 
 	/**
+	 * CSS style for button bar components
+	 */
+	public static final String CSS_DYNAMO_BUTTON_BAR = "dynamoButtonBar";
+
+	/**
+	 * CSS style for Dynamo-generated field
+	 */
+	public static final String CSS_DYNAMO_FIELD = "dynamoField";
+
+	/**
+	 * CSS style for Dynamo-generated field (half width)
+	 */
+	public static final String CSS_DYNAMO_FIELD_HALF = "dynamoFieldHalf";
+
+	/**
+	 * CSS style for Dynamo-generated form
+	 */
+	public static final String CSS_DYNAMO_FORM = "dynamoForm";
+
+	/**
+	 * CSS style for Dynamo-generated search form
+	 */
+	public static final String CSS_DYNAMO_SEARCH_FORM = "dynamoSearchForm";
+
+	/**
 	 * The CSS class used to indicate that an element is the first child element
 	 */
 	public static final String CSS_FIRST = "first";
+
+	/**
+	 * 
+	 */
+	public static final String CSS_FLEX_FILTER_ROW = "dynamoFlexFilterRow";
+
+	public static final String CSS_FLEX_FILTER_ROW_FIRST = "dynamoFlexFilterRowFirst";
 
 	/**
 	 * The CSS class for the last visited main menu item
@@ -94,6 +121,11 @@ public final class DynamoConstants {
 	public static final String CSS_REQUIRED = "required";
 
 	/**
+	 * CSS style for search button
+	 */
+	public static final String CSS_SEARCH_BUTTON = "searchButton";
+
+	/**
 	 * Currency symbol
 	 */
 	public static final String CURRENCY_SYMBOL = "currencySymbol";
@@ -107,6 +139,8 @@ public final class DynamoConstants {
 	 * The default locale
 	 */
 	public static final Locale DEFAULT_LOCALE = Locale.UK;
+
+	public static final int HALF_COLUMNS = 6;
 
 	/**
 	 * The default ID field
@@ -122,6 +156,8 @@ public final class DynamoConstants {
 	 * Intermediate precision for floating point calculations
 	 */
 	public static final int INTERMEDIATE_PRECISION = 10;
+
+	public static final int MAX_COLUMNS = 12;
 
 	/**
 	 * The default page size for the lazy query container.
@@ -202,9 +238,19 @@ public final class DynamoConstants {
 	public static final String SP_DEFAULT_FIELD_WIDTH = "ocs.default.field.width";
 
 	/**
+	 * Indicates the default column width (out of 12) for an edit form
+	 */
+	public static final String SP_DEFAULT_FORM_COLUMN_WIDTH = "ocs.default.form.column.width";
+
+	/**
 	 * Default form title width
 	 */
 	public static final String SP_DEFAULT_FORM_TITLE_WIDTH = "ocs.default.form.title.width";
+
+	/**
+	 * 
+	 */
+	public static final String SP_DEFAULT_LABEL_COLUMN_WIDTH = "ocs.default.label.column.width";
 
 	/**
 	 * Name of the system property that is used to determine the amount of rows in a

@@ -13,11 +13,11 @@
  */
 package com.ocs.dynamo.ui.component;
 
+import com.jarektoro.responsivelayout.ResponsiveLayout;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.FontIcon;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
@@ -26,7 +26,7 @@ import com.vaadin.ui.themes.ValoTheme;
  * @author Bas Rutten
  *
  */
-public class CollapsiblePanel extends VerticalLayout {
+public class CollapsiblePanel extends ResponsiveLayout {
 
 	private static final long serialVersionUID = -7979238391035057707L;
 
@@ -36,14 +36,21 @@ public class CollapsiblePanel extends VerticalLayout {
 
 	private Button toggle = new Button(openIcon);
 
-	private VerticalLayout contentWrapper = new VerticalLayout();
+	private ResponsiveLayout contentWrapper = new ResponsiveLayout();
 
+	/**
+	 * Constructor
+	 */
 	public CollapsiblePanel() {
+		this.setSizeFull();
 		toggle.setStyleName(ValoTheme.BUTTON_BORDERLESS + " " + "leftAlign");
 		toggle.setSizeFull();
-		contentWrapper.setMargin(false);
+
 		contentWrapper.setVisible(true);
-		addComponents(toggle, contentWrapper);
+
+		ResponsiveUtil.addFullWidthRow(this, toggle);
+		ResponsiveUtil.addFullWidthRow(this, contentWrapper);
+
 		toggle.addClickListener(event -> setOpen(!isOpen()));
 	}
 
@@ -65,7 +72,7 @@ public class CollapsiblePanel extends VerticalLayout {
 
 	public CollapsiblePanel setContent(Component content) {
 		this.contentWrapper.removeAllComponents();
-		this.contentWrapper.addComponent(content);
+		this.contentWrapper.addRow().withDefaultRules(12, 12, 12, 12).withComponents(content);
 		return this;
 	}
 
@@ -74,7 +81,7 @@ public class CollapsiblePanel extends VerticalLayout {
 		toggle.setCaption(caption);
 	}
 
-	public VerticalLayout getContentWrapper() {
+	public ResponsiveLayout getContentWrapper() {
 		return contentWrapper;
 	}
 

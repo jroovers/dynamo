@@ -24,6 +24,10 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import com.google.common.collect.Lists;
+import com.jarektoro.responsivelayout.ResponsiveLayout;
+import com.jarektoro.responsivelayout.ResponsiveRow;
+import com.jarektoro.responsivelayout.ResponsiveRow.SpacingSize;
+import com.ocs.dynamo.constants.DynamoConstants;
 import com.ocs.dynamo.dao.FetchJoinInformation;
 import com.ocs.dynamo.domain.AbstractEntity;
 import com.ocs.dynamo.domain.model.AttributeModel;
@@ -59,7 +63,6 @@ import com.vaadin.ui.CustomField;
 import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.UI;
-import com.vaadin.ui.VerticalLayout;
 
 /**
  * Base class for grid components that are displayed inside an edit form. These
@@ -244,13 +247,14 @@ public abstract class BaseDetailsEditGrid<U, ID extends Serializable, T extends 
 	 * @param buttonBar the button bar
 	 */
 	protected void constructAddButton(Layout buttonBar) {
-		addButton = new Button(messageService.getMessage("ocs.add", VaadinUtils.getLocale()));
-		addButton.setIcon(VaadinIcons.PLUS);
-		addButton.addClickListener(event -> doAdd());
-		addButton.setVisible((isGridEditEnabled()
-				|| (!isViewMode() && serviceBasedEditMode && !formOptions.isDetailsGridSearchMode()))
-				&& !formOptions.isHideAddButton());
-		buttonBar.addComponent(addButton);
+		if ((isGridEditEnabled() || (!isViewMode() && serviceBasedEditMode && !formOptions.isDetailsGridSearchMode()))
+				&& !formOptions.isHideAddButton()) {
+			addButton = new Button(messageService.getMessage("ocs.add", VaadinUtils.getLocale()));
+			addButton.setStyleName(DynamoConstants.CSS_ADD_BUTTON);
+			addButton.setIcon(VaadinIcons.PLUS);
+			addButton.addClickListener(event -> doAdd());
+			buttonBar.addComponent(addButton);
+		}
 	}
 
 	/**
@@ -258,19 +262,21 @@ public abstract class BaseDetailsEditGrid<U, ID extends Serializable, T extends 
 	 *
 	 * @param parent the layout to which to add the button bar
 	 */
-	protected void constructButtonBar(Layout parent) {
-		Layout buttonBar = new DefaultHorizontalLayout();
-		parent.addComponent(buttonBar);
+	protected void constructButtonBar(ResponsiveLayout parent) {
+		ResponsiveRow buttonBar = new ResponsiveRow().withSpacing(SpacingSize.SMALL, true)
+				.withStyleName("detailsEditGridButtonBar");
+		parent.addRow(buttonBar);
 		constructAddButton(buttonBar);
 		constructSearchButton(buttonBar);
-		postProcessButtonBar(buttonBar);
+		postProcessButtonBar(buttonBar, viewMode);
 	}
 
 	/**
 	 * Callback method for inserting custom converter
 	 * 
 	 * @param am the attribute model
-	 * @return
+	 * @return the custom converter, or <code>null</code> if no such converter is
+	 *         needed
 	 */
 	protected Converter<String, ?> constructCustomConverter(AttributeModel am) {
 		return null;
@@ -296,44 +302,46 @@ public abstract class BaseDetailsEditGrid<U, ID extends Serializable, T extends 
 	/**
 	 * Constructs a button that brings up a search dialog
 	 *
-	 * @param buttonBar
+	 * @param buttonBar the button bar to adde the search button to
 	 */
 	protected void constructSearchButton(Layout buttonBar) {
+		if (!viewMode && formOptions.isDetailsGridSearchMode()) {
+			searchDialogButton = new Button(messageService.getMessage("ocs.search", VaadinUtils.getLocale()));
+			searchDialogButton.setIcon(VaadinIcons.SEARCH);
+			searchDialogButton.setStyleName(DynamoConstants.CSS_SEARCH_BUTTON);
+			searchDialogButton
+					.setDescription(messageService.getMessage("ocs.search.description", VaadinUtils.getLocale()));
+			searchDialogButton.addClickListener(event -> {
 
-		searchDialogButton = new Button(messageService.getMessage("ocs.search", VaadinUtils.getLocale()));
-		searchDialogButton.setIcon(VaadinIcons.SEARCH);
-		searchDialogButton.setDescription(messageService.getMessage("ocs.search.description", VaadinUtils.getLocale()));
-		searchDialogButton.addClickListener(event -> {
-
-			// service must be specified
-			if (service == null) {
-				throw new OCSRuntimeException(
-						messageService.getMessage("ocs.no.service.specified", VaadinUtils.getLocale()));
-			}
-
-			dialog = new ModelBasedSearchDialog<ID, T>(service,
-					searchDialogEntityModel != null ? searchDialogEntityModel : entityModel, searchDialogFilters,
-					searchDialogSortOrder == null ? null : Lists.newArrayList(searchDialogSortOrder), true, true) {
-
-				private static final long serialVersionUID = 1512969437992973122L;
-
-				@Override
-				protected boolean doClose() {
-					// add the selected items to the grid
-					Collection<T> selected = getSelectedItems();
-					if (selected != null) {
-						// afterItemsSelected(selected);
-						handleDialogSelection(selected);
-						getDataProvider().refreshAll();
-					}
-					return true;
+				// service must be specified
+				if (service == null) {
+					throw new OCSRuntimeException(
+							messageService.getMessage("ocs.no.service.specified", VaadinUtils.getLocale()));
 				}
-			};
-			dialog.build();
-			ui.addWindow(dialog);
-		});
-		searchDialogButton.setVisible(!viewMode && formOptions.isDetailsGridSearchMode());
-		buttonBar.addComponent(searchDialogButton);
+
+				dialog = new ModelBasedSearchDialog<ID, T>(service,
+						searchDialogEntityModel != null ? searchDialogEntityModel : entityModel, searchDialogFilters,
+						searchDialogSortOrder == null ? null : Lists.newArrayList(searchDialogSortOrder), true, true) {
+
+					private static final long serialVersionUID = 1512969437992973122L;
+
+					@Override
+					protected boolean doClose() {
+						// add the selected items to the grid
+						Collection<T> selected = getSelectedItems();
+						if (selected != null) {
+							// afterItemsSelected(selected);
+							handleDialogSelection(selected);
+							getDataProvider().refreshAll();
+						}
+						return true;
+					}
+				};
+				dialog.build();
+				ui.addWindow(dialog);
+			});
+			buttonBar.addComponent(searchDialogButton);
+		}
 	}
 
 	/**
@@ -455,6 +463,7 @@ public abstract class BaseDetailsEditGrid<U, ID extends Serializable, T extends 
 				BaseDetailsEditGrid.this.postProcessComponent(am, comp);
 			}
 		};
+		grid.setUpdateCaption(true);
 
 		// allow editing by showing a pop-up dialog (only for service-based version)
 		if (serviceBasedEditMode && !formOptions.isDetailsGridSearchMode() && !isViewMode()) {
@@ -491,9 +500,13 @@ public abstract class BaseDetailsEditGrid<U, ID extends Serializable, T extends 
 
 		grid.setHeightByRows(pageLength);
 		grid.setSelectionMode(SelectionMode.SINGLE);
+		grid.addStyleName("detailsEditGrid");
 
-		VerticalLayout layout = new DefaultVerticalLayout(false, true);
-		layout.addComponent(grid);
+		ResponsiveLayout layout = new ResponsiveLayout();
+		layout.addRow().withDefaultRules(DynamoConstants.MAX_COLUMNS, DynamoConstants.MAX_COLUMNS,
+				DynamoConstants.MAX_COLUMNS, DynamoConstants.MAX_COLUMNS).withComponents(grid);
+
+		// ResponsiveUtil.addFullWidthComponent(layout.addRow(), grid);
 
 		// add a change listener (to make sure the buttons are correctly
 		// enabled/disabled)
@@ -567,7 +580,7 @@ public abstract class BaseDetailsEditGrid<U, ID extends Serializable, T extends 
 	 *
 	 * @param buttonBar the button bar
 	 */
-	protected void postProcessButtonBar(Layout buttonBar) {
+	protected void postProcessButtonBar(Layout buttonBar, boolean viewMode) {
 		// overwrite in subclass if needed
 	}
 

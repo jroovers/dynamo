@@ -24,6 +24,9 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.jarektoro.responsivelayout.ResponsiveLayout;
+import com.jarektoro.responsivelayout.ResponsiveRow;
+import com.ocs.dynamo.constants.DynamoConstants;
 import com.ocs.dynamo.dao.FetchJoinInformation;
 import com.ocs.dynamo.domain.AbstractEntity;
 import com.ocs.dynamo.domain.model.AttributeModel;
@@ -39,7 +42,6 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.SerializablePredicate;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 
 /**
@@ -228,7 +230,10 @@ public class EntityLookupField<ID extends Serializable, T extends AbstractEntity
 
 	@Override
 	protected Component initContent() {
-		HorizontalLayout bar = new DefaultHorizontalLayout(false, true, true);
+		ResponsiveLayout layout = new ResponsiveLayout().withFullSize();
+		ResponsiveRow bar = ResponsiveUtil.createRowWithSpacing();
+		layout.addRow(bar);
+
 		if (this.getAttributeModel() != null) {
 			this.setCaption(getAttributeModel().getDisplayName(VaadinUtils.getLocale()));
 		}
@@ -236,11 +241,14 @@ public class EntityLookupField<ID extends Serializable, T extends AbstractEntity
 		// label for displaying selected values
 		label = new Label();
 		updateLabel(getValue());
-		bar.addComponent(VaadinUtils.wrapInFormLayout(label));
+
+		int factor = 8 - (addAllowed ? BUTTON_COLS : 0) - (directNavigationAllowed ? BUTTON_COLS : 0);
+		bar.addColumn().withDisplayRules(DynamoConstants.MAX_COLUMNS, factor, factor, factor).withComponent(label);
 
 		// button for selecting an entity - brings up the search dialog
-		selectButton = new Button(getMessageService().getMessage("ocs.select", VaadinUtils.getLocale()));
+		selectButton = new Button("");
 		selectButton.setIcon(VaadinIcons.SEARCH);
+		selectButton.setSizeFull();
 		selectButton.addClickListener(event -> {
 			List<SerializablePredicate<T>> filterList = new ArrayList<>();
 			if (getFilter() != null) {
@@ -271,28 +279,29 @@ public class EntityLookupField<ID extends Serializable, T extends AbstractEntity
 			selectValuesInDialog(dialog);
 			getUi().addWindow(dialog);
 		});
-		bar.addComponent(selectButton);
+		bar.addColumn().withDisplayRules(DynamoConstants.HALF_COLUMNS, BUTTON_COLS, BUTTON_COLS, BUTTON_COLS)
+				.withComponent(selectButton);
 
 		// button for clearing the current selection
 		if (clearAllowed) {
-			clearButton = new Button(getMessageService().getMessage("ocs.clear", VaadinUtils.getLocale()));
+			clearButton = new Button("");
 			clearButton.setIcon(VaadinIcons.ERASER);
+			clearButton.setSizeFull();
 			clearButton.addClickListener(event -> clearValue());
-			bar.addComponent(clearButton);
+			bar.addColumn().withDisplayRules(DynamoConstants.HALF_COLUMNS, BUTTON_COLS, BUTTON_COLS, BUTTON_COLS)
+					.withComponent(clearButton);
 		}
 
 		// quick add button
 		if (addAllowed) {
-			Button addButton = constructAddButton();
-			bar.addComponent(addButton);
+			addQuickAddButton(bar, directNavigationAllowed);
 		}
 
 		// direct navigation link
 		if (directNavigationAllowed) {
-			Button directNavigationButton = constructDirectNavigationButton();
-			bar.addComponent(directNavigationButton);
+			addDirectNavigationButton(bar, addAllowed);
 		}
-		return bar;
+		return layout;
 	}
 
 	protected boolean isAddAllowed() {

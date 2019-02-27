@@ -54,7 +54,7 @@ public class DetailsEditGridTest extends BaseMockitoTest {
 		DetailsEditGrid<Integer, TestEntity> grid = createGrid(em, em.getAttributeModel("testEntities"), false, false,
 				new FormOptions().setShowRemoveButton(true));
 		Assert.assertTrue(grid.getAddButton().isVisible());
-		Assert.assertFalse(grid.getSearchDialogButton().isVisible());
+		Assert.assertNull(grid.getSearchDialogButton());
 
 		grid.setValue(Lists.newArrayList(e1, e2));
 
@@ -85,7 +85,7 @@ public class DetailsEditGridTest extends BaseMockitoTest {
 		Assert.assertEquals(0, lep.getItems().size());
 
 		// adding is not possible
-		Assert.assertFalse(grid.getAddButton().isVisible());
+		Assert.assertNull(grid.getAddButton());
 		// but bringing up the search dialog is
 		Assert.assertTrue(grid.getSearchDialogButton().isVisible());
 
@@ -107,8 +107,8 @@ public class DetailsEditGridTest extends BaseMockitoTest {
 
 		DetailsEditGrid<Integer, TestEntity> grid = createGrid(em, em.getAttributeModel("testEntities"), true, false,
 				new FormOptions());
-		Assert.assertFalse(grid.getAddButton().isVisible());
-		Assert.assertFalse(grid.getSearchDialogButton().isVisible());
+		Assert.assertNull(grid.getAddButton());
+		Assert.assertNull(grid.getSearchDialogButton());
 
 		grid.setValue(Lists.newArrayList(e1, e2));
 		Assert.assertEquals(2, grid.getItemCount());

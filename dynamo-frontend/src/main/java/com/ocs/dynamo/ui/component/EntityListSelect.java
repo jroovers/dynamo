@@ -62,6 +62,9 @@ public class EntityListSelect<ID extends Serializable, T extends AbstractEntity<
 	 */
 	private final SortOrder<?>[] sortOrders;
 
+	/**
+	 * The service
+	 */
 	private BaseService<ID, T> service;
 
 	/**
@@ -122,7 +125,6 @@ public class EntityListSelect<ID extends Serializable, T extends AbstractEntity<
 		setDataProvider(provider);
 
 		setItemCaptionGenerator(t -> EntityModelUtils.getDisplayPropertyValue(t, targetEntityModel));
-		setSizeFull();
 	}
 
 	/**

@@ -141,9 +141,7 @@ public class SimpleSearchLayoutTest extends BaseIntegrationTest {
 	@Test
 	public void testSimpleSearchLayoutMultipleColumns() {
 		SimpleSearchLayout<Integer, TestEntity> layout = createLayout(new FormOptions());
-		layout.setNrOfColumns(2);
 		layout.build();
-		Assert.assertEquals(2, layout.getNrOfColumns());
 	}
 
 	@Test

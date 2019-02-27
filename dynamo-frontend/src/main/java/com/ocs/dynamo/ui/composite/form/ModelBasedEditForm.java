@@ -34,6 +34,9 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.FilenameUtils;
 import org.vaadin.teemu.switchui.Switch;
 
+import com.jarektoro.responsivelayout.ResponsiveLayout;
+import com.jarektoro.responsivelayout.ResponsiveRow;
+import com.jarektoro.responsivelayout.ResponsiveRow.SpacingSize;
 import com.ocs.dynamo.constants.DynamoConstants;
 import com.ocs.dynamo.dao.FetchJoinInformation;
 import com.ocs.dynamo.domain.AbstractEntity;
@@ -48,7 +51,6 @@ import com.ocs.dynamo.exception.OCSRuntimeException;
 import com.ocs.dynamo.filter.EqualsPredicate;
 import com.ocs.dynamo.service.BaseService;
 import com.ocs.dynamo.ui.CanAssignEntity;
-import com.ocs.dynamo.ui.FullWidthField;
 import com.ocs.dynamo.ui.NestedComponent;
 import com.ocs.dynamo.ui.Refreshable;
 import com.ocs.dynamo.ui.UseInViewMode;
@@ -56,13 +58,12 @@ import com.ocs.dynamo.ui.component.Cascadable;
 import com.ocs.dynamo.ui.component.CollapsiblePanel;
 import com.ocs.dynamo.ui.component.CustomEntityField;
 import com.ocs.dynamo.ui.component.DefaultEmbedded;
-import com.ocs.dynamo.ui.component.DefaultHorizontalLayout;
-import com.ocs.dynamo.ui.component.DefaultVerticalLayout;
+import com.ocs.dynamo.ui.component.ResponsiveUtil;
 import com.ocs.dynamo.ui.component.ServiceBasedDetailsEditGrid;
 import com.ocs.dynamo.ui.component.URLField;
 import com.ocs.dynamo.ui.composite.layout.FormOptions;
 import com.ocs.dynamo.ui.composite.type.AttributeGroupMode;
-import com.ocs.dynamo.ui.composite.type.ScreenMode;
+import com.ocs.dynamo.ui.utils.FormatUtils;
 import com.ocs.dynamo.ui.utils.VaadinUtils;
 import com.ocs.dynamo.util.SystemPropertyUtils;
 import com.ocs.dynamo.utils.ClassUtils;
@@ -84,9 +85,7 @@ import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomField;
 import com.vaadin.ui.Embedded;
-import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HasComponents;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.Notification;
@@ -96,7 +95,6 @@ import com.vaadin.ui.Upload;
 import com.vaadin.ui.Upload.Receiver;
 import com.vaadin.ui.Upload.SucceededEvent;
 import com.vaadin.ui.Upload.SucceededListener;
-import com.vaadin.ui.VerticalLayout;
 
 /**
  * An edit form that is constructed based on an entity model s
@@ -138,7 +136,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 			final byte[] bytes = ClassUtils.getBytes(getEntity(), attributeModel.getName());
 			final Embedded image = new DefaultEmbedded(null, bytes);
 
-			VerticalLayout main = new DefaultVerticalLayout(false, true);
+			ResponsiveLayout main = new ResponsiveLayout().withFullSize();
 
 			// for a LOB field, create an upload and an image
 			// retrieve the current value
@@ -155,7 +153,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 			UploadReceiver receiver = new UploadReceiver(image, attributeModel.getName(),
 					attributeModel.getFileNameProperty(), attributeModel.getAllowedExtensions().toArray(new String[0]));
 
-			HorizontalLayout buttonBar = new DefaultHorizontalLayout(false, true, true);
+			ResponsiveRow buttonBar = ResponsiveUtil.createRowWithSpacing();
 			main.addComponent(buttonBar);
 
 			Upload upload = new Upload(null, receiver);
@@ -313,9 +311,9 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 	 */
 	private Map<Boolean, Map<AttributeModel, Component>> labels = new HashMap<>();
 
-	private VerticalLayout mainEditLayout;
+	private ResponsiveLayout mainEditLayout;
 
-	private VerticalLayout mainViewLayout;
+	private ResponsiveLayout mainViewLayout;
 
 	private Map<Boolean, List<Button>> buttons = new HashMap<>();
 
@@ -323,7 +321,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 
 	private Map<Boolean, TabSheet> tabSheets = new HashMap<>();
 
-	private Map<Boolean, HorizontalLayout> titleBars = new HashMap<>();
+	private Map<Boolean, ResponsiveRow> titleBars = new HashMap<>();
 
 	private Map<Boolean, Label> titleLabels = new HashMap<>();
 
@@ -337,11 +335,6 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 	 * Map from tab index to the first field on each tab
 	 */
 	private Map<Integer, Focusable> firstFields = new HashMap<>();
-
-	/**
-	 * The width of the title caption above the form (in pixels)
-	 */
-	private Integer formTitleWidth;
 
 	/**
 	 * Whether the component supports iteration over the records
@@ -369,6 +362,9 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 	 */
 	private Consumer<T> customSaveConsumer;
 
+	/**
+	 * Optional code to execute after file upload
+	 */
 	private BiConsumer<String, byte[]> afterUploadConsumer;
 
 	/**
@@ -419,7 +415,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 	 * @param attributeModel the attribute model
 	 */
 	private void addField(Layout parent, EntityModel<T> entityModel, AttributeModel attributeModel, int tabIndex,
-			boolean sameRow) {
+			boolean sameRow, int fieldWidth) {
 		AttributeType type = attributeModel.getAttributeType();
 		if (!alreadyBound.get(isViewMode()).contains(attributeModel.getPath()) && attributeModel.isVisible()
 				&& (AttributeType.BASIC.equals(type) || AttributeType.LOB.equals(type)
@@ -427,7 +423,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 			if (EditableType.READ_ONLY.equals(attributeModel.getEditableType()) || isViewMode()) {
 				if (attributeModel.isUrl() || attributeModel.isNavigable()) {
 					// display a complex component even in read-only mode
-					constructField(parent, entityModel, attributeModel, true, tabIndex, sameRow);
+					constructField(parent, entityModel, attributeModel, true, tabIndex, sameRow, fieldWidth);
 				} else if (AttributeType.LOB.equals(type) && attributeModel.isImage()) {
 					// image preview
 					Component c = constructImagePreview(attributeModel);
@@ -436,16 +432,16 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 				} else {
 					AbstractComponent f = constructCustomField(entityModel, attributeModel, viewMode);
 					if (f instanceof UseInViewMode) {
-						constructField(parent, entityModel, attributeModel, true, tabIndex, sameRow);
+						constructField(parent, entityModel, attributeModel, true, tabIndex, sameRow, fieldWidth);
 					} else {// otherwise display a label
-						constructLabel(parent, entityModel, attributeModel, tabIndex, sameRow);
+						constructLabel(parent, entityModel, attributeModel, tabIndex, sameRow, fieldWidth);
 					}
 				}
 			} else {
 				// display an editable field
 				if (AttributeType.BASIC.equals(type) || AttributeType.MASTER.equals(type)
 						|| AttributeType.DETAIL.equals(type) || AttributeType.ELEMENT_COLLECTION.equals(type)) {
-					constructField(parent, entityModel, attributeModel, false, tabIndex, sameRow);
+					constructField(parent, entityModel, attributeModel, false, tabIndex, sameRow, fieldWidth);
 				} else if (AttributeType.LOB.equals(type)) {
 					// for a LOB field we need to construct a rather
 					// elaborate upload component
@@ -539,6 +535,12 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 	 */
 	@Override
 	public void build() {
+		ResponsiveLayout rl = new ResponsiveLayout().withFullSize();
+		setCompositionRoot(rl);
+		rl.removeAllComponents();
+
+		int columnWidth = SystemPropertyUtils.getDefaultFormColumnWidth();
+
 		if (isViewMode()) {
 			if (mainViewLayout == null) {
 				Map<AttributeModel, Component> map = new HashMap<>();
@@ -552,7 +554,8 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 
 				mainViewLayout = buildMainLayout(getEntityModel());
 			}
-			setCompositionRoot(mainViewLayout);
+			rl.addRow().withDefaultRules(DynamoConstants.MAX_COLUMNS, DynamoConstants.MAX_COLUMNS, columnWidth,
+					columnWidth).addColumn().withComponent(mainViewLayout);
 		} else {
 			if (mainEditLayout == null) {
 				Map<AttributeModel, Component> map = new HashMap<>();
@@ -574,48 +577,36 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 					fieldsProcessed = true;
 				}
 			}
-			setCompositionRoot(mainEditLayout);
+			rl.addRow().withDefaultRules(DynamoConstants.MAX_COLUMNS, DynamoConstants.MAX_COLUMNS, columnWidth,
+					columnWidth).addColumn().withComponent(mainEditLayout);
 		}
 	}
 
 	/**
-	 * Constructs the main layout of the screen
+	 * Constructs the main layout of the form
 	 *
-	 * @param entityModel
+	 * @param entityModel the entity model to base the form on
 	 * @return
 	 */
-	protected VerticalLayout buildMainLayout(EntityModel<T> entityModel) {
-		VerticalLayout layout = new DefaultVerticalLayout(false, true);
-
+	protected ResponsiveLayout buildMainLayout(EntityModel<T> entityModel) {
+		ResponsiveLayout layout = new ResponsiveLayout().withFullSize();
+		layout.setStyleName("mainForm");
 		titleLabels.put(isViewMode(), constructTitleLabel());
 
-		titleBars.put(isViewMode(), new DefaultHorizontalLayout(false, true, true));
+		titleBars.put(isViewMode(), ResponsiveUtil.createRowWithSpacing().withStyleName("titleBar"));
 		titleBars.get(isViewMode()).addComponent(titleLabels.get(isViewMode()));
 
-		HorizontalLayout buttonBar = null;
+		ResponsiveRow buttonBar = null;
 		if (!nestedMode) {
 			buttonBar = constructButtonBar(false);
-			buttonBar.setSizeUndefined();
 			if (getFormOptions().isPlaceButtonBarAtTop()) {
-				layout.addComponent(buttonBar);
+				layout.addRow(buttonBar);
 			} else {
-				titleBars.get(isViewMode()).addComponent(buttonBar);
+				titleBars.get(isViewMode()).addColumn().withComponent(buttonBar);
 			}
 		}
 		layout.addComponent(titleBars.get(isViewMode()));
 		titleBars.get(isViewMode()).setVisible(!nestedMode);
-
-		Layout form = null;
-		if (entityModel.usesDefaultGroupOnly()) {
-			form = new FormLayout();
-		} else {
-			form = new DefaultVerticalLayout(false, true);
-		}
-
-		// in case of vertical layout (the default), don't use the entire screen
-		if (ScreenMode.VERTICAL.equals(getFormOptions().getScreenMode())) {
-			form.setStyleName(DynamoConstants.CSS_CLASS_HALFSCREEN);
-		}
 
 		if (!entityModel.usesDefaultGroupOnly()) {
 			// display the attributes in groups
@@ -624,7 +615,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 			if (tabs) {
 				TabSheet tabSheet = new TabSheet();
 				tabSheets.put(isViewMode(), tabSheet);
-				form.addComponent(tabSheet);
+				layout.addComponent(new ResponsiveRow().withComponents(tabSheet));
 
 				// focus first field after tab change
 				addTabChangeListener(tabSheet);
@@ -634,7 +625,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 				// extra layer of grouping (always tabs)
 				int tabIndex = 0;
 				for (String parentGroupHeader : getParentGroupHeaders()) {
-					Layout innerForm = constructAttributeGroupLayout(form, tabs, tabSheets.get(isViewMode()),
+					Layout innerLayout = constructAttributeGroupLayout(layout, tabs, tabSheets.get(isViewMode()),
 							parentGroupHeader, false);
 
 					// add a tab sheet on the inner level if needed
@@ -642,11 +633,11 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 					boolean innerTabs = !tabs;
 					if (innerTabs) {
 						innerTabSheet = new TabSheet();
-						innerForm.addComponent(innerTabSheet);
+						innerLayout.addComponent(new ResponsiveRow().withComponents(innerTabSheet));
 					}
 
 					// add all appropriate inner groups
-					processParentHeaderGroup(parentGroupHeader, innerForm, innerTabs, innerTabSheet, tabIndex);
+					processParentHeaderGroup(parentGroupHeader, innerLayout, innerTabs, innerTabSheet, tabIndex);
 					tabIndex++;
 				}
 			} else {
@@ -655,14 +646,11 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 				for (String attributeGroup : entityModel.getAttributeGroups()) {
 
 					if (entityModel.isAttributeGroupVisible(attributeGroup, isViewMode())) {
-						Layout innerForm = constructAttributeGroupLayout(form, tabs, tabSheets.get(isViewMode()),
+						Layout innerForm = constructAttributeGroupLayout(layout, tabs, tabSheets.get(isViewMode()),
 								attributeGroup, true);
-						if (ScreenMode.VERTICAL.equals(getFormOptions().getScreenMode())) {
-							innerForm.setStyleName(DynamoConstants.CSS_CLASS_HALFSCREEN);
-						}
 
 						for (AttributeModel attributeModel : entityModel.getAttributeModelsForGroup(attributeGroup)) {
-							addField(innerForm, entityModel, attributeModel, tabIndex, false);
+							addField(innerForm, entityModel, attributeModel, tabIndex, false, 0);
 						}
 						if (AttributeGroupMode.TABSHEET.equals(getFormOptions().getAttributeGroupMode())) {
 							tabIndex++;
@@ -674,12 +662,11 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 			// iterate over the attributes and add them to the form (without any
 			// grouping)
 			for (AttributeModel attributeModel : entityModel.getAttributeModels()) {
-				addField(form, entityModel, attributeModel, 0, false);
+				addField(layout, entityModel, attributeModel, 0, false, 0);
 			}
 		}
 
 		constructCascadeListeners();
-		layout.addComponent(form);
 
 		if (firstFields.get(0) != null) {
 			firstFields.get(0).focus();
@@ -691,7 +678,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 			layout.addComponent(buttonBar);
 		}
 		disableCreateOnlyFields();
-		afterLayoutBuilt(form, isViewMode());
+		afterLayoutBuilt(layout, isViewMode());
 
 		return layout;
 	}
@@ -734,34 +721,34 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 	 */
 	private Layout constructAttributeGroupLayout(Layout parent, boolean tabs, TabSheet tabSheet, String messageKey,
 			boolean lowest) {
-		Layout innerLayout = null;
-		if (lowest) {
-			innerLayout = new FormLayout();
-			((FormLayout) innerLayout).setMargin(true);
-			if (!tabs) {
-				innerLayout.setStyleName(DynamoConstants.CSS_CLASS_HALFSCREEN);
-			}
-		} else {
-			innerLayout = new DefaultVerticalLayout(false, false);
-		}
+
+		ResponsiveLayout innerLayout = new ResponsiveLayout().withFullSize().withSpacing();
+		innerLayout.setStyleName("innerLayout");
 
 		if (tabs) {
 			Tab added = tabSheet.addTab(innerLayout, message(messageKey));
 			attributeGroups.get(isViewMode()).put(messageKey, added);
 		} else {
+			// add a panel
 			CollapsiblePanel panel = new CollapsiblePanel();
 			panel.setStyleName("attributePanel");
 			panel.setCaption(message(messageKey));
 			panel.setContent(innerLayout);
 			parent.addComponent(panel);
-
 			attributeGroups.get(isViewMode()).put(messageKey, panel);
 		}
 		return innerLayout;
 	}
 
-	private HorizontalLayout constructButtonBar(boolean bottom) {
-		HorizontalLayout buttonBar = new DefaultHorizontalLayout();
+	/**
+	 * Constructs the button bar
+	 * 
+	 * @param bottom indicates whether the button bar appears at the bottom of the
+	 *               screen
+	 * @return
+	 */
+	private ResponsiveRow constructButtonBar(boolean bottom) {
+		ResponsiveRow buttonBar = ResponsiveUtil.createRowWithSpacing();
 
 		// button to go back to the main screen when in view mode
 		Button backButton = new Button(message("ocs.back"));
@@ -913,7 +900,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 	 */
 	@SuppressWarnings({ "unchecked" })
 	private void constructField(Layout parent, EntityModel<T> entityModel, AttributeModel attributeModel,
-			boolean viewMode, int tabIndex, boolean sameRow) {
+			boolean viewMode, int tabIndex, boolean sameRow, int fieldWidth) {
 
 		EntityModel<?> fieldEntityModel = getFieldEntityModel(attributeModel);
 		// allow the user to override the construction of a field
@@ -930,15 +917,14 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 		}
 
 		if (field != null) {
-			// set explicit field width
+			field.setId(attributeModel.getPath().replace(".", "_"));
+
+			// apply styling to every field except for the switch (the switch has a fixed
+			// width)
 			if (!(field instanceof Switch)) {
-				Integer fieldWidth = SystemPropertyUtils.getDefaultFieldWidth();
-				if (fieldWidth == null || sameRow || field instanceof FullWidthField
-						|| !attributeModel.getGroupTogetherWith().isEmpty()) {
-					field.setSizeFull();
-				} else {
-					field.setWidth(fieldWidth + "px");
-				}
+				field.setStyleName(DynamoConstants.CSS_DYNAMO_FIELD);
+				field.setResponsive(true);
+				field.setSizeFull();
 			}
 
 			// add converters and validators
@@ -949,51 +935,64 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 				builder.bind(attributeModel.getPath());
 			}
 
+			int labelWidth = SystemPropertyUtils.getDefaultLabelColumnWidth();
 			if (!attributeModel.getGroupTogetherWith().isEmpty()) {
-				// multiple fields behind each other
-				HorizontalLayout horizontal = constructRowLayout(attributeModel, attributeModel.isRequired(),
-						!(field instanceof CheckBox));
-				Integer fieldWidth = SystemPropertyUtils.getDefaultFieldWidth();
-				if (fieldWidth == null || nestedMode) {
-					horizontal.setSizeFull();
-				} else {
-					horizontal.setWidth(fieldWidth + "px");
-				}
-				parent.addComponent(horizontal);
+				// group multiple fields together on the same line
+				int extraFields = attributeModel.getGroupTogetherWith().size();
 
-				// add the first field (without caption, unless it's a check box)
-				if (!(field instanceof CheckBox)) {
-					field.setCaption("");
+				switch (extraFields) {
+				case 1:
+					fieldWidth = 3;
+					break;
+				case 2:
+					fieldWidth = 2;
+					break;
+				default:
+					fieldWidth = 1;
 				}
 
-				// calculate expansion factors
-				float sums = attributeModel.getExpansionFactor();
-				for (String path : attributeModel.getGroupTogetherWith()) {
-					AttributeModel am = getEntityModel().getAttributeModel(path);
-					if (am != null) {
-						sums += am.getExpansionFactor();
-					}
-				}
+				// multiple fields on one line
+				ResponsiveRow rr = new ResponsiveRow().withSpacing(SpacingSize.SMALL, true)
+						.withStyleName(DynamoConstants.CSS_DYNAMO_FORM);
+				parent.addComponent(rr);
 
-				// form layout for holding first field
-				FormLayout fl = constructNestedFormLayout(true);
-				fl.addComponent((AbstractComponent) field);
-				horizontal.addComponent(fl);
+				Label label = createExtraLabel(field, attributeModel);
 
-				float ep = attributeModel.getExpansionFactor() / sums;
-				horizontal.setExpandRatio(fl, ep);// form layout for any of the other fields
+				rr.addColumn().withDisplayRules(DynamoConstants.MAX_COLUMNS, labelWidth, labelWidth, labelWidth)
+						.withComponent(label);
+				rr.addColumn().withDisplayRules(DynamoConstants.MAX_COLUMNS, fieldWidth, fieldWidth, fieldWidth)
+						.withComponent(field);
+
 				for (String path : attributeModel.getGroupTogetherWith()) {
 					AttributeModel nestedAm = getEntityModel().getAttributeModel(path);
 					if (nestedAm != null) {
-						FormLayout fl2 = constructNestedFormLayout(false);
-						horizontal.addComponent(fl2);
-						ep = nestedAm.getExpansionFactor() / sums;
-						addField(fl2, entityModel, nestedAm, tabIndex, true);
-						horizontal.setExpandRatio(fl2, ep);
+						addField(rr, entityModel, nestedAm, tabIndex, true, fieldWidth);
 					}
 				}
 			} else {
-				parent.addComponent((AbstractComponent) field);
+				if (!sameRow) {
+					// simply put the field on a row of its own
+					ResponsiveRow rr = new ResponsiveRow().withSpacing(SpacingSize.SMALL, true)
+							.withStyleName(DynamoConstants.CSS_DYNAMO_FORM);
+					parent.addComponent(rr);
+
+					Label label = createExtraLabel(field, attributeModel);
+					rr.addColumn().withDisplayRules(DynamoConstants.MAX_COLUMNS, labelWidth, labelWidth, labelWidth)
+							.withComponent(label);
+					field.setCaption("");
+					fieldWidth = DynamoConstants.MAX_COLUMNS - labelWidth;
+					rr.addColumn().withDisplayRules(DynamoConstants.MAX_COLUMNS, fieldWidth, fieldWidth, fieldWidth)
+							.withComponent(field);
+				} else {
+					// put the component on the same row as an earlier component
+					Label label = createExtraLabel(field, attributeModel);
+					ResponsiveRow rr = (ResponsiveRow) parent;
+					rr.addColumn().withDisplayRules(DynamoConstants.MAX_COLUMNS, fieldWidth, fieldWidth, fieldWidth)
+							.withComponent(label);
+					field.setCaption("");
+					rr.addColumn().withDisplayRules(DynamoConstants.MAX_COLUMNS, fieldWidth, fieldWidth, fieldWidth)
+							.withComponent(field);
+				}
 			}
 		}
 
@@ -1002,6 +1001,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 			setDefaultValue((HasValue<Object>) field, attributeModel.getDefaultValue());
 		}
 
+		// store a reference to the first field so we can give it focus
 		// store a reference to the first field so we can give it focus
 		if (!isViewMode() && firstFields.get(tabIndex) == null && field.isEnabled() && !(field instanceof CheckBox)
 				&& (field instanceof Focusable)) {
@@ -1012,6 +1012,23 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 			((CanAssignEntity<ID, T>) field).assignEntity(entity);
 			assignEntityToFields.add((CanAssignEntity<ID, T>) field);
 		}
+	}
+
+	/**
+	 * Creates an extra label to replace the Vaadin label that we are hiding
+	 * 
+	 * @param field          the field
+	 * @param attributeModel the attribute model
+	 * @return
+	 */
+	private Label createExtraLabel(AbstractComponent field, AttributeModel attributeModel) {
+		Label label = new Label(attributeModel.getDisplayName(VaadinUtils.getLocale()));
+		if (attributeModel.isRequired()) {
+			label.addStyleName("required");
+		}
+		label.addStyleName("caption");
+
+		return label;
 	}
 
 	/**
@@ -1037,71 +1054,70 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 	 * @param tabIndex       the number of components added so far
 	 */
 	private void constructLabel(Layout parent, EntityModel<T> entityModel, AttributeModel attributeModel, int tabIndex,
-			boolean sameRow) {
-		Component label = constructLabel(entity, attributeModel);
+			boolean sameRow, int fieldWidth) {
+		AbstractComponent label = constructLabel(entity, attributeModel);
 		labels.get(isViewMode()).put(attributeModel, label);
+		int labelWidth = SystemPropertyUtils.getDefaultLabelColumnWidth();
 
 		if (!attributeModel.getGroupTogetherWith().isEmpty()) {
-			// group multiple attributes on the same line
-			HorizontalLayout horizontal = constructRowLayout(attributeModel, false, true);
-			parent.addComponent(horizontal);
 
-			label.setCaption("");
+			int extraFields = attributeModel.getGroupTogetherWith().size();
 
-			FormLayout fl = constructNestedFormLayout(true);
-			fl.addComponent(label);
-			horizontal.addComponent(fl);
+			switch (extraFields) {
+			case 1:
+				fieldWidth = 3;
+				break;
+			case 2:
+				fieldWidth = 2;
+				break;
+			default:
+				fieldWidth = 1;
+			}
 
+			// multiple fields on one line
+			ResponsiveRow rr = new ResponsiveRow().withSpacing(SpacingSize.SMALL, true)
+					.withStyleName(DynamoConstants.CSS_DYNAMO_FORM);
+			parent.addComponent(rr);
+
+			Label extraLabel = createExtraLabel(label, attributeModel);
+
+			rr.addColumn().withDisplayRules(DynamoConstants.MAX_COLUMNS, labelWidth, labelWidth, labelWidth)
+					.withComponent(extraLabel);
+			rr.addColumn().withDisplayRules(DynamoConstants.MAX_COLUMNS, fieldWidth, fieldWidth, fieldWidth)
+					.withComponent(label);
+
+			// add components to the same row
 			for (String path : attributeModel.getGroupTogetherWith()) {
 				AttributeModel am = entityModel.getAttributeModel(path);
 				if (am != null) {
-					FormLayout fl2 = constructNestedFormLayout(false);
-					horizontal.addComponent(fl2);
-					addField(fl2, getEntityModel(), am, tabIndex, sameRow);
+					addField(rr, getEntityModel(), am, tabIndex, true, fieldWidth);
 				}
 			}
 		} else {
-			parent.addComponent(label);
-		}
-	}
+			if (!sameRow) {
+				// simply put the field on a row of its own
+				ResponsiveRow rr = new ResponsiveRow().withSpacing(SpacingSize.SMALL, true)
+						.withStyleName(DynamoConstants.CSS_DYNAMO_FORM);
+				parent.addComponent(rr);
 
-	/**
-	 * Constructs a form layout that is nested inside a horizontal layout when
-	 * displaying multiple attributes in the same row
-	 *
-	 * @param first whether this is the layout for the first component
-	 * @return
-	 */
-	private FormLayout constructNestedFormLayout(boolean first) {
-		FormLayout fl = new FormLayout();
-		if (first) {
-			fl.setStyleName(DynamoConstants.CSS_FIRST, true);
-		} else {
-			fl.setStyleName(DynamoConstants.CSS_ADDITIONAL, true);
-		}
-		fl.setMargin(false);
-		return fl;
-	}
+				Label extraLabel = createExtraLabel(label, attributeModel);
+				rr.addColumn().withDisplayRules(DynamoConstants.MAX_COLUMNS, labelWidth, labelWidth, labelWidth)
+						.withComponent(extraLabel);
 
-	/**
-	 * Constructs a layout that serves as the basis for displaying multiple* input*
-	 * components in a single row
-	 *
-	 * @param attributeModel the attribute model for the first attribute
-	 * @param required       whether to mark the first field as required
-	 * @return
-	 */
-	private HorizontalLayout constructRowLayout(AttributeModel attributeModel, boolean required, boolean setCaption) {
-		HorizontalLayout horizontal = new DefaultHorizontalLayout(false, true, true);
-		if (setCaption) {
-			horizontal.setCaption(attributeModel.getDisplayName(VaadinUtils.getLocale()));
-		}
-		horizontal.setStyleName(DynamoConstants.CSS_NESTED, true);
-		if (required) {
-			horizontal.setStyleName(DynamoConstants.CSS_NESTED + " " + DynamoConstants.CSS_REQUIRED, true);
+				fieldWidth = DynamoConstants.MAX_COLUMNS - labelWidth;
+				rr.addColumn().withDisplayRules(DynamoConstants.MAX_COLUMNS, fieldWidth, fieldWidth, fieldWidth)
+						.withComponent(label);
+			} else {
+				// add another label on the same row
+				Label extraLabel = createExtraLabel(label, attributeModel);
+				ResponsiveRow rr = (ResponsiveRow) parent;
+				rr.addColumn().withDisplayRules(DynamoConstants.MAX_COLUMNS, fieldWidth, fieldWidth, fieldWidth)
+						.withComponent(extraLabel);
+				rr.addColumn().withDisplayRules(DynamoConstants.MAX_COLUMNS, fieldWidth, fieldWidth, fieldWidth)
+						.withComponent(label);
 
+			}
 		}
-		return horizontal;
 	}
 
 	/**
@@ -1116,7 +1132,6 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 		saveButton.setIcon(VaadinIcons.SAFE);
 		saveButton.addClickListener(event -> {
 			try {
-
 				// validate all fields
 				boolean error = validateAllFields();
 				if (!error) {
@@ -1184,12 +1199,6 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 		}
 		label.setContentMode(ContentMode.HTML);
 
-		if (getFormTitleWidth() != null) {
-			label.setWidth(getFormTitleWidth(), Unit.PIXELS);
-		} else if (SystemPropertyUtils.getDefaultFormTitleWidth() > 0 && !getFormOptions().isPlaceButtonBarAtTop()) {
-			label.setWidth(SystemPropertyUtils.getDefaultFormTitleWidth(), Unit.PIXELS);
-		}
-
 		return label;
 	}
 
@@ -1222,7 +1231,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 	public void doSave() {
 		boolean isNew = entity.getId() == null;
 		entity = service.save(entity);
-		setEntity(service.fetchById(entity.getId(), getDetailJoins()));
+		setEntity(service.fetchById(entity.getId(), getDetailJoins()), !getFormOptions().isOpenInViewMode());
 		showNotifification(message("ocs.changes.saved"), Notification.Type.TRAY_NOTIFICATION);
 
 		// set to view mode, load the view mode screen, and fill the
@@ -1343,10 +1352,6 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 	 */
 	public Collection<HasValue<?>> getFields(boolean viewMode) {
 		return groups.get(viewMode).getFields().collect(Collectors.toList());
-	}
-
-	public Integer getFormTitleWidth() {
-		return formTitleWidth;
 	}
 
 	public Label getLabel(String propertyName) {
@@ -1500,7 +1505,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 	 * @param buttonBar
 	 * @param viewMode
 	 */
-	protected void postProcessButtonBar(HorizontalLayout buttonBar, boolean viewMode) {
+	protected void postProcessButtonBar(ResponsiveRow buttonBar, boolean viewMode) {
 		// overwrite in subclasses
 	}
 
@@ -1533,7 +1538,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 				Layout innerLayout2 = constructAttributeGroupLayout(innerForm, innerTabs, innerTabSheet, attributeGroup,
 						true);
 				for (AttributeModel attributeModel : getEntityModel().getAttributeModelsForGroup(attributeGroup)) {
-					addField(innerLayout2, getEntityModel(), attributeModel, tabIndex, false);
+					addField(innerLayout2, getEntityModel(), attributeModel, tabIndex, false, 0);
 				}
 			}
 		}
@@ -1544,37 +1549,16 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 	}
 
 	/**
-	 * Reconstructs all labels are a change of the view mode or the selected entity
+	 * Reconstructs all labels after a change of the view mode or the selected
+	 * entity
 	 */
 	private void reconstructLabels() {
 		// reconstruct all labels (since they cannot be bound automatically)
 		if (labels.get(isViewMode()) != null) {
 			for (Entry<AttributeModel, Component> e : labels.get(isViewMode()).entrySet()) {
-				Component newLabel = constructLabel(entity, e.getKey());
-
-				// label is displayed in view mode or when its an existing
-				// entity
-				newLabel.setVisible(entity.getId() != null || isViewMode());
-
-				// copy custom style name (if any)
-				if (e.getValue().getStyleName() != null) {
-					newLabel.setStyleName(e.getValue().getStyleName());
-				}
-
-				// replace all existing labels with new labels
-				HasComponents hc = e.getValue().getParent();
-				if (hc instanceof Layout) {
-					((Layout) hc).replaceComponent(e.getValue(), newLabel);
-					labels.get(isViewMode()).put(e.getKey(), newLabel);
-				}
-
-				// hide caption for first label in a row
-				if (newLabel.getParent() instanceof FormLayout) {
-					FormLayout fl = (FormLayout) newLabel.getParent();
-					if (fl.getStyleName().contains("first")) {
-						newLabel.setCaption("");
-					}
-				}
+				Object value = ClassUtils.getFieldValue(entity, e.getKey().getPath());
+				String formatted = FormatUtils.formatPropertyValue(getEntityModelFactory(), e.getKey(), value, "<br/>");
+				((Label) e.getValue()).setValue(formatted);
 			}
 		}
 
@@ -1582,8 +1566,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 		Label titleLabel = titleLabels.get(isViewMode());
 		if (titleLabel != null) {
 			Label newLabel = constructTitleLabel();
-			titleLabels.put(isViewMode(), newLabel);
-			titleBars.get(isViewMode()).replaceComponent(titleLabel, newLabel);
+			titleLabel.setValue(newLabel.getValue());
 		}
 	}
 
@@ -1754,63 +1737,69 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 	}
 
 	public void setEntity(T entity) {
-		setEntity(entity, entity.getId() != null);
+		setEntity(entity, true);
 	}
 
-	private void setEntity(T entity, boolean checkIterationButtons) {
+	public void setEntity(T entity, boolean rebuild) {
+		setEntity(entity, entity.getId() != null, rebuild);
+	}
+
+	/**
+	 * Sets the currently selected entity to the provided entity
+	 * 
+	 * @param entity                the entity
+	 * @param checkIterationButtons
+	 * @param rebuild               whether to rebuild the form directly
+	 */
+	private void setEntity(T entity, boolean checkIterationButtons, boolean rebuild) {
 		this.entity = entity;
 
-		refreshFieldFilters();
+		if (rebuild) {
+			refreshFieldFilters();
 
-		// inform all children
-		for (CanAssignEntity<ID, T> field : assignEntityToFields) {
-			field.assignEntity(entity);
-		}
-		afterEntitySet(this.entity);
-
-		setViewMode(getFormOptions().isOpenInViewMode() && entity.getId() != null, checkIterationButtons);
-
-		// recreate the group
-		groups.get(isViewMode()).setBean(entity);
-
-		// "rebuild" so that the correct layout is displayed
-		build();
-		reconstructLabels();
-
-		// refresh the upload components
-		for (Entry<AttributeModel, Component> e : uploads.get(isViewMode()).entrySet()) {
-			HasComponents hc = e.getValue().getParent();
-			if (hc instanceof Layout) {
-				Component uc = constructUploadField(e.getKey());
-				((Layout) hc).replaceComponent(e.getValue(), uc);
-				uploads.get(isViewMode()).put(e.getKey(), uc);
+			// inform all children
+			for (CanAssignEntity<ID, T> field : assignEntityToFields) {
+				field.assignEntity(entity);
 			}
-		}
+			afterEntitySet(this.entity);
+			setViewMode(getFormOptions().isOpenInViewMode() && entity.getId() != null, checkIterationButtons);
 
-		// refresh preview components
-		for (Entry<AttributeModel, Component> e : previews.get(isViewMode()).entrySet()) {
-			HasComponents hc = e.getValue().getParent();
-			if (hc instanceof Layout) {
-				Component pv = constructImagePreview(e.getKey());
-				((Layout) hc).replaceComponent(e.getValue(), pv);
-				previews.get(isViewMode()).put(e.getKey(), pv);
+			// recreate the group
+			groups.get(isViewMode()).setBean(entity);
+
+			build();
+			reconstructLabels();
+
+			// refresh the upload components
+			for (Entry<AttributeModel, Component> e : uploads.get(isViewMode()).entrySet()) {
+				HasComponents hc = e.getValue().getParent();
+				if (hc instanceof Layout) {
+					Component uc = constructUploadField(e.getKey());
+					((Layout) hc).replaceComponent(e.getValue(), uc);
+					uploads.get(isViewMode()).put(e.getKey(), uc);
+				}
 			}
-		}
 
-		// enable/disable fields for create only mode
-		disableCreateOnlyFields();
+			// refresh preview components
+			for (Entry<AttributeModel, Component> e : previews.get(isViewMode()).entrySet()) {
+				HasComponents hc = e.getValue().getParent();
+				if (hc instanceof Layout) {
+					Component pv = constructImagePreview(e.getKey());
+					((Layout) hc).replaceComponent(e.getValue(), pv);
+					previews.get(isViewMode()).put(e.getKey(), pv);
+				}
+			}
 
-		// update the title label
-		Label newTitleLabel = constructTitleLabel();
-		titleBars.get(isViewMode()).replaceComponent(titleLabels.get(isViewMode()), newTitleLabel);
-		titleLabels.put(isViewMode(), newTitleLabel);
+			// enable/disable fields for create only mode
+			disableCreateOnlyFields();
 
-		// change caption depending on entity state
-		updateSaveButtonCaptions();
+			// change caption depending on entity state
+			updateSaveButtonCaptions();
 
-		for (Button b : getCancelButtons()) {
-			b.setVisible((!isViewMode() && !getFormOptions().isHideCancelButton())
-					|| (getFormOptions().isFormNested() && entity.getId() == null));
+			for (Button b : getCancelButtons()) {
+				b.setVisible((!isViewMode() && !getFormOptions().isHideCancelButton())
+						|| (getFormOptions().isFormNested() && entity.getId() == null));
+			}
 		}
 	}
 
@@ -1835,18 +1824,14 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 			// to make sure the "required" asterisk is properly displayed
 			AttributeModel am = getEntityModel().getAttributeModel(propertyName);
 			if (am != null && !am.getGroupTogetherWith().isEmpty()) {
-				HorizontalLayout hz = (HorizontalLayout) field.getParent().getParent();
+				Layout parentLayout = (Layout) field.getParent().getParent();
 				if (required) {
-					hz.addStyleName(DynamoConstants.CSS_REQUIRED);
+					parentLayout.addStyleName(DynamoConstants.CSS_REQUIRED);
 				} else {
-					hz.removeStyleName(DynamoConstants.CSS_REQUIRED);
+					parentLayout.removeStyleName(DynamoConstants.CSS_REQUIRED);
 				}
 			}
 		}
-	}
-
-	public void setFormTitleWidth(Integer formTitleWidth) {
-		this.formTitleWidth = formTitleWidth;
 	}
 
 	/**
@@ -1876,15 +1861,8 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 		if (am != null) {
 			Component label = labels.get(isViewMode()).get(am);
 			if (label != null) {
-				if (ClassUtils.getFieldValue(entity, propertyName) != null) {
-					label.setVisible(visible);
-					label.setCaption(am.getDisplayName(VaadinUtils.getLocale()));
-				} else {
-					label.setVisible(false);
-					label.setCaption(null);
-				}
+				VaadinUtils.getParentOfClass(label, ResponsiveRow.class).setVisible(visible);
 			}
-
 		}
 	}
 
@@ -1927,9 +1905,8 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 
 		groups.get(isViewMode()).setBean(entity);
 
-		constructTitleLabel();
-		reconstructLabels();
 		build();
+		reconstructLabels();
 
 		checkIterationButtonState(checkIterationButtons);
 

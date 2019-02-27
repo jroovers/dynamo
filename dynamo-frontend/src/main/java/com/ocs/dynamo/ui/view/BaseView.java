@@ -15,16 +15,18 @@ package com.ocs.dynamo.ui.view;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.jarektoro.responsivelayout.ResponsiveLayout;
+import com.jarektoro.responsivelayout.ResponsiveRow;
+import com.jarektoro.responsivelayout.ResponsiveRow.MarginSize;
+import com.ocs.dynamo.constants.DynamoConstants;
 import com.ocs.dynamo.domain.model.EntityModelFactory;
 import com.ocs.dynamo.service.MessageService;
 import com.ocs.dynamo.ui.BaseUI;
-import com.ocs.dynamo.ui.component.DefaultVerticalLayout;
 import com.ocs.dynamo.ui.utils.VaadinUtils;
 import com.vaadin.navigator.View;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.Layout;
 import com.vaadin.ui.UI;
-import com.vaadin.ui.VerticalLayout;
 
 /**
  * A base class for Views. Provides easy access to the entity model factory and
@@ -38,13 +40,20 @@ public abstract class BaseView extends CustomComponent implements View {
 
 	private static final long serialVersionUID = 8340448520371840427L;
 
-	private UI ui = UI.getCurrent();
+	@Autowired
+	private MessageService messageService;
 
 	@Autowired
 	private EntityModelFactory modelFactory;
 
-	@Autowired
-	private MessageService messageService;
+	private UI ui = UI.getCurrent();
+
+	protected void addFullWidthComponent(ResponsiveLayout main, Component component) {
+		main.addRow(new ResponsiveRow().withMargin(MarginSize.SMALL)).addColumn()
+				.withDisplayRules(DynamoConstants.MAX_COLUMNS, DynamoConstants.MAX_COLUMNS, DynamoConstants.MAX_COLUMNS,
+						DynamoConstants.MAX_COLUMNS)
+				.withComponent(component);
+	}
 
 	/**
 	 * Clears the current screen mode
@@ -80,8 +89,8 @@ public abstract class BaseView extends CustomComponent implements View {
 	 * 
 	 * @return
 	 */
-	protected Layout initLayout() {
-		VerticalLayout container = new DefaultVerticalLayout(true, true);
+	protected ResponsiveLayout initLayout() {
+		ResponsiveLayout container = new ResponsiveLayout();
 		setCompositionRoot(container);
 		return container;
 	}
@@ -89,8 +98,7 @@ public abstract class BaseView extends CustomComponent implements View {
 	/**
 	 * Retrieves a message based on its key
 	 * 
-	 * @param key
-	 *            the key of the message
+	 * @param key the key of the message
 	 * @return
 	 */
 	protected String message(String key) {
@@ -100,10 +108,8 @@ public abstract class BaseView extends CustomComponent implements View {
 	/**
 	 * Retrieves a message based on its key
 	 * 
-	 * @param key
-	 *            the key of the message
-	 * @param args
-	 *            any arguments to pass to the message
+	 * @param key  the key of the message
+	 * @param args any arguments to pass to the message
 	 * @return
 	 */
 	protected String message(String key, Object... args) {
@@ -113,8 +119,7 @@ public abstract class BaseView extends CustomComponent implements View {
 	/**
 	 * Navigates to the selected view
 	 * 
-	 * @param viewId
-	 *            the ID of the desired view
+	 * @param viewId the ID of the desired view
 	 */
 	protected void navigate(String viewId) {
 		ui.getNavigator().navigateTo(viewId);

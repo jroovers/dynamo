@@ -14,11 +14,11 @@
 package com.ocs.dynamo.ui.composite.form;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jarektoro.responsivelayout.ResponsiveRow;
 import com.ocs.dynamo.constants.DynamoConstants;
 import com.ocs.dynamo.domain.AbstractEntity;
 import com.ocs.dynamo.domain.model.AttributeModel;
@@ -32,8 +32,6 @@ import com.ocs.dynamo.ui.Refreshable;
 import com.ocs.dynamo.ui.Searchable;
 import com.ocs.dynamo.ui.component.Cascadable;
 import com.ocs.dynamo.ui.component.CustomEntityField;
-import com.ocs.dynamo.ui.component.DefaultHorizontalLayout;
-import com.ocs.dynamo.ui.component.DefaultVerticalLayout;
 import com.ocs.dynamo.ui.composite.layout.FormOptions;
 import com.ocs.dynamo.ui.utils.VaadinUtils;
 import com.vaadin.data.HasValue;
@@ -41,11 +39,7 @@ import com.vaadin.data.HasValue.ValueChangeEvent;
 import com.vaadin.server.SerializablePredicate;
 import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Layout;
-import com.vaadin.ui.VerticalLayout;
 
 /**
  * A search form that is constructed based on the metadata model
@@ -65,29 +59,14 @@ public class ModelBasedSearchForm<ID extends Serializable, T extends AbstractEnt
 	private static final long serialVersionUID = -7226808613882934559L;
 
 	/**
-	 * The number of search fields that was added so far
-	 */
-	private int fieldsAdded = 0;
-
-	/**
 	 * The main form layout
 	 */
-	private Layout form;
+	private ResponsiveRow form;
 
 	/**
 	 * The various filter groups
 	 */
 	private Map<String, FilterGroup<T>> groups = new HashMap<>();
-
-	/**
-	 * The number of search columns
-	 */
-	private int nrOfColumns = 1;
-
-	/**
-	 * Sub form layouts that are used in case of multiple column layout
-	 */
-	private List<FormLayout> subForms = new ArrayList<>();
 
 	/**
 	 * Constructor
@@ -127,17 +106,6 @@ public class ModelBasedSearchForm<ID extends Serializable, T extends AbstractEnt
 	}
 
 	/**
-	 * Constructs the button bar for the search form
-	 */
-	@Override
-	protected void constructButtonBar(Layout buttonBar) {
-		buttonBar.addComponent(constructSearchButton());
-		buttonBar.addComponent(constructSearchAnyButton());
-		buttonBar.addComponent(constructClearButton());
-		buttonBar.addComponent(constructToggleButton());
-	}
-
-	/**
 	 * Adds any value change listeners for taking care of cascading search
 	 */
 	protected void constructCascadeListeners() {
@@ -173,7 +141,8 @@ public class ModelBasedSearchForm<ID extends Serializable, T extends AbstractEnt
 		}
 
 		if (field != null) {
-			field.setSizeFull();
+			field.setId(attributeModel.getPath().replace(".", "_"));
+			field.setStyleName(DynamoConstants.CSS_DYNAMO_FIELD);
 		} else {
 			throw new OCSRuntimeException("No field could be constructed for " + attributeModel.getPath());
 		}
@@ -209,23 +178,28 @@ public class ModelBasedSearchForm<ID extends Serializable, T extends AbstractEnt
 				filterType = FilterType.EQUAL;
 			}
 
-			Component comp = field;
+			Component comp = new ResponsiveRow().withMargin(false)/*
+																	 * .withStyleName(DynamoConstants.
+																	 * CSS_DYNAMO_SEARCH_FORM)
+																	 */
+					.withComponents(field);
 			AbstractComponent auxField = null;
 			if (FilterType.BETWEEN.equals(filterType)) {
+				// field.setStyleName(DynamoConstants.CSS_DYNAMO_FIELD_HALF);
 				// in case of a between value, construct two fields for the
 				// lower
 				// and upper bounds
-				String from = message("ocs.from");
-				field.setCaption(attributeModel.getDisplayName(VaadinUtils.getLocale()) + " " + from);
+				field.setCaption(attributeModel.getDisplayName(VaadinUtils.getLocale()));
 				auxField = constructField(entityModel, attributeModel);
-				String to = message("ocs.to");
-				auxField.setCaption(attributeModel.getDisplayName(VaadinUtils.getLocale()) + " " + to);
-				auxField.setVisible(true);
-				HorizontalLayout layout = new DefaultHorizontalLayout();
-				layout.setSizeFull();
-				layout.addComponent(field);
-				layout.addComponent(auxField);
-				comp = layout;
+				// auxField.setStyleName(DynamoConstants.CSS_DYNAMO_FIELD_HALF);
+				auxField.setCaption(null);
+
+				ResponsiveRow row = new ResponsiveRow().withMargin(false)
+				/* .withStyleName(DynamoConstants.CSS_DYNAMO_SEARCH_FORM) */;
+				row.setSizeFull();
+				row.addColumn().withDisplayRules(12, 6, 6, 6).withComponent(field);
+				row.addColumn().withDisplayRules(12, 6, 6, 6).withComponent(auxField);
+				comp = row;
 			}
 			return new FilterGroup<>(attributeModel, filterType, comp, field, auxField);
 		}
@@ -240,38 +214,24 @@ public class ModelBasedSearchForm<ID extends Serializable, T extends AbstractEnt
 	 */
 	@Override
 	protected Layout constructFilterLayout() {
-		if (nrOfColumns == 1) {
-			form = new FormLayout();
-			// don't use all the space unless it's a popup window
-			if (!getFormOptions().isPopup()) {
-				form.setStyleName(DynamoConstants.CSS_CLASS_HALFSCREEN);
-			}
-		} else {
-			// create a number of form layouts next to each others
-			form = new GridLayout(nrOfColumns, 1);
-			form.setSizeFull();
-
-			for (int i = 0; i < nrOfColumns; i++) {
-				FormLayout column = new FormLayout();
-				column.setMargin(true);
-				subForms.add(column);
-				form.addComponent(column);
-			}
-		}
+		form = new ResponsiveRow();
 
 		// iterate over the searchable attributes and add a field for each
 		iterate(getEntityModel().getAttributeModels());
 		constructCascadeListeners();
 
-		DefaultVerticalLayout margin = new DefaultVerticalLayout(true, false);
-		margin.addComponent(form);
+		return form;
+	}
 
-		// hide the search form if there are no search criteria (and no extra search
-		// fields)
-		if (groups.isEmpty()) {
-			margin.setVisible(false);
-		}
-		return margin;
+	/**
+	 * Constructs the button bar for the search form
+	 */
+	@Override
+	protected void fillButtonBar(ResponsiveRow buttonBar) {
+		buttonBar.addComponent(constructSearchButton());
+		buttonBar.addComponent(constructSearchAnyButton());
+		buttonBar.addComponent(constructClearButton());
+		buttonBar.addComponent(constructToggleButton());
 	}
 
 	/**
@@ -304,10 +264,6 @@ public class ModelBasedSearchForm<ID extends Serializable, T extends AbstractEnt
 	 */
 	public Map<String, FilterGroup<T>> getGroups() {
 		return groups;
-	}
-
-	public int getNrOfColumns() {
-		return nrOfColumns;
 	}
 
 	/**
@@ -345,23 +301,18 @@ public class ModelBasedSearchForm<ID extends Serializable, T extends AbstractEnt
 	 * @param attributeModels the attribute models to iterate over
 	 */
 	private void iterate(List<AttributeModel> attributeModels) {
+
 		for (AttributeModel attributeModel : attributeModels) {
 			if (attributeModel.isSearchable()) {
 
 				FilterGroup<T> group = constructFilterGroup(getEntityModel(), attributeModel);
 				group.getFilterComponent().setSizeFull();
 
-				if (nrOfColumns == 1) {
-					form.addComponent(group.getFilterComponent());
-				} else {
-					int index = fieldsAdded % nrOfColumns;
-					subForms.get(index).addComponent(group.getFilterComponent());
-				}
+				form.addComponent(group.getFilterComponent());
 
 				// register with the form and set the listener
 				group.addListener(this);
 				groups.put(group.getPropertyId(), group);
-				fieldsAdded++;
 			}
 
 			// also support search on nested attributes
@@ -388,7 +339,7 @@ public class ModelBasedSearchForm<ID extends Serializable, T extends AbstractEnt
 	 * @param layout the main layout
 	 */
 	@Override
-	protected void postProcessLayout(VerticalLayout layout) {
+	protected void postProcessLayout(Layout layout) {
 		postProcessFilterGroups(groups);
 	}
 
@@ -409,15 +360,6 @@ public class ModelBasedSearchForm<ID extends Serializable, T extends AbstractEnt
 				}
 			}
 		}
-	}
-
-	/**
-	 * Sets the desired number of columns
-	 * 
-	 * @param nrOfColumns the number of columns
-	 */
-	public void setNrOfColumns(int nrOfColumns) {
-		this.nrOfColumns = nrOfColumns;
 	}
 
 	/**

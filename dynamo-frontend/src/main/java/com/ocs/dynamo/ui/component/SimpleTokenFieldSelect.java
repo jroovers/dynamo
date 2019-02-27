@@ -254,7 +254,6 @@ public class SimpleTokenFieldSelect<ID extends Serializable, S extends AbstractE
 		setupProviderSync();
 
 		layout.addComponent(extTokenField);
-		layout.setSizeFull();
 
 		return layout;
 	}

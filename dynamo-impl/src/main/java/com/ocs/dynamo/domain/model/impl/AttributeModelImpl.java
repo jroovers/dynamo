@@ -90,8 +90,6 @@ public class AttributeModelImpl implements AttributeModel {
 
 	private EntityModel<?> entityModel;
 
-	private float expansionFactor;
-
 	private String fileNameProperty;
 
 	private boolean ignoreInSearchFilter;
@@ -291,11 +289,6 @@ public class AttributeModelImpl implements AttributeModel {
 	@Override
 	public EntityModel<?> getEntityModel() {
 		return entityModel;
-	}
-
-	@Override
-	public float getExpansionFactor() {
-		return expansionFactor;
 	}
 
 	@Override
@@ -702,10 +695,6 @@ public class AttributeModelImpl implements AttributeModel {
 
 	public void setEntityModel(EntityModel<?> entityModel) {
 		this.entityModel = entityModel;
-	}
-
-	public void setExpansionFactor(float expansionFactor) {
-		this.expansionFactor = expansionFactor;
 	}
 
 	public void setFileNameProperty(String fileNameProperty) {

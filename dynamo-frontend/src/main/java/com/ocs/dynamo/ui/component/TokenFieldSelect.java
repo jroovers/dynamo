@@ -22,6 +22,10 @@ import java.util.stream.Collectors;
 import com.explicatis.ext_token_field.ExtTokenField;
 import com.explicatis.ext_token_field.Tokenizable;
 import com.google.common.collect.Sets;
+import com.jarektoro.responsivelayout.ResponsiveLayout;
+import com.jarektoro.responsivelayout.ResponsiveRow;
+import com.jarektoro.responsivelayout.ResponsiveRow.MarginSize;
+import com.jarektoro.responsivelayout.ResponsiveRow.SpacingSize;
 import com.ocs.dynamo.constants.DynamoConstants;
 import com.ocs.dynamo.domain.AbstractEntity;
 import com.ocs.dynamo.domain.model.AttributeModel;
@@ -37,7 +41,6 @@ import com.vaadin.server.SerializablePredicate;
 import com.vaadin.shared.Registration;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.HorizontalLayout;
 
 /**
  * A multiple select component that displays tags/tokens to indicate which
@@ -114,7 +117,7 @@ public class TokenFieldSelect<ID extends Serializable, T extends AbstractEntity<
 
 	private final Collection<ValueChangeListener<Collection<T>>> valueChangeListeners;
 
-	private boolean addAllowed = false;
+	private boolean quickAddAllowed = false;
 
 	/**
 	 * Constructor
@@ -145,7 +148,7 @@ public class TokenFieldSelect<ID extends Serializable, T extends AbstractEntity<
 		comboBox = new EntityComboBox<>(em, attributeModel, service, filter, sharedProvider, sortOrders);
 		provider = new ListDataProvider<>(new ArrayList<>());
 		valueChangeListeners = new ArrayList<>();
-		this.addAllowed = !search && (attributeModel != null && attributeModel.isQuickAddAllowed());
+		this.quickAddAllowed = !search && (attributeModel != null && attributeModel.isQuickAddAllowed());
 	}
 
 	/**
@@ -263,9 +266,8 @@ public class TokenFieldSelect<ID extends Serializable, T extends AbstractEntity<
 
 	@Override
 	protected Component initContent() {
-		HorizontalLayout layout = new DefaultHorizontalLayout(false, true, true);
-
-		comboBox.setHeightUndefined();
+		ResponsiveLayout layout = new ResponsiveLayout().withFullSize();
+		ResponsiveRow row = layout.addRow().withSpacing(SpacingSize.SMALL, true);
 
 		extTokenField.setInputField(comboBox);
 		extTokenField.setEnableDefaultDeleteTokenAction(true);
@@ -274,18 +276,16 @@ public class TokenFieldSelect<ID extends Serializable, T extends AbstractEntity<
 		attachTokenFieldValueChange();
 		setupContainerFieldSync();
 
-		layout.addComponent(extTokenField);
+		int factor = DynamoConstants.MAX_COLUMNS - (quickAddAllowed ? 2 : 0);
+		row.addColumn().withDisplayRules(12, factor, factor, factor).withComponent(extTokenField);
 
-		if (addAllowed) {
+		if (quickAddAllowed) {
 			Button addButton = constructAddButton();
-			layout.addComponent(addButton);
-			layout.setExpandRatio(extTokenField, 0.90f);
-			layout.setExpandRatio(addButton, 0.10f);
+			row.addColumn().withDisplayRules(12, 2, 2, 2).withComponent(addButton);
 		}
 
 		// initial filling of the field
 		addTokens();
-		layout.setSizeFull();
 
 		return layout;
 	}

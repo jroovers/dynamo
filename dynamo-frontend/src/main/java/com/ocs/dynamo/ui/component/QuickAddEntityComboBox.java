@@ -16,6 +16,9 @@ package com.ocs.dynamo.ui.component;
 import java.io.Serializable;
 import java.util.List;
 
+import com.jarektoro.responsivelayout.ResponsiveLayout;
+import com.jarektoro.responsivelayout.ResponsiveRow;
+import com.ocs.dynamo.constants.DynamoConstants;
 import com.ocs.dynamo.domain.AbstractEntity;
 import com.ocs.dynamo.domain.model.AttributeModel;
 import com.ocs.dynamo.domain.model.EntityModel;
@@ -29,9 +32,7 @@ import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.data.provider.SortOrder;
 import com.vaadin.server.SerializablePredicate;
 import com.vaadin.shared.Registration;
-import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.HorizontalLayout;
 
 /**
  * A component that contains a combo box for selecting an entity, plus the
@@ -47,12 +48,19 @@ public class QuickAddEntityComboBox<ID extends Serializable, T extends AbstractE
 
 	private static final long serialVersionUID = 4246187881499965296L;
 
-	private static final float BUTTON_EXPAND_RATIO = 0.25f;
-
+	/**
+	 * Whether the quick add options is enabled
+	 */
 	private final boolean quickAddAllowed;
 
+	/**
+	 * Whether direct navigation is allowed
+	 */
 	private final boolean directNavigationAllowed;
 
+	/**
+	 * The actual combo box
+	 */
 	private EntityComboBox<ID, T> comboBox;
 
 	/**
@@ -75,6 +83,7 @@ public class QuickAddEntityComboBox<ID extends Serializable, T extends AbstractE
 				sortOrder);
 		this.quickAddAllowed = attributeModel != null && attributeModel.isQuickAddAllowed() && !search;
 		this.directNavigationAllowed = attributeModel != null && attributeModel.isNavigable() && !search;
+
 	}
 
 	@Override
@@ -132,8 +141,9 @@ public class QuickAddEntityComboBox<ID extends Serializable, T extends AbstractE
 
 	@Override
 	protected Component initContent() {
-		HorizontalLayout bar = new DefaultHorizontalLayout(false, true, true);
-		bar.setSizeFull();
+		ResponsiveLayout layout = new ResponsiveLayout().withFullSize();
+		ResponsiveRow bar = ResponsiveUtil.createRowWithSpacing();
+		layout.addRow(bar);
 
 		if (this.getAttributeModel() != null) {
 			this.setCaption(getAttributeModel().getDisplayName(VaadinUtils.getLocale()));
@@ -143,29 +153,18 @@ public class QuickAddEntityComboBox<ID extends Serializable, T extends AbstractE
 		comboBox.setCaption(null);
 		comboBox.setSizeFull();
 
-		bar.addComponent(comboBox);
-		float comboBoxExpandRatio = 1f;
-		if (quickAddAllowed) {
-			comboBoxExpandRatio -= BUTTON_EXPAND_RATIO;
-		}
-		if (directNavigationAllowed) {
-			comboBoxExpandRatio -= 0.10f;
-		}
-
-		bar.setExpandRatio(comboBox, comboBoxExpandRatio);
+		int factor = DynamoConstants.MAX_COLUMNS - (quickAddAllowed ? BUTTON_COLS : 0)
+				- (directNavigationAllowed ? BUTTON_COLS : 0);
+		bar.addColumn().withDisplayRules(DynamoConstants.MAX_COLUMNS, factor, factor, factor).withComponent(comboBox);
 
 		if (quickAddAllowed) {
-			Button addButton = constructAddButton();
-			addButton.setSizeFull();
-			bar.addComponent(addButton);
-			bar.setExpandRatio(addButton, BUTTON_EXPAND_RATIO);
+			addQuickAddButton(bar, directNavigationAllowed);
 		}
+
 		if (directNavigationAllowed) {
-			Button directNavigationButton = constructDirectNavigationButton();
-			bar.addComponent(directNavigationButton);
-			bar.setExpandRatio(directNavigationButton, 0.10f);
+			addDirectNavigationButton(bar, quickAddAllowed);
 		}
-		return bar;
+		return layout;
 	}
 
 	@Override

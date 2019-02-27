@@ -41,7 +41,6 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
-import javax.persistence.Transient;
 import javax.validation.constraints.AssertFalse;
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotNull;
@@ -174,7 +173,6 @@ public class EntityModelFactoryImpl implements EntityModelFactory, EntityModelCo
 			model.setSearchable(descriptor.isPreferred());
 			model.setName((prefix == null ? "" : (prefix + ".")) + fieldName);
 			model.setImage(false);
-			model.setExpansionFactor(1.0f);
 
 			model.setEditableType(descriptor.isHidden() ? EditableType.READ_ONLY : EditableType.EDITABLE);
 			model.setSortable(true);
@@ -1054,10 +1052,6 @@ public class EntityModelFactoryImpl implements EntityModelFactory, EntityModelCo
 
 				final String defaultValue = attribute.defaultValue();
 				setDefaultValue(model, defaultValue);
-			}
-
-			if (attribute.expansionFactor() > 1.0f) {
-				model.setExpansionFactor(attribute.expansionFactor());
 			}
 
 			if (!StringUtils.isEmpty(attribute.styles())) {

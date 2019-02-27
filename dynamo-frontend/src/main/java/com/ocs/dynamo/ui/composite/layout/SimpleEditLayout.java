@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import com.jarektoro.responsivelayout.ResponsiveRow;
 import com.ocs.dynamo.dao.FetchJoinInformation;
 import com.ocs.dynamo.domain.AbstractEntity;
 import com.ocs.dynamo.domain.model.AttributeModel;
@@ -31,7 +32,6 @@ import com.ocs.dynamo.ui.composite.type.ScreenMode;
 import com.vaadin.data.Converter;
 import com.vaadin.server.SerializablePredicate;
 import com.vaadin.ui.AbstractComponent;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.VerticalLayout;
 
@@ -241,7 +241,7 @@ public class SimpleEditLayout<ID extends Serializable, T extends AbstractEntity<
 				}
 
 				@Override
-				protected void postProcessButtonBar(HorizontalLayout buttonBar, boolean viewMode) {
+				protected void postProcessButtonBar(ResponsiveRow buttonBar, boolean viewMode) {
 					SimpleEditLayout.this.postProcessButtonBar(buttonBar, viewMode);
 				}
 
@@ -254,7 +254,6 @@ public class SimpleEditLayout<ID extends Serializable, T extends AbstractEntity<
 
 			editForm.setCustomSaveConsumer(customSaveConsumer);
 			editForm.setDetailJoins(getJoins());
-			editForm.setFormTitleWidth(getFormTitleWidth());
 			editForm.setFieldEntityModels(getFieldEntityModels());
 			editForm.build();
 
@@ -348,7 +347,7 @@ public class SimpleEditLayout<ID extends Serializable, T extends AbstractEntity<
 	 * @param buttonBar the button bar
 	 * @param viewMode  the view mode
 	 */
-	protected void postProcessButtonBar(Layout buttonBar, boolean viewMode) {
+	protected void postProcessButtonBar(ResponsiveRow buttonBar, boolean viewMode) {
 		// overwrite in subclasses
 	}
 

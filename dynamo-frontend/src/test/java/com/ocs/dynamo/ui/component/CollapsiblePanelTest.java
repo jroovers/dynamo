@@ -3,6 +3,7 @@ package com.ocs.dynamo.ui.component;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.jarektoro.responsivelayout.ResponsiveRow;
 import com.vaadin.ui.VerticalLayout;
 
 public class CollapsiblePanelTest {
@@ -21,9 +22,9 @@ public class CollapsiblePanelTest {
 	public void testReplaceContent() {
 		CollapsiblePanel panel = new CollapsiblePanel("Caption", new VerticalLayout());
 
-		VerticalLayout v2 = new VerticalLayout();
+		ResponsiveRow v2 = new ResponsiveRow();
 		panel.setContent(v2);
 
-		Assert.assertEquals(v2, panel.getContentWrapper().iterator().next());
+		Assert.assertEquals(ResponsiveRow.class, panel.getContentWrapper().iterator().next().getClass());
 	}
 }

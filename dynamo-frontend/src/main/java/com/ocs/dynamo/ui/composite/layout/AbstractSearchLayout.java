@@ -19,14 +19,14 @@ import java.util.List;
 import java.util.Objects;
 
 import com.google.common.collect.Lists;
-import com.ocs.dynamo.constants.DynamoConstants;
+import com.jarektoro.responsivelayout.ResponsiveLayout;
+import com.jarektoro.responsivelayout.ResponsiveRow;
 import com.ocs.dynamo.dao.FetchJoinInformation;
 import com.ocs.dynamo.domain.AbstractEntity;
 import com.ocs.dynamo.domain.model.AttributeModel;
 import com.ocs.dynamo.domain.model.EntityModel;
 import com.ocs.dynamo.exception.OCSValidationException;
 import com.ocs.dynamo.service.BaseService;
-import com.ocs.dynamo.ui.component.DefaultHorizontalLayout;
 import com.ocs.dynamo.ui.component.DefaultVerticalLayout;
 import com.ocs.dynamo.ui.composite.form.AbstractModelBasedSearchForm;
 import com.ocs.dynamo.ui.composite.form.ModelBasedEditForm;
@@ -44,11 +44,9 @@ import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Grid.SelectionMode;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.Notification;
-import com.vaadin.ui.VerticalLayout;
 
 /**
  * Base class for search layouts. A search layout consists of a search form with
@@ -94,12 +92,12 @@ public abstract class AbstractSearchLayout<ID extends Serializable, T extends Ab
 	/**
 	 * The main layout (in edit mode)
 	 */
-	private VerticalLayout mainEditLayout;
+	private ResponsiveLayout mainEditLayout;
 
 	/**
 	 * The main layout (in search mode)
 	 */
-	private VerticalLayout mainSearchLayout;
+	private ResponsiveLayout mainSearchLayout;
 
 	/**
 	 * Button for selecting the next item
@@ -134,7 +132,7 @@ public abstract class AbstractSearchLayout<ID extends Serializable, T extends Ab
 	/**
 	 * The layout that contains the grid that contains the search results
 	 */
-	private VerticalLayout searchResultsLayout;
+	private Layout searchResultsLayout;
 
 	/**
 	 * The selected detail layout
@@ -150,7 +148,7 @@ public abstract class AbstractSearchLayout<ID extends Serializable, T extends Ab
 	 * The layout that holds the tab sheet when the component is in complex details
 	 * mode
 	 */
-	private VerticalLayout tabContainerLayout;
+	private Layout tabContainerLayout;
 
 	/**
 	 * Tabbed layout for complex detail mode
@@ -224,7 +222,7 @@ public abstract class AbstractSearchLayout<ID extends Serializable, T extends Ab
 	@Override
 	public void build() {
 		if (mainSearchLayout == null) {
-			mainSearchLayout = new DefaultVerticalLayout();
+			mainSearchLayout = new ResponsiveLayout();
 
 			// if search immediately, construct the search results grid
 			if (getFormOptions().isSearchImmediately()) {
@@ -253,7 +251,7 @@ public abstract class AbstractSearchLayout<ID extends Serializable, T extends Ab
 				getSearchForm().getClearButton().addClickListener(e -> afterClear());
 			}
 
-			searchResultsLayout = new DefaultVerticalLayout(false, false);
+			searchResultsLayout = new ResponsiveLayout();
 			mainSearchLayout.addComponent(searchResultsLayout);
 
 			if (getFormOptions().isSearchImmediately()) {
@@ -312,7 +310,7 @@ public abstract class AbstractSearchLayout<ID extends Serializable, T extends Ab
 	protected final void buildDetailsTabLayout(T entity, FormOptions formOptions) {
 		tabContainerLayout = new DefaultVerticalLayout(true, true);
 
-		HorizontalLayout buttonBar = new DefaultHorizontalLayout(false, true, true);
+		ResponsiveLayout buttonBar = new ResponsiveLayout();
 		tabContainerLayout.addComponent(buttonBar);
 
 		complexDetailModeBackButton = new Button(message("ocs.back"));
@@ -491,7 +489,7 @@ public abstract class AbstractSearchLayout<ID extends Serializable, T extends Ab
 			}
 
 			@Override
-			protected void postProcessButtonBar(HorizontalLayout buttonBar, boolean viewMode) {
+			protected void postProcessButtonBar(ResponsiveRow buttonBar, boolean viewMode) {
 				AbstractSearchLayout.this.postProcessDetailButtonBar(buttonBar, viewMode);
 			}
 
@@ -501,7 +499,6 @@ public abstract class AbstractSearchLayout<ID extends Serializable, T extends Ab
 			}
 
 		};
-		editForm.setFormTitleWidth(getFormTitleWidth());
 		editForm.setCustomSaveConsumer(getCustomSaveConsumer());
 		editForm.setSupportsIteration(true);
 		editForm.setDetailJoins(getDetailJoins());
@@ -684,8 +681,8 @@ public abstract class AbstractSearchLayout<ID extends Serializable, T extends Ab
 	protected void detailsMode(T entity) {
 
 		if (mainEditLayout == null) {
-			mainEditLayout = new DefaultVerticalLayout();
-			mainEditLayout.setStyleName(DynamoConstants.CSS_CLASS_HALFSCREEN);
+			mainEditLayout = new ResponsiveLayout();
+			// mainEditLayout.setStyleName(DynamoConstants.CSS_CLASS_HALFSCREEN);
 		}
 
 		FormOptions copy = new FormOptions();
@@ -856,7 +853,7 @@ public abstract class AbstractSearchLayout<ID extends Serializable, T extends Ab
 		return null;
 	}
 
-	public VerticalLayout getMainSearchLayout() {
+	public ResponsiveLayout getMainSearchLayout() {
 		return mainSearchLayout;
 	}
 
@@ -916,7 +913,7 @@ public abstract class AbstractSearchLayout<ID extends Serializable, T extends Ab
 		return searchForm;
 	}
 
-	public VerticalLayout getSearchResultsLayout() {
+	public Layout getSearchResultsLayout() {
 		return searchResultsLayout;
 	}
 

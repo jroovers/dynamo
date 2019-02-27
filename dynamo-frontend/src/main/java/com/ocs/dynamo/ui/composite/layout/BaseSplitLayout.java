@@ -15,6 +15,7 @@ package com.ocs.dynamo.ui.composite.layout;
 
 import java.io.Serializable;
 
+import com.jarektoro.responsivelayout.ResponsiveRow;
 import com.ocs.dynamo.dao.FetchJoinInformation;
 import com.ocs.dynamo.domain.AbstractEntity;
 import com.ocs.dynamo.domain.model.AttributeModel;
@@ -31,7 +32,6 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
@@ -355,7 +355,7 @@ public abstract class BaseSplitLayout<ID extends Serializable, T extends Abstrac
 				}
 
 				@Override
-				protected void postProcessButtonBar(HorizontalLayout buttonBar, boolean viewMode) {
+				protected void postProcessButtonBar(ResponsiveRow buttonBar, boolean viewMode) {
 					BaseSplitLayout.this.postProcessDetailButtonBar(buttonBar, viewMode);
 				}
 
@@ -367,7 +367,6 @@ public abstract class BaseSplitLayout<ID extends Serializable, T extends Abstrac
 			};
 
 			editForm.setCustomSaveConsumer(getCustomSaveConsumer());
-			editForm.setFormTitleWidth(getFormTitleWidth());
 			editForm.setDetailJoins(getDetailJoins());
 			editForm.setFieldEntityModels(getFieldEntityModels());
 			editForm.build();

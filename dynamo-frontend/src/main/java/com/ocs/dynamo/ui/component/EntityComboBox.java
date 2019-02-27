@@ -105,6 +105,7 @@ public class EntityComboBox<ID extends Serializable, T extends AbstractEntity<ID
 		this.sortOrders = sortOrders;
 		this.attributeModel = attributeModel;
 		this.filter = filter;
+		this.setResponsive(true);
 		this.targetEntityModel = targetEntityModel;
 		if (attributeModel != null) {
 			this.setCaption(attributeModel.getDisplayName(VaadinUtils.getLocale()));
@@ -126,10 +127,8 @@ public class EntityComboBox<ID extends Serializable, T extends AbstractEntity<ID
 			}
 		}
 		setDataProvider(new IgnoreDiacriticsCaptionFilter(true, false), provider);
-
 		setItemCaptionGenerator(t -> EntityModelUtils.getDisplayPropertyValue(t, targetEntityModel));
 		setSizeFull();
-
 	}
 
 	/**

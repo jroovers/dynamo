@@ -24,8 +24,6 @@ public class SystemPropertyUtilsTest {
 
 		Assert.assertEquals("en_GB", SystemPropertyUtils.getDefaultLocale());
 
-		Assert.assertEquals(0, SystemPropertyUtils.getDefaultFormTitleWidth());
-
 		Assert.assertFalse(SystemPropertyUtils.getDefaultSearchCaseSensitive());
 		Assert.assertFalse(SystemPropertyUtils.getDefaultSearchPrefixOnly());
 

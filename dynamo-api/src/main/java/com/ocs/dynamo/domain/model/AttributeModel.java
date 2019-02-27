@@ -150,13 +150,6 @@ public interface AttributeModel extends Comparable<AttributeModel> {
 	EntityModel<?> getEntityModel();
 
 	/**
-	 * The expansion factor for sizing components that are rendered on the same row
-	 *
-	 * @return
-	 */
-	float getExpansionFactor();
-
-	/**
 	 * 
 	 * @return The textual representation of a "false" value
 	 */

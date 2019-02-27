@@ -6,6 +6,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.jarektoro.responsivelayout.ResponsiveLayout;
 import com.ocs.dynamo.domain.TestEntity;
 import com.ocs.dynamo.service.TestEntityService;
 import com.ocs.dynamo.test.BaseIntegrationTest;
@@ -13,7 +14,6 @@ import com.ocs.dynamo.ui.Reloadable;
 import com.vaadin.server.Resource;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.VerticalLayout;
 
 public class LazyTabLayoutTest extends BaseIntegrationTest {
 
@@ -93,25 +93,25 @@ public class LazyTabLayoutTest extends BaseIntegrationTest {
 		};
 		layout.build();
 
-		Assert.assertTrue(layout.getTab(0).getComponent() instanceof VerticalLayout);
-		VerticalLayout vl = (VerticalLayout) layout.getTab(0).getComponent();
+		Assert.assertTrue(layout.getTab(0).getComponent() instanceof ResponsiveLayout);
+		ResponsiveLayout vl = (ResponsiveLayout) layout.getTab(0).getComponent();
 		Assert.assertEquals(1, vl.getComponentCount());
 		Assert.assertEquals("tab1", layout.getTab(0).getCaption());
 		Assert.assertEquals("tab1 description", layout.getTab(0).getDescription());
 
 		// second tab has not been created yet
-		VerticalLayout vl2 = (VerticalLayout) layout.getTab(1).getComponent();
+		ResponsiveLayout vl2 = (ResponsiveLayout) layout.getTab(1).getComponent();
 		Assert.assertEquals(0, vl2.getComponentCount());
 
 		// select the second tab, this will lazily create it
 		layout.selectTab(1);
-		vl2 = (VerticalLayout) layout.getTab(1).getComponent();
+		vl2 = (ResponsiveLayout) layout.getTab(1).getComponent();
 		Assert.assertEquals("tab2", layout.getTab(1).getCaption());
 		Assert.assertEquals("tab2 description", layout.getTab(1).getDescription());
 		Assert.assertEquals(1, vl2.getComponentCount());
 
 		layout.selectTab(1);
-		vl2 = (VerticalLayout) layout.getTab(1).getComponent();
+		vl2 = (ResponsiveLayout) layout.getTab(1).getComponent();
 		Assert.assertEquals(1, vl2.getComponentCount());
 
 		// select first tab again and trigger a reload
@@ -119,7 +119,7 @@ public class LazyTabLayoutTest extends BaseIntegrationTest {
 		layout.selectTab(0);
 		Assert.assertTrue(reloaded);
 
-		// second tab is not reloadable
+		// second tab cannot be reloaded
 		reloaded = false;
 		layout.selectTab(1);
 		Assert.assertFalse(reloaded);

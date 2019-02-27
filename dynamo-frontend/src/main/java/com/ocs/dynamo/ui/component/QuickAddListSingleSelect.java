@@ -13,6 +13,11 @@
  */
 package com.ocs.dynamo.ui.component;
 
+import java.io.Serializable;
+
+import com.jarektoro.responsivelayout.ResponsiveLayout;
+import com.jarektoro.responsivelayout.ResponsiveRow;
+import com.ocs.dynamo.constants.DynamoConstants;
 import com.ocs.dynamo.domain.AbstractEntity;
 import com.ocs.dynamo.domain.model.AttributeModel;
 import com.ocs.dynamo.domain.model.EntityModel;
@@ -24,11 +29,7 @@ import com.vaadin.data.provider.SortOrder;
 import com.vaadin.server.ErrorMessage;
 import com.vaadin.server.SerializablePredicate;
 import com.vaadin.shared.Registration;
-import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.HorizontalLayout;
-
-import java.io.Serializable;
 
 /**
  * 
@@ -124,8 +125,9 @@ public class QuickAddListSingleSelect<ID extends Serializable, T extends Abstrac
 
 	@Override
 	protected Component initContent() {
-		HorizontalLayout bar = new DefaultHorizontalLayout(false, true, true);
-		bar.setSizeFull();
+		ResponsiveLayout layout = new ResponsiveLayout().withFullSize();
+		ResponsiveRow bar = ResponsiveUtil.createRowWithSpacing();
+		layout.addRow(bar);
 
 		if (this.getAttributeModel() != null) {
 			this.setCaption(getAttributeModel().getDisplayName(VaadinUtils.getLocale()));
@@ -135,30 +137,18 @@ public class QuickAddListSingleSelect<ID extends Serializable, T extends Abstrac
 		listSelect.setSizeFull();
 		listSelect.addValueChangeListener(event -> setValue(event.getValue()));
 
-		bar.addComponent(listSelect);
-
-		float listExpandRatio = 1f;
-		if (quickAddAllowed) {
-			listExpandRatio -= 0.15f;
-		}
-		if (directNavigationAllowed) {
-			listExpandRatio -= 0.10f;
-		}
-
-		bar.setExpandRatio(listSelect, listExpandRatio);
+		int factor = DynamoConstants.MAX_COLUMNS - (quickAddAllowed ? BUTTON_COLS : 0)
+				- (directNavigationAllowed ? BUTTON_COLS : 0);
+		bar.addColumn().withDisplayRules(DynamoConstants.MAX_COLUMNS, factor, factor, factor).withComponent(listSelect);
 
 		if (quickAddAllowed) {
-			Button addButton = constructAddButton();
-			bar.addComponent(addButton);
-			bar.setExpandRatio(addButton, 0.15f);
+			addQuickAddButton(bar, false);
 		}
 		if (directNavigationAllowed) {
-			Button directNavigationButton = constructDirectNavigationButton();
-			bar.addComponent(directNavigationButton);
-			bar.setExpandRatio(directNavigationButton, 0.10f);
+			addDirectNavigationButton(bar, quickAddAllowed);
 		}
 
-		return bar;
+		return layout;
 	}
 
 	/**

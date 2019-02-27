@@ -14,8 +14,6 @@
 package com.ocs.dynamo.ui.composite.layout;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.ocs.dynamo.dao.FetchJoinInformation;
 import com.ocs.dynamo.domain.AbstractEntity;
@@ -26,7 +24,6 @@ import com.ocs.dynamo.ui.composite.form.ModelBasedSearchForm;
 import com.ocs.dynamo.ui.provider.QueryType;
 import com.vaadin.data.provider.SortOrder;
 import com.vaadin.ui.AbstractComponent;
-import com.vaadin.ui.Component;
 import com.vaadin.ui.Layout;
 
 /**
@@ -40,14 +37,7 @@ import com.vaadin.ui.Layout;
 public class SimpleSearchLayout<ID extends Serializable, T extends AbstractEntity<ID>>
 		extends AbstractSearchLayout<ID, T> {
 
-	private static final int DEFAULT_NR_COLUMNS = 1;
-
 	private static final long serialVersionUID = 4606800218149558500L;
-
-	/**
-	 * The number of columns in the search form
-	 */
-	private int nrOfColumns = DEFAULT_NR_COLUMNS;
 
 	/**
 	 * Constructor - only the most important attributes
@@ -63,15 +53,6 @@ public class SimpleSearchLayout<ID extends Serializable, T extends AbstractEntit
 	public SimpleSearchLayout(BaseService<ID, T> service, EntityModel<T> entityModel, QueryType queryType,
 			FormOptions formOptions, SortOrder<?> sortOrder, FetchJoinInformation... joins) {
 		super(service, entityModel, queryType, formOptions, sortOrder, joins);
-	}
-
-	/**
-	 * Method that is used to construct any extra search fields. These will be added
-	 * at the front of the search form
-	 */
-	protected List<Component> constructExtraSearchFields() {
-		// overwrite in subclasses
-		return new ArrayList<>();
 	}
 
 	/**
@@ -115,28 +96,15 @@ public class SimpleSearchLayout<ID extends Serializable, T extends AbstractEntit
 				SimpleSearchLayout.this.validateBeforeSearch();
 			}
 		};
-		result.setNrOfColumns(getNrOfColumns());
+
 		result.setFieldEntityModels(getFieldEntityModels());
 		result.build();
 		return result;
 	}
 
-	public int getNrOfColumns() {
-		return nrOfColumns;
-	}
-
 	@Override
 	public ModelBasedSearchForm<ID, T> getSearchForm() {
 		return (ModelBasedSearchForm<ID, T>) super.getSearchForm();
-	}
-
-	/**
-	 * Sets the desired number of columns in the search form
-	 * 
-	 * @param nrOfColumns
-	 */
-	public void setNrOfColumns(int nrOfColumns) {
-		this.nrOfColumns = nrOfColumns;
 	}
 
 	/**

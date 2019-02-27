@@ -18,6 +18,9 @@ import java.util.Collection;
 import java.util.Collections;
 
 import com.google.common.collect.Sets;
+import com.jarektoro.responsivelayout.ResponsiveLayout;
+import com.jarektoro.responsivelayout.ResponsiveRow;
+import com.ocs.dynamo.constants.DynamoConstants;
 import com.ocs.dynamo.domain.AbstractEntity;
 import com.ocs.dynamo.domain.model.AttributeModel;
 import com.ocs.dynamo.domain.model.EntityModel;
@@ -29,9 +32,7 @@ import com.vaadin.data.provider.SortOrder;
 import com.vaadin.server.ErrorMessage;
 import com.vaadin.server.SerializablePredicate;
 import com.vaadin.shared.Registration;
-import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.HorizontalLayout;
 
 /**
  * 
@@ -59,11 +60,6 @@ public class QuickAddListSelect<ID extends Serializable, T extends AbstractEntit
 	private boolean quickAddAllowed;
 
 	/**
-	 * Whether direct navigation is allowed
-	 */
-	private boolean directNavigationAllowed;
-
-	/**
 	 * Constructor
 	 * 
 	 * @param entityModel
@@ -81,7 +77,6 @@ public class QuickAddListSelect<ID extends Serializable, T extends AbstractEntit
 		listSelect = new EntityListSelect<>(entityModel, attributeModel, service, filter, sortOrder);
 		listSelect.setRows(rows);
 		this.quickAddAllowed = !search && attributeModel != null && attributeModel.isQuickAddAllowed();
-		this.directNavigationAllowed = !search && attributeModel != null && attributeModel.isNavigable();
 	}
 
 	@Override
@@ -139,8 +134,9 @@ public class QuickAddListSelect<ID extends Serializable, T extends AbstractEntit
 
 	@Override
 	protected Component initContent() {
-		HorizontalLayout bar = new DefaultHorizontalLayout(false, true, true);
-		bar.setSizeFull();
+		ResponsiveLayout layout = new ResponsiveLayout().withFullSize();
+		ResponsiveRow bar = ResponsiveUtil.createRowWithSpacing();
+		layout.addRow(bar);
 
 		if (this.getAttributeModel() != null) {
 			this.setCaption(getAttributeModel().getDisplayName(VaadinUtils.getLocale()));
@@ -148,32 +144,17 @@ public class QuickAddListSelect<ID extends Serializable, T extends AbstractEntit
 
 		// no caption needed (the wrapping component has the caption)
 		listSelect.setCaption(null);
-		listSelect.setSizeFull();
 		listSelect.addValueChangeListener(event -> setValue(event.getValue()));
+		listSelect.setSizeFull();
 
-		bar.addComponent(listSelect);
-
-		float listExpandRatio = 1f;
-		if (quickAddAllowed) {
-			listExpandRatio -= 0.15f;
-		}
-		if (directNavigationAllowed) {
-			listExpandRatio -= 0.10f;
-		}
-
-		bar.setExpandRatio(listSelect, listExpandRatio);
+		int factor = DynamoConstants.MAX_COLUMNS - (quickAddAllowed ? BUTTON_COLS : 0);
+		bar.addColumn().withDisplayRules(DynamoConstants.MAX_COLUMNS, factor, factor, factor).withComponent(listSelect);
 
 		if (quickAddAllowed) {
-			Button addButton = constructAddButton();
-			bar.addComponent(addButton);
-			bar.setExpandRatio(addButton, 0.15f);
+			addQuickAddButton(bar, false);
 		}
-		if (directNavigationAllowed) {
-			Button directNavigationButton = constructDirectNavigationButton();
-			bar.addComponent(directNavigationButton);
-			bar.setExpandRatio(directNavigationButton, 0.10f);
-		}
-		return bar;
+
+		return layout;
 	}
 
 	/**
@@ -202,6 +183,9 @@ public class QuickAddListSelect<ID extends Serializable, T extends AbstractEntit
 		}
 	}
 
+	/**
+	 * Delegate the component error message to the list select
+	 */
 	@Override
 	public void setComponentError(ErrorMessage componentError) {
 		super.setComponentError(componentError);

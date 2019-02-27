@@ -14,9 +14,6 @@
 package com.ocs.dynamo.util;
 
 import java.util.Locale;
-import java.util.MissingResourceException;
-import java.util.Optional;
-import java.util.ResourceBundle;
 
 import com.ocs.dynamo.constants.DynamoConstants;
 
@@ -137,9 +134,9 @@ public final class SystemPropertyUtils {
 	}
 
 	/**
-	 * Looks up the default false representation for the provided locale. This will look for 
-	 * a system property names ocs.default.false.representation.<lan> where <lan> is the language code
-	 * of the locale, e.g. "en", "nl" 
+	 * Looks up the default false representation for the provided locale. This will
+	 * look for a system property names ocs.default.false.representation.<lan> where
+	 * <lan> is the language code of the locale, e.g. "en", "nl"
 	 * 
 	 * @param locale
 	 * @return
@@ -157,10 +154,19 @@ public final class SystemPropertyUtils {
 	}
 
 	/**
-	 * @return the default width (in pixels) of the title label above an edit from
+	 * 
+	 * @return the default width in columns (out of 12) for an edit form
 	 */
-	public static int getDefaultFormTitleWidth() {
-		return Integer.getInteger(DynamoConstants.SP_DEFAULT_FORM_TITLE_WIDTH, 0);
+	public static int getDefaultFormColumnWidth() {
+		return Integer.getInteger(DynamoConstants.SP_DEFAULT_FORM_COLUMN_WIDTH, 12);
+	}
+
+	/**
+	 * 
+	 * @return the default width in columns (out of 12) for the caption label
+	 */
+	public static int getDefaultLabelColumnWidth() {
+		return Integer.getInteger(DynamoConstants.SP_DEFAULT_LABEL_COLUMN_WIDTH, 2);
 	}
 
 	/**
@@ -219,9 +225,9 @@ public final class SystemPropertyUtils {
 	}
 
 	/**
-	 * Looks up the default true representation for the provided locale. This will look for 
-	 * a system property names ocs.default.true.representation.<lan> where <lan> is the language code
-	 * of the locale, e.g. "en", "nl" 
+	 * Looks up the default true representation for the provided locale. This will
+	 * look for a system property names ocs.default.true.representation.<lan> where
+	 * <lan> is the language code of the locale, e.g. "en", "nl"
 	 * 
 	 * @param locale
 	 * @return

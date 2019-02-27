@@ -16,6 +16,12 @@ package com.ocs.dynamo.utils;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+/**
+ * A couple of simple "math" utilities
+ * 
+ * @author Bas Rutten
+ *
+ */
 public final class MathUtils {
 
 	public static final BigDecimal HUNDRED = new BigDecimal(100);
@@ -25,13 +31,11 @@ public final class MathUtils {
 	}
 
 	/**
-	 * Divides the first argument by the second argument, then converts the
-	 * result to a percentage
+	 * Divides the first argument by the second argument, then converts the result
+	 * to a percentage
 	 * 
-	 * @param first
-	 *            the first argument
-	 * @param second
-	 *            the second argument
+	 * @param first  the first argument
+	 * @param second the second argument
 	 * @param scale
 	 * @return
 	 */
@@ -46,12 +50,9 @@ public final class MathUtils {
 	 * Divides the first argument by the second argument, then converts to a
 	 * percentage
 	 * 
-	 * @param first
-	 *            the first argument
-	 * @param second
-	 *            the second argument
-	 * @param scale
-	 *            the desired scale
+	 * @param first  the first argument
+	 * @param second the second argument
+	 * @param scale  the desired scale
 	 * @return
 	 */
 	public static BigDecimal dividePercentage(Integer first, Integer second, int scale) {
@@ -60,15 +61,12 @@ public final class MathUtils {
 	}
 
 	/**
-	 * Returns the result of multiplying a value with a certain percentage,
-	 * rounded to the specified precision
+	 * Returns the result of multiplying a value with a certain percentage, rounded
+	 * to the specified precision
 	 * 
-	 * @param percentage
-	 *            the percentage value
-	 * @param value
-	 *            the non-percentage value
-	 * @param scale
-	 *            the scale
+	 * @param percentage the percentage value
+	 * @param value      the non-percentage value
+	 * @param scale      the scale
 	 * @return
 	 */
 	public static BigDecimal multiplyPercentage(BigDecimal percentage, BigDecimal value, int scale) {
@@ -78,8 +76,7 @@ public final class MathUtils {
 	/**
 	 * Performs a null-safe get of an Integer
 	 * 
-	 * @param x
-	 *            the integer
+	 * @param x the integer
 	 * @return
 	 */
 	public static int nullSafeGet(Integer x) {

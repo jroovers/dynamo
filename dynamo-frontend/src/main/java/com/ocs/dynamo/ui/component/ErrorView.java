@@ -13,12 +13,12 @@
  */
 package com.ocs.dynamo.ui.component;
 
+import com.jarektoro.responsivelayout.ResponsiveLayout;
 import com.ocs.dynamo.ui.composite.layout.BaseCustomComponent;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
-import com.vaadin.ui.VerticalLayout;
 
 
 /**
@@ -38,13 +38,13 @@ public class ErrorView extends BaseCustomComponent implements View {
 
     @Override
     public void build() {
-        VerticalLayout main = new DefaultVerticalLayout(true, true);
+        ResponsiveLayout main = new ResponsiveLayout().withFullSize();
 
         Panel panel = new Panel();
         panel.setCaption(message("ocs.error.occurred"));
         main.addComponent(panel);
 
-        VerticalLayout inside = new DefaultVerticalLayout(true, true);
+        ResponsiveLayout inside = new ResponsiveLayout();
         panel.setContent(inside);
 
         Label errorLabel = new Label(message("ocs.view.unknown"));

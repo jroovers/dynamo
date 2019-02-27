@@ -122,7 +122,6 @@ public class EntityListSingleSelect<ID extends Serializable, T extends AbstractE
 		setDataProvider(provider);
 
 		setItemCaptionGenerator(t -> EntityModelUtils.getDisplayPropertyValue(t, targetEntityModel));
-		setSizeFull();
 	}
 
 	/**

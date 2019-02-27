@@ -32,18 +32,15 @@ public class DefaultHorizontalLayout extends HorizontalLayout {
 	/**
 	 * Constructor
 	 * 
-	 * @param margin
-	 *            whether to include a margin
-	 * @param spacing
-	 *            wether to include spacing
-	 * @param wrap
-	 *            whether to wrap the buttons if there is not enough room
+	 * @param margin  whether to include a margin
+	 * @param spacing whether to include spacing
+	 * @param wrap    whether to wrap the buttons if there is not enough room
 	 */
 	public DefaultHorizontalLayout(boolean margin, boolean spacing, boolean wrap) {
 		setMargin(margin);
 		setSpacing(spacing);
 		if (wrap) {
-			setStyleName(DynamoConstants.CSS_BUTTON_BAR);
+			setStyleName(DynamoConstants.CSS_DYNAMO_BUTTON_BAR);
 		}
 	}
 }

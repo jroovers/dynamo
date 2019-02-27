@@ -20,6 +20,8 @@ import java.util.Set;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.jarektoro.responsivelayout.ResponsiveRow;
+import com.ocs.dynamo.constants.DynamoConstants;
 import com.ocs.dynamo.domain.AbstractEntity;
 import com.ocs.dynamo.domain.model.AttributeModel;
 import com.ocs.dynamo.domain.model.EntityModel;
@@ -46,6 +48,8 @@ public abstract class QuickAddEntityField<ID extends Serializable, T extends Abs
 		extends CustomEntityField<ID, T, U> {
 
 	private static final long serialVersionUID = 7118578276952170818L;
+
+	protected static final int BUTTON_COLS = 2;
 
 	private UI ui = UI.getCurrent();
 
@@ -77,6 +81,21 @@ public abstract class QuickAddEntityField<ID extends Serializable, T extends Abs
 		super(service, entityModel, attributeModel, filter);
 	}
 
+	protected void addDirectNavigationButton(ResponsiveRow row, boolean quickAddAllowed) {
+		Button directNavigationButton = constructDirectNavigationButton();
+		row.addColumn()
+				.withDisplayRules(quickAddAllowed ? DynamoConstants.HALF_COLUMNS : DynamoConstants.MAX_COLUMNS, 2, 2, 2)
+				.withComponent(directNavigationButton);
+	}
+
+	protected void addQuickAddButton(ResponsiveRow row, boolean directNavigationAllowed) {
+		Button addButton = constructAddButton();
+		row.addColumn()
+				.withDisplayRules(directNavigationAllowed ? DynamoConstants.HALF_COLUMNS : DynamoConstants.MAX_COLUMNS,
+						2, 2, 2)
+				.withComponent(addButton);
+	}
+
 	/**
 	 * Method that is called after a new entity has been successfully created. Use
 	 * this to add the new entity to the component and select it
@@ -99,6 +118,7 @@ public abstract class QuickAddEntityField<ID extends Serializable, T extends Abs
 	protected Button constructAddButton() {
 		addButton = new Button(getMessageService().getMessage("ocs.add", VaadinUtils.getLocale()));
 		addButton.setIcon(VaadinIcons.PLUS);
+		addButton.setSizeFull();
 		addButton.addClickListener(event -> {
 			AddNewValueDialog<ID, T> dialog = new AddNewValueDialog<ID, T>(getEntityModel(), getAttributeModel(),
 					getService(), getMessageService()) {
@@ -126,7 +146,29 @@ public abstract class QuickAddEntityField<ID extends Serializable, T extends Abs
 		directNavigationButton = new Button(
 				getMessageService().getMessage("ocs.direct.navigate", VaadinUtils.getLocale()));
 		directNavigationButton.addClickListener(event -> ((BaseUI) ui).navigateToEntityScreen(getValue()));
+		directNavigationButton.setSizeFull();
 		return directNavigationButton;
+	}
+
+	/**
+	 * Converts a value (can be a collection but in some cases also a single value)
+	 * 
+	 * @param value
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	protected Object convertToCorrectCollection(Object value) {
+		if (value == null) {
+			return null;
+		} else if (Set.class.isAssignableFrom(getAttributeModel().getType())) {
+			Collection<T> col = (Collection<T>) value;
+			return Sets.newHashSet(col);
+		} else if (List.class.isAssignableFrom(getAttributeModel().getType())) {
+			Collection<T> col = (Collection<T>) value;
+			return Lists.newArrayList(col);
+		} else {
+			return value;
+		}
 	}
 
 	public Button getAddButton() {
@@ -149,27 +191,6 @@ public abstract class QuickAddEntityField<ID extends Serializable, T extends Abs
 	@Override
 	public void setAdditionalFilter(SerializablePredicate<T> additionalFilter) {
 		this.additionalFilter = additionalFilter;
-	}
-
-	/**
-	 * Converts a value (can be a collection but in some cases also a single value)
-	 * 
-	 * @param value
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	protected Object convertToCorrectCollection(Object value) {
-		if (value == null) {
-			return null;
-		} else if (Set.class.isAssignableFrom(getAttributeModel().getType())) {
-			Collection<T> col = (Collection<T>) value;
-			return Sets.newHashSet(col);
-		} else if (List.class.isAssignableFrom(getAttributeModel().getType())) {
-			Collection<T> col = (Collection<T>) value;
-			return Lists.newArrayList(col);
-		} else {
-			return value;
-		}
 	}
 
 }
