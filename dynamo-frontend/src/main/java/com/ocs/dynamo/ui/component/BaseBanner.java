@@ -13,12 +13,9 @@
  */
 package com.ocs.dynamo.ui.component;
 
-import com.jarektoro.responsivelayout.ResponsiveColumn;
 import com.jarektoro.responsivelayout.ResponsiveLayout;
 import com.jarektoro.responsivelayout.ResponsiveRow;
-import com.jarektoro.responsivelayout.ResponsiveColumn.ColumnComponentAlignment;
 import com.vaadin.server.ThemeResource;
-import com.vaadin.ui.Component;
 import com.vaadin.ui.Image;
 
 /**
@@ -41,7 +38,7 @@ public class BaseBanner extends ResponsiveLayout {
 	 */
 	private final String imagePath;
 
-	private final ResponsiveRow responsiveRow;
+	private final ResponsiveRow row;
 
 	/**
 	 * Constructor
@@ -50,17 +47,17 @@ public class BaseBanner extends ResponsiveLayout {
 	 */
 	public BaseBanner(String imagePath) {
 		this.imagePath = imagePath;
+		setSizeFull();
 
 		setId("banner");
-		setFlexible();
 
-		responsiveRow = new ResponsiveRow();
-		addComponent(responsiveRow);
+		row = new ResponsiveRow();
+		this.addComponent(row);
 
 		image = new Image(null, new ThemeResource(imagePath));
 		image.setWidth(null);
 
-		addComponent(image, "firstCol", ColumnComponentAlignment.LEFT);
+		row.addColumn().withDisplayRules(12, 2, 2, 2).withComponent(image);
 	}
 
 	public Image getImage() {
@@ -71,10 +68,8 @@ public class BaseBanner extends ResponsiveLayout {
 		return imagePath;
 	}
 
-	public void addComponent(Component component, String styleName, ColumnComponentAlignment align) {
-		ResponsiveColumn col = new ResponsiveColumn().withStyleName(styleName)/*.withDisplayRules(12, 6, 4, 4)*/
-				.withComponent(component);
-		//col.setAlignment(align);
-		responsiveRow.addColumn(col);
+	public ResponsiveRow getRow() {
+		return row;
 	}
+
 }

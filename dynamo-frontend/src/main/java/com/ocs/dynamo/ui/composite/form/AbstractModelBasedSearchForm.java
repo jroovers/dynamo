@@ -20,7 +20,6 @@ import java.util.Map;
 
 import com.jarektoro.responsivelayout.ResponsiveLayout;
 import com.jarektoro.responsivelayout.ResponsiveRow;
-import com.jarektoro.responsivelayout.ResponsiveRow.SpacingSize;
 import com.ocs.dynamo.constants.DynamoConstants;
 import com.ocs.dynamo.domain.AbstractEntity;
 import com.ocs.dynamo.domain.model.AttributeModel;
@@ -34,6 +33,7 @@ import com.ocs.dynamo.filter.listener.FilterChangeEvent;
 import com.ocs.dynamo.filter.listener.FilterListener;
 import com.ocs.dynamo.ui.Refreshable;
 import com.ocs.dynamo.ui.Searchable;
+import com.ocs.dynamo.ui.component.ResponsiveUtil;
 import com.ocs.dynamo.ui.composite.layout.FormOptions;
 import com.ocs.dynamo.ui.utils.VaadinUtils;
 import com.vaadin.event.Action;
@@ -63,10 +63,9 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 	private static final long serialVersionUID = 2146875385041665280L;
 
 	/**
-	 * Any filters that will always be applied to any search query (use these to
-	 * restrict the result set beforehand)
+	 * The button bar
 	 */
-	private List<SerializablePredicate<T>> defaultFilters = new ArrayList<>();
+	private ResponsiveRow buttonBar;
 
 	/**
 	 * Button to clear the search form
@@ -79,14 +78,35 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 	private List<SerializablePredicate<T>> currentFilters = new ArrayList<>();
 
 	/**
+	 * Any filters that will always be applied to any search query (use these to
+	 * restrict the result set beforehand)
+	 */
+	private List<SerializablePredicate<T>> defaultFilters = new ArrayList<>();
+
+	/**
+	 * Field factory singleton for constructing fields
+	 */
+	private FieldFactory fieldFactory = FieldFactory.getInstance();
+
+	/**
 	 * The layout that holds the various filters
 	 */
 	private Layout filterLayout;
 
 	/**
+	 * The main layout (constructed only once)
+	 */
+	private ResponsiveLayout main;
+
+	/**
 	 * The object that will be searched when the user presses the "Search" button
 	 */
 	private Searchable<T> searchable;
+
+	/**
+	 * The button to search based on any criteria
+	 */
+	private Button searchAnyButton;
 
 	/**
 	 * The "search" button
@@ -99,29 +119,9 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 	private Button toggleButton;
 
 	/**
-	 * The button to search based on any criteria
-	 */
-	private Button searchAnyButton;
-
-	/**
 	 * The panel that wraps around the filter form
 	 */
 	private Panel wrapperPanel;
-
-	/**
-	 * The button bar
-	 */
-	private ResponsiveRow buttonBar;
-
-	/**
-	 * The main layout (constructed only once)
-	 */
-	private ResponsiveLayout main;
-
-	/**
-	 * Field factory singleton for constructing fields
-	 */
-	private FieldFactory fieldFactory = FieldFactory.getInstance();
 
 	/**
 	 * Constructor
@@ -175,7 +175,7 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 
 				// add a wrapper for adding an action handlers
 				wrapperPanel = new Panel();
-				main.addComponent(wrapperPanel);
+				ResponsiveUtil.addFullWidthRow(main, wrapperPanel);
 
 				wrapperPanel.setContent(filterLayout);
 
@@ -200,8 +200,7 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 				});
 
 				// create the button bar
-				buttonBar = new ResponsiveRow().withSpacing(SpacingSize.SMALL, true)
-						.withStyleName(DynamoConstants.CSS_DYNAMO_BUTTON_BAR);
+				buttonBar = ResponsiveUtil.createButtonBar();
 				main.addComponent(buttonBar);
 				fillButtonBar(buttonBar);
 				// add custom buttons
@@ -255,23 +254,18 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 	}
 
 	/**
-	 * Creates buttons and adds them to the button bar
-	 *
-	 * @param buttonBar the button bar
-	 */
-	protected abstract void fillButtonBar(ResponsiveRow buttonBar);
-
-	/**
 	 * Constructs the Clear button
 	 * 
 	 * @return
 	 */
-	protected Button constructClearButton() {
-		clearButton = new Button(message("ocs.clear"));
-		clearButton.setIcon(VaadinIcons.ERASER);
-		clearButton.addClickListener(this);
-		clearButton.setVisible(!getFormOptions().isHideClearButton());
-		return clearButton;
+	protected final void constructClearButton(ResponsiveRow buttonBar) {
+		if (!getFormOptions().isHideClearButton()) {
+			clearButton = new Button(message("ocs.clear"));
+			clearButton.setIcon(VaadinIcons.ERASER);
+			clearButton.addClickListener(this);
+			clearButton.setStyleName(DynamoConstants.CSS_CLEAR_BUTTON);
+			buttonBar.addComponent(clearButton);
+		}
 	}
 
 	/**
@@ -299,13 +293,15 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 	 * 
 	 * @return
 	 */
-	protected final Button constructSearchAnyButton() {
-		searchAnyButton = new Button(message("ocs.search.any"));
-		searchAnyButton.setIcon(VaadinIcons.SEARCH);
-		searchAnyButton.setVisible(getFormOptions().isShowSearchAnyButton());
-		searchAnyButton.addClickListener(this);
-		searchAnyButton.setId("searchAnyButton");
-		return searchAnyButton;
+	protected final void constructSearchAnyButton(ResponsiveRow buttonBar) {
+		if (getFormOptions().isShowSearchAnyButton()) {
+			searchAnyButton = new Button(message("ocs.search.any"));
+			searchAnyButton.setIcon(VaadinIcons.SEARCH);
+			searchAnyButton.setVisible(getFormOptions().isShowSearchAnyButton());
+			searchAnyButton.addClickListener(this);
+			searchAnyButton.setStyleName(DynamoConstants.CSS_SEARCH_ANY_BUTTON);
+			buttonBar.addComponent(searchAnyButton);
+		}
 	}
 
 	/**
@@ -317,7 +313,7 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 		searchButton = new Button(message("ocs.search"));
 		searchButton.setIcon(VaadinIcons.SEARCH);
 		searchButton.addClickListener(this);
-		searchButton.setId("searchButton");
+		searchButton.setStyleName(DynamoConstants.CSS_SEARCH_BUTTON);
 		return searchButton;
 	}
 
@@ -326,13 +322,14 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 	 * 
 	 * @return
 	 */
-	protected final Button constructToggleButton() {
-		toggleButton = new Button(message("ocs.hide"));
-		toggleButton.setIcon(VaadinIcons.ARROWS);
-		toggleButton.addClickListener(this);
-		toggleButton.setId("toggleButton");
-		toggleButton.setVisible(getFormOptions().isShowToggleButton());
-		return toggleButton;
+	protected final void constructToggleButton(ResponsiveRow buttonBar) {
+		if (getFormOptions().isShowToggleButton()) {
+			toggleButton = new Button(message("ocs.hide"));
+			toggleButton.setIcon(VaadinIcons.ARROWS);
+			toggleButton.addClickListener(this);
+			toggleButton.setId("toggleButton");
+			buttonBar.addComponent(toggleButton);
+		}
 	}
 
 	public SerializablePredicate<T> extractFilter() {
@@ -361,6 +358,13 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 		}
 		return null;
 	}
+
+	/**
+	 * Creates buttons and adds them to the button bar
+	 *
+	 * @param buttonBar the button bar
+	 */
+	protected abstract void fillButtonBar(ResponsiveRow buttonBar);
 
 	public ResponsiveRow getButtonBar() {
 		return buttonBar;
@@ -562,7 +566,7 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 	}
 
 	/**
-	 * Sets the searchable
+	 * Sets the searchable component
 	 *
 	 * @param searchable the searchable
 	 */
@@ -576,13 +580,15 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 	 * @param show whether to show or hide the form
 	 */
 	protected void toggle(boolean show) {
-		if (!show) {
-			toggleButton.setCaption(message("ocs.show.search.fields"));
-		} else {
-			toggleButton.setCaption(message("ocs.hide.search.fields"));
+		if (toggleButton != null) {
+			if (!show) {
+				toggleButton.setCaption(message("ocs.show.search.fields"));
+			} else {
+				toggleButton.setCaption(message("ocs.hide.search.fields"));
+			}
+			wrapperPanel.setVisible(show);
+			afterSearchFieldToggle(wrapperPanel.isVisible());
 		}
-		wrapperPanel.setVisible(show);
-		afterSearchFieldToggle(wrapperPanel.isVisible());
 	}
 
 	/**

@@ -368,6 +368,11 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 	private BiConsumer<String, byte[]> afterUploadConsumer;
 
 	/**
+	 * The column width (out of 12) of the edit form
+	 */
+	private int columnWidth =  SystemPropertyUtils.getDefaultFormColumnWidth();
+
+	/**
 	 * Constructor
 	 *
 	 * @param entity       the entity
@@ -538,8 +543,6 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 		ResponsiveLayout rl = new ResponsiveLayout().withFullSize();
 		setCompositionRoot(rl);
 		rl.removeAllComponents();
-
-		int columnWidth = SystemPropertyUtils.getDefaultFormColumnWidth();
 
 		if (isViewMode()) {
 			if (mainViewLayout == null) {
@@ -1130,6 +1133,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 		Button saveButton = new Button(
 				(entity != null && entity.getId() != null) ? message("ocs.save.existing") : message("ocs.save.new"));
 		saveButton.setIcon(VaadinIcons.SAFE);
+		saveButton.setStyleName(DynamoConstants.CSS_SAVE_BUTTON);
 		saveButton.addClickListener(event -> {
 			try {
 				// validate all fields
@@ -1996,6 +2000,14 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 			return false;
 		});
 		return error;
+	}
+
+	public int getColumnWidth() {
+		return columnWidth;
+	}
+
+	public void setColumnWidth(int columnWidth) {
+		this.columnWidth = columnWidth;
 	}
 
 }

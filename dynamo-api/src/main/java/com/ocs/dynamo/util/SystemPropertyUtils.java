@@ -158,7 +158,16 @@ public final class SystemPropertyUtils {
 	 * @return the default width in columns (out of 12) for an edit form
 	 */
 	public static int getDefaultFormColumnWidth() {
-		return Integer.getInteger(DynamoConstants.SP_DEFAULT_FORM_COLUMN_WIDTH, 12);
+		return Integer.getInteger(DynamoConstants.SP_DEFAULT_FORM_COLUMN_WIDTH, 9);
+	}
+	
+	/**
+	 * 
+	 * @return the default width in columns (out of 12) for an edit form
+
+	 */
+	public static int getDefaultSplitFormColumnWidth() {
+		return Integer.getInteger(DynamoConstants.SP_DEFAULT_SPLIT_FORM_COLUMN_WIDTH, 12);
 	}
 
 	/**

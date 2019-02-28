@@ -28,20 +28,15 @@ public final class DynamoConstants {
 	public static final String CSS_ADD_BUTTON = "addButton";
 
 	/**
-	 * CSS style for additional columns
-	 */
-	public static final String CSS_ADDITIONAL = "additional";
-
-	/**
-	 * Custom style for forms that should span 50% of the screen
-	 */
-	public static final String CSS_CLASS_HALFSCREEN = "halfScreen";
-
-	/**
 	 * The CSS class that is given to an image component used to display an uploaded
 	 * file
 	 */
 	public static final String CSS_CLASS_UPLOAD = "fileUpload";
+
+	/**
+	 * The CSS class for the clear button
+	 */
+	public static final String CSS_CLEAR_BUTTON = "clearButton";
 
 	/**
 	 * The CSS class that indicates a dangerous value
@@ -64,11 +59,6 @@ public final class DynamoConstants {
 	public static final String CSS_DYNAMO_FIELD = "dynamoField";
 
 	/**
-	 * CSS style for Dynamo-generated field (half width)
-	 */
-	public static final String CSS_DYNAMO_FIELD_HALF = "dynamoFieldHalf";
-
-	/**
 	 * CSS style for Dynamo-generated form
 	 */
 	public static final String CSS_DYNAMO_FORM = "dynamoForm";
@@ -84,10 +74,13 @@ public final class DynamoConstants {
 	public static final String CSS_FIRST = "first";
 
 	/**
-	 * 
+	 * The CSS class for a flexible filter row
 	 */
 	public static final String CSS_FLEX_FILTER_ROW = "dynamoFlexFilterRow";
 
+	/**
+	 * The CSS class for a flexible filter row first column
+	 */
 	public static final String CSS_FLEX_FILTER_ROW_FIRST = "dynamoFlexFilterRowFirst";
 
 	/**
@@ -116,9 +109,24 @@ public final class DynamoConstants {
 	public static final String CSS_PARENT_ROW = "parentRow";
 
 	/**
+	 * CSS style for remove buttons
+	 */
+	public static final String CSS_REMOVE_BUTTON = "removeButton";
+
+	/**
 	 * The CSS class for a field that must be marked as "required"
 	 */
 	public static final String CSS_REQUIRED = "required";
+
+	/**
+	 * The cSS class for save buttons
+	 */
+	public static final String CSS_SAVE_BUTTON = "saveButton";
+
+	/**
+	 * CSS style for search any buttons
+	 */
+	public static final String CSS_SEARCH_ANY_BUTTON = "searchAnyButton";
 
 	/**
 	 * CSS style for search button
@@ -274,6 +282,12 @@ public final class DynamoConstants {
 	 * prefix only
 	 */
 	public static final String SP_DEFAULT_SEARCH_PREFIX_ONLY = "ocs.default.search.prefix.only";
+
+	/**
+	 * Indicates the default column width (out of 12) for an edit form inside a
+	 * split layout
+	 */
+	public static final String SP_DEFAULT_SPLIT_FORM_COLUMN_WIDTH = "ocs.default.split.form.column.width";
 
 	/**
 	 * Name of the system property that is used to determine the amount of rows in a

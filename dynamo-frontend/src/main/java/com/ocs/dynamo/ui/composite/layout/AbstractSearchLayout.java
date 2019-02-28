@@ -499,6 +499,8 @@ public abstract class AbstractSearchLayout<ID extends Serializable, T extends Ab
 			}
 
 		};
+		
+		editForm.setColumnWidth(getFormColumnWidth());
 		editForm.setCustomSaveConsumer(getCustomSaveConsumer());
 		editForm.setSupportsIteration(true);
 		editForm.setDetailJoins(getDetailJoins());

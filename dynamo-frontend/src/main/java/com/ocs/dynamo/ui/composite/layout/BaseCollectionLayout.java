@@ -23,7 +23,6 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 import com.jarektoro.responsivelayout.ResponsiveRow;
-import com.jarektoro.responsivelayout.ResponsiveRow.MarginSize;
 import com.jarektoro.responsivelayout.ResponsiveRow.SpacingSize;
 import com.ocs.dynamo.constants.DynamoConstants;
 import com.ocs.dynamo.dao.FetchJoinInformation;

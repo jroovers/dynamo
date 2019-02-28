@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import com.jarektoro.responsivelayout.ResponsiveColumn;
 import com.ocs.dynamo.constants.DynamoConstants;
 import com.ocs.dynamo.domain.TestEntity;
 import com.ocs.dynamo.domain.model.EntityModelFactory;
@@ -152,7 +153,6 @@ public class SimpleEditLayoutTest extends BaseIntegrationTest {
 	 * Test that attribute are grouped together on the same line
 	 */
 	@Test
-	@Ignore
 	public void testSimpleEditLayout_GroupAttributesTogether() {
 		SimpleEditLayout<Integer, TestEntity> layout = createLayout(e1, "TestEntityGroupTogether",
 				new FormOptions().setEditAllowed(true).setAttributeGroupMode(AttributeGroupMode.PANEL));
@@ -163,19 +163,17 @@ public class SimpleEditLayoutTest extends BaseIntegrationTest {
 		AbstractComponent field = layout.getEditForm().getField("age");
 		HasComponents hc = field.getParent();
 		Assert.assertTrue(hc instanceof CssLayout);
-		CssLayout fl = (CssLayout) hc;
-		Assert.assertEquals(DynamoConstants.CSS_FIRST, fl.getStyleName());
-		HasComponents horizontal = fl.getParent();
-		Assert.assertTrue(horizontal instanceof HorizontalLayout);
+		CssLayout css = (CssLayout) hc;
+		HasComponents has = css.getParent();
+		Assert.assertTrue(has instanceof ResponsiveColumn);
 
 		// check that the "name" field is properly nested
 		field = layout.getEditForm().getField("name");
 		hc = field.getParent();
-		Assert.assertTrue(hc instanceof FormLayout);
-		fl = (CssLayout) hc;
-		Assert.assertEquals(DynamoConstants.CSS_ADDITIONAL, fl.getStyleName());
-		horizontal = fl.getParent();
-		Assert.assertTrue(horizontal instanceof HorizontalLayout);
+		Assert.assertTrue(hc instanceof CssLayout);
+		css = (CssLayout) hc;
+		has = css.getParent();
+		Assert.assertTrue(has instanceof ResponsiveColumn);
 	}
 
 	private SimpleEditLayout<Integer, TestEntity> createLayout(TestEntity entity, String reference, FormOptions fo) {

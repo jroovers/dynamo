@@ -25,6 +25,10 @@ public final class ResponsiveUtil {
 				DynamoConstants.MAX_COLUMNS, DynamoConstants.MAX_COLUMNS).withComponent(component);
 	}
 
+	public static ResponsiveRow createButtonBar() {
+		return createRowWithSpacing().withStyleName(DynamoConstants.CSS_DYNAMO_BUTTON_BAR);
+	}
+
 	/**
 	 * Adds a full width row to the provided row, then adds the provided component
 	 * to it

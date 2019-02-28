@@ -27,10 +27,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.jarektoro.responsivelayout.ResponsiveColumn;
 import com.jarektoro.responsivelayout.ResponsiveLayout;
 import com.jarektoro.responsivelayout.ResponsiveRow;
-import com.jarektoro.responsivelayout.ResponsiveRow.MarginSize;
+import com.jarektoro.responsivelayout.ResponsiveRow.NotResponsiveColumnException;
 import com.jarektoro.responsivelayout.ResponsiveRow.SpacingSize;
 import com.ocs.dynamo.constants.DynamoConstants;
 import com.ocs.dynamo.domain.AbstractEntity;
@@ -55,7 +54,6 @@ import com.ocs.dynamo.filter.listener.FilterListener;
 import com.ocs.dynamo.ui.Refreshable;
 import com.ocs.dynamo.ui.Searchable;
 import com.ocs.dynamo.ui.component.Cascadable;
-import com.ocs.dynamo.ui.component.FancyListSelect;
 import com.ocs.dynamo.ui.composite.layout.FormOptions;
 import com.ocs.dynamo.ui.composite.type.FlexibleFilterType;
 import com.ocs.dynamo.ui.utils.ConvertUtils;
@@ -70,6 +68,7 @@ import com.vaadin.server.UserError;
 import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
 
@@ -95,16 +94,21 @@ public class ModelBasedFlexibleSearchForm<ID extends Serializable, T extends Abs
 	 */
 	private class FilterRegion {
 
-		/**
-		 * Indicates whether we are restoring an existing definition - if this is the
-		 * case the we do not need to set a default filter value
-		 */
-		private boolean restoring;
+		private static final int COLUMN_AUX_FIELD = 4;
+
+		private static final int COLUMN_FILTER_TYPE = 2;
+
+		private static final int COLUMN_MAIN_FIELD = 3;
 
 		/**
 		 * The attribute model
 		 */
 		private AttributeModel am;
+
+		/**
+		 * The combo box that contains the attributes to filter on
+		 */
+		private ComboBox<AttributeModel> attributeFilterComboBox;
 
 		/**
 		 * The filter for the auxiliary field
@@ -123,16 +127,6 @@ public class ModelBasedFlexibleSearchForm<ID extends Serializable, T extends Abs
 		private SerializablePredicate<T> fieldFilter;
 
 		/**
-		 * The combo box that contains the attributes to filter on
-		 */
-		private ComboBox<AttributeModel> attributeFilterComboBox;
-
-		/**
-		 * Label to display when no filter has been selected
-		 */
-		private Label noFilterLabel;
-
-		/**
 		 * The filter type
 		 */
 		private FlexibleFilterType filterType;
@@ -140,7 +134,7 @@ public class ModelBasedFlexibleSearchForm<ID extends Serializable, T extends Abs
 		/**
 		 * The main layout
 		 */
-		private Layout layout;
+		private ResponsiveRow layout;
 
 		/**
 		 * The FilterListener that listens for filter changes
@@ -158,9 +152,20 @@ public class ModelBasedFlexibleSearchForm<ID extends Serializable, T extends Abs
 		private HasValue<Object> mainValueComponent;
 
 		/**
+		 * Label to display when no filter has been selected
+		 */
+		private Label noFilterLabel;
+
+		/**
 		 * The button used to remove the filter
 		 */
 		private Button removeButton;
+
+		/**
+		 * Indicates whether we are restoring an existing definition - if this is the
+		 * case the we do not need to set a default filter value
+		 */
+		private boolean restoring;
 
 		/**
 		 * The combo box that contains the available filter types
@@ -179,6 +184,8 @@ public class ModelBasedFlexibleSearchForm<ID extends Serializable, T extends Abs
 
 			removeButton = new Button(message("ocs.remove"));
 			removeButton.setIcon(VaadinIcons.TRASH);
+			removeButton.setSizeFull();
+			removeButton.addStyleName(DynamoConstants.CSS_REMOVE_BUTTON);
 			removeButton.addClickListener(e -> {
 				Layout parent = (Layout) layout.getParent();
 				parent.removeComponent(layout);
@@ -192,18 +199,18 @@ public class ModelBasedFlexibleSearchForm<ID extends Serializable, T extends Abs
 							.onFilterChange(new FilterChangeEvent<T>(am.getPath(), fieldFilter, null));
 				}
 			});
-			layout.addComponent(new ResponsiveColumn().withStyleName(DynamoConstants.CSS_FLEX_FILTER_ROW_FIRST)
-					.withComponent(removeButton));
+			layout.addColumn().withStyleName(DynamoConstants.CSS_FLEX_FILTER_ROW_FIRST).withDisplayRules(3, 1, 1, 1)
+					.withComponent(removeButton);
 
 			attributeFilterComboBox = new ComboBox<>(message("ocs.filter"));
-			attributeFilterComboBox.setStyleName(DynamoConstants.CSS_NESTED);
+			attributeFilterComboBox.setSizeFull();
 
 			// find out which attributes can be searched on and sort them in
 			// alphabetical order
 			List<AttributeModel> filteredModels = iterate(getEntityModel().getAttributeModels());
 			filteredModels.sort((o1, o2) -> o1.getDisplayName(VaadinUtils.getLocale())
 					.compareToIgnoreCase(o2.getDisplayName(VaadinUtils.getLocale())));
-			// add any attribute models that are not required
+			// add any attribute models that are not required and not already used
 			attributeFilterComboBox.setItems(filteredModels.stream()
 					.filter(a -> !a.isRequiredForSearching() || !hasFilter(a)).collect(Collectors.toList()));
 			attributeFilterComboBox.setItemCaptionGenerator(item -> item.getDisplayName(VaadinUtils.getLocale()));
@@ -211,13 +218,21 @@ public class ModelBasedFlexibleSearchForm<ID extends Serializable, T extends Abs
 			// add a value change listener that fills the filter type combo box
 			// after a change
 			attributeFilterComboBox.addValueChangeListener(e -> handleFilterAttributeChange(e, restoring));
-			layout.addComponent(attributeFilterComboBox);
+			layout.addColumn().withDisplayRules(4, 2, 2, 2).withComponent(attributeFilterComboBox);
 
 			noFilterLabel = new Label(message("ocs.select.filter"));
 			noFilterLabel.setCaption("");
-			layout.addComponent(noFilterLabel);
+
+			layout.addColumn().withDisplayRules(4, 2, 2, 2).withComponent(noFilterLabel);
 		}
 
+		/**
+		 * Constructs the filter based on the value of a field
+		 * 
+		 * @param field the field the field
+		 * @param value the field value
+		 * @return
+		 */
 		private SerializablePredicate<T> constructFilter(HasValue<?> field, Object value) {
 			SerializablePredicate<T> filter = null;
 
@@ -297,7 +312,6 @@ public class ModelBasedFlexibleSearchForm<ID extends Serializable, T extends Abs
 				}
 				break;
 			}
-
 			return filter;
 		}
 
@@ -333,24 +347,15 @@ public class ModelBasedFlexibleSearchForm<ID extends Serializable, T extends Abs
 				newTypeFilterCombo.setItems(getFilterTypes(am));
 				newTypeFilterCombo.setItemCaptionGenerator(item -> getMessageService()
 						.getEnumMessage(FlexibleFilterType.class, item, VaadinUtils.getLocale()));
+				newTypeFilterCombo.setSizeFull();
 
 				// cannot remove mandatory filters
 				removeButton.setEnabled(!am.isRequiredForSearching());
 				attributeFilterComboBox.setEnabled(!am.isRequiredForSearching());
 
-				if (typeFilterCombo != null) {
-					layout.replaceComponent(typeFilterCombo, newTypeFilterCombo);
-				} else {
-					layout.addComponent(newTypeFilterCombo);
-				}
-
-				// hide the value component after a filter change
-				if (mainValueComponent != null) {
-					layout.removeComponent((AbstractComponent) mainValueComponent);
-				}
-				if (auxValueComponent != null) {
-					layout.removeComponent((AbstractComponent) auxValueComponent);
-				}
+				replaceComponent(COLUMN_FILTER_TYPE, newTypeFilterCombo);
+				replaceComponent(COLUMN_MAIN_FIELD, new Label(""));
+				replaceComponent(COLUMN_AUX_FIELD, new Label(""));
 
 				typeFilterCombo = newTypeFilterCombo;
 
@@ -367,18 +372,11 @@ public class ModelBasedFlexibleSearchForm<ID extends Serializable, T extends Abs
 				}
 			} else {
 				// no filter selected, remove everything
-				if (typeFilterCombo != null) {
-					layout.removeComponent(typeFilterCombo);
-				}
-				if (mainValueComponent != null) {
-					layout.removeComponent((AbstractComponent) mainValueComponent);
-				}
-				if (auxValueComponent != null) {
-					layout.removeComponent((AbstractComponent) auxValueComponent);
-				}
+				replaceComponent(COLUMN_FILTER_TYPE, noFilterLabel);
+				replaceComponent(COLUMN_MAIN_FIELD, new Label(""));
+				replaceComponent(COLUMN_AUX_FIELD, new Label(""));
 			}
 			noFilterLabel.setVisible(this.am == null);
-
 		}
 
 		/**
@@ -425,7 +423,7 @@ public class ModelBasedFlexibleSearchForm<ID extends Serializable, T extends Abs
 			return result;
 		}
 
-		public Layout getLayout() {
+		public ResponsiveRow getLayout() {
 			return layout;
 		}
 
@@ -462,7 +460,8 @@ public class ModelBasedFlexibleSearchForm<ID extends Serializable, T extends Abs
 		/**
 		 * Handle a change of the attribute to filter on
 		 *
-		 * @param event the event
+		 * @param event     the event
+		 * @param restoring whether the layout is programmatically being restored
 		 */
 		private void handleFilterAttributeChange(HasValue.ValueChangeEvent<?> event, boolean restoring) {
 			AttributeModel temp = (AttributeModel) event.getValue();
@@ -490,18 +489,13 @@ public class ModelBasedFlexibleSearchForm<ID extends Serializable, T extends Abs
 					.setSearch(true);
 			AbstractComponent newComponent = custom != null ? custom : factory.constructField(context);
 
-			if (newComponent instanceof FancyListSelect) {
-				FancyListSelect<?, ?> fls = (FancyListSelect<?, ?>) newComponent;
-				fls.getListSelect().setStyleName(DynamoConstants.CSS_NESTED);
-				fls.getComboBox().setStyleName(DynamoConstants.CSS_NESTED);
-			}
-
 			// add value change listener for adapting fields in response to input
 			if (newComponent instanceof HasValue) {
 				((HasValue<?>) newComponent)
 						.addValueChangeListener(event -> handleValueChange(event.getSource(), event.getValue()));
 			}
 			newComponent.setSizeFull();
+			newComponent.setCaption("");
 
 			// cascading search
 			if (am.getCascadeAttributes() != null && !am.getCascadeAttributes().isEmpty()) {
@@ -510,33 +504,32 @@ public class ModelBasedFlexibleSearchForm<ID extends Serializable, T extends Abs
 				}
 			}
 
-			if (mainValueComponent == null) {
-				layout.addComponent(newComponent);
+			if (!hasColumn(COLUMN_MAIN_FIELD)) {
+				layout.addColumn().withDisplayRules(DynamoConstants.HALF_COLUMNS, 3, 3, 3).withComponent(newComponent);
 			} else {
-				layout.replaceComponent((AbstractComponent) mainValueComponent, newComponent);
+				replaceComponent(COLUMN_MAIN_FIELD, newComponent);
 			}
-
 			mainValueComponent = (HasValue<Object>) newComponent;
 
 			if (FlexibleFilterType.BETWEEN.equals(filterType)) {
-				newComponent.setCaption(am.getDisplayName(VaadinUtils.getLocale()) + " " + message("ocs.from"));
 
 				AbstractComponent newAuxComponent = factory.constructField(context);
 				((HasValue<?>) newAuxComponent).addValueChangeListener(
 						event -> handleValueChange((HasValue<?>) newAuxComponent, event.getSource().getValue()));
-				newAuxComponent.setCaption(am.getDisplayName(VaadinUtils.getLocale()) + " " + message("ocs.to"));
 				newAuxComponent.setSizeFull();
+				newAuxComponent.setCaption("");
 
-				if (auxValueComponent == null) {
-					layout.addComponent(newAuxComponent);
+				if (!hasColumn(COLUMN_AUX_FIELD)) {
+					layout.addColumn().withDisplayRules(DynamoConstants.HALF_COLUMNS, 3, 3, 3)
+							.withComponent(newAuxComponent);
 				} else {
-					layout.replaceComponent((AbstractComponent) auxValueComponent, newAuxComponent);
+					replaceComponent(COLUMN_AUX_FIELD, newAuxComponent);
 				}
 				auxValueComponent = (HasValue<Object>) newAuxComponent;
 			} else {
 				// no need for the auxiliary field
 				if (auxValueComponent != null) {
-					layout.removeComponent((AbstractComponent) auxValueComponent);
+					replaceComponent(COLUMN_AUX_FIELD, new Label(""));
 					auxValueComponent = null;
 				}
 			}
@@ -577,6 +570,29 @@ public class ModelBasedFlexibleSearchForm<ID extends Serializable, T extends Abs
 			result.ifError(r -> ((AbstractComponent) field).setComponentError(new UserError(r)));
 		}
 
+		private boolean hasColumn(int columnIndex) {
+			try {
+				layout.getColumn(columnIndex);
+			} catch (NotResponsiveColumnException | IndexOutOfBoundsException e) {
+				return false;
+			}
+			return true;
+		}
+
+		/**
+		 * Replaces the component in the specified column by the specified component
+		 * 
+		 * @param columnIndex
+		 * @param component
+		 */
+		private void replaceComponent(int columnIndex, Component component) {
+			try {
+				layout.getColumn(columnIndex).setComponent(component);
+			} catch (NotResponsiveColumnException | IndexOutOfBoundsException e) {
+				// do nothing
+			}
+		}
+
 		/**
 		 * Extracts the filter definition from the region
 		 *
@@ -607,17 +623,17 @@ public class ModelBasedFlexibleSearchForm<ID extends Serializable, T extends Abs
 	private Button addFilterButton;
 
 	/**
-	 * The filter regions
-	 */
-	private List<FilterRegion> regions = new ArrayList<>();
-
-	/**
 	 * Path of the properties for which to offer only basic String search
 	 * capabilities
 	 */
 	private Set<String> basicStringFilterProperties = new HashSet<>();
 
 	private FieldFactory factory = FieldFactory.getInstance();
+
+	/**
+	 * The filter regions
+	 */
+	private List<FilterRegion> regions = new ArrayList<>();
 
 	/**
 	 * Constructor
@@ -646,7 +662,7 @@ public class ModelBasedFlexibleSearchForm<ID extends Serializable, T extends Abs
 	private void addFilter() {
 		FilterRegion region = new FilterRegion(this);
 		regions.add(region);
-		getFilterLayout().addComponent(new ResponsiveRow().withComponents(region.getLayout()));
+		getFilterLayout().addComponent(region.getLayout());
 		toggle(true);
 	}
 
@@ -728,6 +744,20 @@ public class ModelBasedFlexibleSearchForm<ID extends Serializable, T extends Abs
 	}
 
 	@Override
+	protected Layout constructFilterLayout() {
+		// just an empty layout - filters will be added on the fly
+		return new ResponsiveLayout().withFullSize();
+	}
+
+	/**
+	 * Extracts a list of FlexibleFilterDefinitions form the currently active search
+	 * filters
+	 */
+	public List<FlexibleFilterDefinition> extractFilterDefinitions() {
+		return regions.stream().map(FilterRegion::toDefinition).filter(Objects::nonNull).collect(Collectors.toList());
+	}
+
+	@Override
 	protected void fillButtonBar(ResponsiveRow buttonBar) {
 
 		// construct button for adding a new filter
@@ -737,24 +767,9 @@ public class ModelBasedFlexibleSearchForm<ID extends Serializable, T extends Abs
 
 		buttonBar.addComponent(addFilterButton);
 		buttonBar.addComponent(constructSearchButton());
-		buttonBar.addComponent(constructSearchAnyButton());
-		buttonBar.addComponent(constructClearButton());
-		buttonBar.addComponent(constructToggleButton());
-
-	}
-
-	@Override
-	protected Layout constructFilterLayout() {
-		// just an empty layout - filters will be added on the fly
-		return new ResponsiveLayout();
-	}
-
-	/**
-	 * Extracts a list of FlexibleFilterDefinitions form the currently active search
-	 * filters
-	 */
-	public List<FlexibleFilterDefinition> extractFilterDefinitions() {
-		return regions.stream().map(FilterRegion::toDefinition).filter(Objects::nonNull).collect(Collectors.toList());
+		constructSearchAnyButton(buttonBar);
+		constructClearButton(buttonBar);
+		constructToggleButton(buttonBar);
 	}
 
 	public Button getAddFilterButton() {

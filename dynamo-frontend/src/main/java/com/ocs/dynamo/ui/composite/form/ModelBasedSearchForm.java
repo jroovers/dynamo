@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jarektoro.responsivelayout.ResponsiveLayout;
 import com.jarektoro.responsivelayout.ResponsiveRow;
 import com.ocs.dynamo.constants.DynamoConstants;
 import com.ocs.dynamo.domain.AbstractEntity;
@@ -32,13 +33,14 @@ import com.ocs.dynamo.ui.Refreshable;
 import com.ocs.dynamo.ui.Searchable;
 import com.ocs.dynamo.ui.component.Cascadable;
 import com.ocs.dynamo.ui.component.CustomEntityField;
+import com.ocs.dynamo.ui.component.ResponsiveUtil;
 import com.ocs.dynamo.ui.composite.layout.FormOptions;
 import com.ocs.dynamo.ui.utils.VaadinUtils;
 import com.vaadin.data.HasValue;
 import com.vaadin.data.HasValue.ValueChangeEvent;
 import com.vaadin.server.SerializablePredicate;
 import com.vaadin.ui.AbstractComponent;
-import com.vaadin.ui.Component;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
 
 /**
@@ -61,12 +63,16 @@ public class ModelBasedSearchForm<ID extends Serializable, T extends AbstractEnt
 	/**
 	 * The main form layout
 	 */
-	private ResponsiveRow form;
+	private ResponsiveLayout form;
 
 	/**
 	 * The various filter groups
 	 */
 	private Map<String, FilterGroup<T>> groups = new HashMap<>();
+
+	private ResponsiveRow currentRow;
+
+	private int addCount = 0;
 
 	/**
 	 * Constructor
@@ -126,25 +132,25 @@ public class ModelBasedSearchForm<ID extends Serializable, T extends AbstractEnt
 	/**
 	 * Creates a search field based on an attribute model
 	 * 
-	 * @param entityModel    the entity model of the entity to search for
-	 * @param attributeModel the attribute model the attribute model of the property
-	 *                       that is bound to the field
+	 * @param em the entity model of the entity to search for
+	 * @param am the attribute model the attribute model of the property that is
+	 *           bound to the field
 	 * @return
 	 */
-	protected AbstractComponent constructField(EntityModel<T> entityModel, AttributeModel attributeModel) {
-		AbstractComponent field = constructCustomField(entityModel, attributeModel);
+	protected AbstractComponent constructField(EntityModel<T> em, AttributeModel am) {
+		AbstractComponent field = constructCustomField(em, am);
 		if (field == null) {
-			EntityModel<?> em = getFieldEntityModel(attributeModel);
-			FieldFactoryContext ctx = FieldFactoryContext.create().setAttributeModel(attributeModel)
-					.setFieldEntityModel(em).setFieldFilters(getFieldFilters()).setViewMode(false).setSearch(true);
+			EntityModel<?> emm = getFieldEntityModel(am);
+			FieldFactoryContext ctx = FieldFactoryContext.create().setAttributeModel(am).setFieldEntityModel(emm)
+					.setFieldFilters(getFieldFilters()).setViewMode(false).setSearch(true);
 			field = getFieldFactory().constructField(ctx);
 		}
 
 		if (field != null) {
-			field.setId(attributeModel.getPath().replace(".", "_"));
+			field.setId(am.getPath().replace(".", "_"));
 			field.setStyleName(DynamoConstants.CSS_DYNAMO_FIELD);
 		} else {
-			throw new OCSRuntimeException("No field could be constructed for " + attributeModel.getPath());
+			throw new OCSRuntimeException("No field could be constructed for " + am.getPath());
 		}
 
 		return field;
@@ -178,32 +184,54 @@ public class ModelBasedSearchForm<ID extends Serializable, T extends AbstractEnt
 				filterType = FilterType.EQUAL;
 			}
 
-			Component comp = new ResponsiveRow().withMargin(false)/*
-																	 * .withStyleName(DynamoConstants.
-																	 * CSS_DYNAMO_SEARCH_FORM)
-																	 */
-					.withComponents(field);
-			AbstractComponent auxField = null;
-			if (FilterType.BETWEEN.equals(filterType)) {
-				// field.setStyleName(DynamoConstants.CSS_DYNAMO_FIELD_HALF);
-				// in case of a between value, construct two fields for the
-				// lower
-				// and upper bounds
-				field.setCaption(attributeModel.getDisplayName(VaadinUtils.getLocale()));
-				auxField = constructField(entityModel, attributeModel);
-				// auxField.setStyleName(DynamoConstants.CSS_DYNAMO_FIELD_HALF);
-				auxField.setCaption(null);
+			ResponsiveRow comp = null;
+			if (addCount == 0) {
+				// create a new row
+				comp = ResponsiveUtil.createRowWithSpacing().withStyleName(DynamoConstants.CSS_DYNAMO_FORM);
+				currentRow = comp;
+				addCount = 1;
+			} else {
+				// re-use current row
+				comp = currentRow;
+				addCount = 0;
+			}
 
-				ResponsiveRow row = new ResponsiveRow().withMargin(false)
-				/* .withStyleName(DynamoConstants.CSS_DYNAMO_SEARCH_FORM) */;
-				row.setSizeFull();
-				row.addColumn().withDisplayRules(12, 6, 6, 6).withComponent(field);
-				row.addColumn().withDisplayRules(12, 6, 6, 6).withComponent(auxField);
-				comp = row;
+			boolean between = FilterType.BETWEEN.equals(filterType);
+
+			// add a label to replace the regular label
+			Label label = createExtraLabel(attributeModel);
+			comp.addColumn().withDisplayRules(DynamoConstants.MAX_COLUMNS, 2, 2, 2).withComponent(label);
+			field.setCaption("");
+			field.setSizeFull();
+
+			if (between) {
+				comp.addColumn().withDisplayRules(DynamoConstants.MAX_COLUMNS, 2, 2, 2).withComponent(field);
+			} else {
+				comp.addColumn().withDisplayRules(DynamoConstants.MAX_COLUMNS, 4, 4, 4).withComponent(field);
+			}
+
+			AbstractComponent auxField = null;
+			if (between) {
+				auxField = constructField(entityModel, attributeModel);
+				auxField.setCaption(null);
+				auxField.setSizeFull();
+				comp.addColumn().withDisplayRules(DynamoConstants.MAX_COLUMNS, 2, 2, 2).withComponent(auxField);
 			}
 			return new FilterGroup<>(attributeModel, filterType, comp, field, auxField);
 		}
 		return null;
+	}
+
+	/**
+	 * Creates an extra label that is used as a replacement for the standard label
+	 * 
+	 * @param attributeModel
+	 * @return
+	 */
+	private Label createExtraLabel(AttributeModel attributeModel) {
+		Label label = new Label(attributeModel.getDisplayName(VaadinUtils.getLocale()));
+		label.addStyleName("caption");
+		return label;
 	}
 
 	/**
@@ -214,7 +242,7 @@ public class ModelBasedSearchForm<ID extends Serializable, T extends AbstractEnt
 	 */
 	@Override
 	protected Layout constructFilterLayout() {
-		form = new ResponsiveRow();
+		form = new ResponsiveLayout().withFullSize().withStyleName(DynamoConstants.CSS_DYNAMO_SEARCH_FORM);
 
 		// iterate over the searchable attributes and add a field for each
 		iterate(getEntityModel().getAttributeModels());
@@ -229,9 +257,9 @@ public class ModelBasedSearchForm<ID extends Serializable, T extends AbstractEnt
 	@Override
 	protected void fillButtonBar(ResponsiveRow buttonBar) {
 		buttonBar.addComponent(constructSearchButton());
-		buttonBar.addComponent(constructSearchAnyButton());
-		buttonBar.addComponent(constructClearButton());
-		buttonBar.addComponent(constructToggleButton());
+		constructSearchAnyButton(buttonBar);
+		constructClearButton(buttonBar);
+		constructToggleButton(buttonBar);
 	}
 
 	/**
@@ -306,9 +334,8 @@ public class ModelBasedSearchForm<ID extends Serializable, T extends AbstractEnt
 			if (attributeModel.isSearchable()) {
 
 				FilterGroup<T> group = constructFilterGroup(getEntityModel(), attributeModel);
-				group.getFilterComponent().setSizeFull();
 
-				form.addComponent(group.getFilterComponent());
+				form.addRow((ResponsiveRow) group.getFilterComponent());
 
 				// register with the form and set the listener
 				group.addListener(this);

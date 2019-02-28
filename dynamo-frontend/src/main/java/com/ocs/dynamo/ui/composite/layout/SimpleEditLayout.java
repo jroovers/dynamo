@@ -249,9 +249,9 @@ public class SimpleEditLayout<ID extends Serializable, T extends AbstractEntity<
 				protected void postProcessEditFields() {
 					SimpleEditLayout.this.postProcessEditFields(editForm);
 				}
-
 			};
 
+			editForm.setColumnWidth(getFormColumnWidth());
 			editForm.setCustomSaveConsumer(customSaveConsumer);
 			editForm.setDetailJoins(getJoins());
 			editForm.setFieldEntityModels(getFieldEntityModels());

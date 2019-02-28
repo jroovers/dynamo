@@ -131,7 +131,6 @@ public class MultiDomainEditLayout extends BaseCustomComponent {
 			// form that contains the combo box
 			FormLayout form = new FormLayout();
 			form.setMargin(true);
-			form.setStyleName(DynamoConstants.CSS_CLASS_HALFSCREEN);
 			mainLayout.addComponent(form);
 
 			// combo box for selecting domain

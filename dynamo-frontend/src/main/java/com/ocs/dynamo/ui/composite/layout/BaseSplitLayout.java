@@ -26,6 +26,7 @@ import com.ocs.dynamo.ui.composite.form.ModelBasedEditForm;
 import com.ocs.dynamo.ui.composite.type.ScreenMode;
 import com.ocs.dynamo.ui.utils.FormatUtils;
 import com.ocs.dynamo.ui.utils.VaadinUtils;
+import com.ocs.dynamo.util.SystemPropertyUtils;
 import com.vaadin.data.Converter;
 import com.vaadin.data.provider.SortOrder;
 import com.vaadin.icons.VaadinIcons;
@@ -67,6 +68,8 @@ public abstract class BaseSplitLayout<ID extends Serializable, T extends Abstrac
 
 	// the edit form
 	private ModelBasedEditForm<ID, T> editForm;
+
+	private int formColumnWidth = SystemPropertyUtils.getDefaultSplitFormColumnWidth();
 
 	// layout that is placed above the grid view
 	private Component headerLayout;
@@ -366,6 +369,7 @@ public abstract class BaseSplitLayout<ID extends Serializable, T extends Abstrac
 
 			};
 
+			editForm.setColumnWidth(getFormColumnWidth());
 			editForm.setCustomSaveConsumer(getCustomSaveConsumer());
 			editForm.setDetailJoins(getDetailJoins());
 			editForm.setFieldEntityModels(getFieldEntityModels());
@@ -417,6 +421,10 @@ public abstract class BaseSplitLayout<ID extends Serializable, T extends Abstrac
 
 	public ModelBasedEditForm<ID, T> getEditForm() {
 		return editForm;
+	}
+
+	public int getFormColumnWidth() {
+		return formColumnWidth;
 	}
 
 	public TextField getQuickSearchField() {
@@ -519,6 +527,10 @@ public abstract class BaseSplitLayout<ID extends Serializable, T extends Abstrac
 
 	public void setDefaultSplitPosition(Integer defaultSplitPosition) {
 		this.defaultSplitPosition = defaultSplitPosition;
+	}
+
+	public void setFormColumnWidth(int formColumnWidth) {
+		this.formColumnWidth = formColumnWidth;
 	}
 
 	public abstract void setSelectedItems(Object selectedItems);

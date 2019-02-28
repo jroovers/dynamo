@@ -27,6 +27,7 @@ import com.ocs.dynamo.service.BaseService;
 import com.ocs.dynamo.ui.component.DownloadButton;
 import com.ocs.dynamo.ui.composite.form.ModelBasedEditForm;
 import com.ocs.dynamo.ui.utils.VaadinUtils;
+import com.ocs.dynamo.util.SystemPropertyUtils;
 import com.vaadin.data.Converter;
 import com.vaadin.server.Resource;
 import com.vaadin.ui.AbstractComponent;
@@ -107,6 +108,11 @@ public abstract class BaseServiceCustomComponent<ID extends Serializable, T exte
 	 * The list of components to update after an entity is selected
 	 */
 	private List<AbstractComponent> componentsToUpdate = new ArrayList<>();
+
+	/**
+	 * 
+	 */
+	private int formColumnWidth = SystemPropertyUtils.getDefaultFormColumnWidth();
 
 	/**
 	 * Constructor
@@ -264,6 +270,14 @@ public abstract class BaseServiceCustomComponent<ID extends Serializable, T exte
 
 	public void setService(BaseService<ID, T> service) {
 		this.service = service;
+	}
+
+	public int getFormColumnWidth() {
+		return formColumnWidth;
+	}
+
+	public void setFormColumnWidth(int formColumnWidth) {
+		this.formColumnWidth = formColumnWidth;
 	}
 
 }

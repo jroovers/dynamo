@@ -124,7 +124,7 @@ public class MenuService {
 				menuItem.setVisible(false);
 			}
 			
-			menuItem.setStyleName("v-csslayout rl-col v-widget");
+			//menuItem.setStyleName("v-csslayout rl-col v-widget");
 
 		}
 		return menuItem;
@@ -141,7 +141,7 @@ public class MenuService {
 	public MenuBar constructMenu(String rootName, Navigator navigator) {
 		MenuBar mainMenu = new MenuBar();
 		mainMenu.setResponsive(true);
-		mainMenu.addStyleName("rl-row v-layout");
+		//mainMenu.addStyleName("rl-row v-layout");
 
 		// look up any messages of the form "rootName.i"
 		int i = 1;
