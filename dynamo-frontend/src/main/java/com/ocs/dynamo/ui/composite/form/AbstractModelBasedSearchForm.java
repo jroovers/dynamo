@@ -17,6 +17,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import com.jarektoro.responsivelayout.ResponsiveLayout;
 import com.jarektoro.responsivelayout.ResponsiveRow;
@@ -122,6 +123,11 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 	 * The panel that wraps around the filter form
 	 */
 	private Panel wrapperPanel;
+
+	/**
+	 * 
+	 */
+	private Consumer<ClickEvent> afterClearConsumer;
 
 	/**
 	 * Constructor
@@ -230,9 +236,15 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 			if (getFormOptions().isConfirmClear()) {
 				VaadinUtils.showConfirmDialog(getMessageService(), message("ocs.confirm.clear"), () -> {
 					clear();
+
+					if (afterClearConsumer != null) {
+						afterClearConsumer.accept(event);
+					}
+
 					if (getFormOptions().isSearchImmediately()) {
 						search(true);
 					}
+
 				});
 			} else {
 				clear();
@@ -309,12 +321,12 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 	 * 
 	 * @return
 	 */
-	protected final Button constructSearchButton() {
+	protected final void constructSearchButton(ResponsiveRow buttonBar) {
 		searchButton = new Button(message("ocs.search"));
 		searchButton.setIcon(VaadinIcons.SEARCH);
 		searchButton.addClickListener(this);
 		searchButton.setStyleName(DynamoConstants.CSS_SEARCH_BUTTON);
-		return searchButton;
+		buttonBar.addComponent(searchButton);
 	}
 
 	/**
@@ -473,7 +485,7 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 	 *
 	 * @param groups
 	 */
-	protected void postProcessButtonBar(Layout buttonBar) {
+	protected void postProcessButtonBar(ResponsiveRow buttonBar) {
 		// Use in subclass to add additional buttons
 	}
 
@@ -596,6 +608,14 @@ public abstract class AbstractModelBasedSearchForm<ID extends Serializable, T ex
 	 */
 	protected void validateBeforeSearch() {
 		// overwrite in subclass
+	}
+
+	public Consumer<ClickEvent> getAfterClearConsumer() {
+		return afterClearConsumer;
+	}
+
+	public void setAfterClearConsumer(Consumer<ClickEvent> afterClearConsumer) {
+		this.afterClearConsumer = afterClearConsumer;
 	}
 
 }

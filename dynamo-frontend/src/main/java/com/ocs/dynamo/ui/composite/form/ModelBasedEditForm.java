@@ -370,7 +370,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 	/**
 	 * The column width (out of 12) of the edit form
 	 */
-	private int columnWidth =  SystemPropertyUtils.getDefaultFormColumnWidth();
+	private int columnWidth = SystemPropertyUtils.getDefaultFormColumnWidth();
 
 	/**
 	 * Constructor
@@ -751,51 +751,31 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 	 * @return
 	 */
 	private ResponsiveRow constructButtonBar(boolean bottom) {
-		ResponsiveRow buttonBar = ResponsiveUtil.createRowWithSpacing();
+		ResponsiveRow buttonBar = ResponsiveUtil.createButtonBar();
 
 		// button to go back to the main screen when in view mode
-		Button backButton = new Button(message("ocs.back"));
-		backButton.setIcon(VaadinIcons.BACKWARDS);
-		backButton.addClickListener(event -> back());
-		backButton.setVisible(isViewMode() && getFormOptions().isShowBackButton());
-		backButton.setData(BACK_BUTTON_DATA);
-		buttonBar.addComponent(backButton);
-		buttons.get(isViewMode()).add(backButton);
-
-		// in edit mode, display a cancel button
-		Button cancelButton = new Button(message("ocs.cancel"));
-		cancelButton.setData(CANCEL_BUTTON_DATA);
-		cancelButton.addClickListener(event -> {
-			if (entity.getId() != null) {
-				entity = service.fetchById(entity.getId(), getDetailJoins());
-			}
-			afterEditDone(true, entity.getId() == null, entity);
-		});
-
-		// display button when in edit mode and explicitly specified, or when creating a
-		// new entity
-		// in nested mode
-		cancelButton.setVisible((!isViewMode() && !getFormOptions().isHideCancelButton())
-				|| (getFormOptions().isFormNested() && entity.getId() == null));
-		cancelButton.setIcon(VaadinIcons.BAN);
-		buttonBar.addComponent(cancelButton);
-		buttons.get(isViewMode()).add(cancelButton);
-
-		// create the save button
-		if (!isViewMode()) {
-			Button saveButton = constructSaveButton(bottom);
-			buttonBar.addComponent(saveButton);
-			buttons.get(isViewMode()).add(saveButton);
+		if (isViewMode() && getFormOptions().isShowBackButton()) {
+			Button backButton = new Button(message("ocs.back"));
+			backButton.setIcon(VaadinIcons.BACKWARDS);
+			backButton.setStyleName(DynamoConstants.CSS_BACK_BUTTON);
+			backButton.addClickListener(event -> back());
+			backButton.setData(BACK_BUTTON_DATA);
+			buttonBar.addComponent(backButton);
+			buttons.get(isViewMode()).add(backButton);
 		}
 
+		constructCancelButton(buttonBar);
+		constructSaveButton(buttonBar, bottom);
+
 		// create the edit button
-		Button editButton = new Button(message("ocs.edit"));
-		editButton.setIcon(VaadinIcons.PENCIL);
-		editButton.addClickListener(event -> setViewMode(false));
-		buttonBar.addComponent(editButton);
-		buttons.get(isViewMode()).add(editButton);
-		editButton.setData(EDIT_BUTTON_DATA);
-		editButton.setVisible(isViewMode() && getFormOptions().isEditAllowed() && isEditAllowed());
+		if (isViewMode() && getFormOptions().isEditAllowed() && isEditAllowed()) {
+			Button editButton = new Button(message("ocs.edit"));
+			editButton.setIcon(VaadinIcons.PENCIL);
+			editButton.addClickListener(event -> setViewMode(false));
+			buttonBar.addComponent(editButton);
+			buttons.get(isViewMode()).add(editButton);
+			editButton.setData(EDIT_BUTTON_DATA);
+		}
 
 		// button for moving to the previous record
 		Button prevButton = new Button(message("ocs.previous"));
@@ -834,6 +814,23 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 		postProcessButtonBar(buttonBar, isViewMode());
 
 		return buttonBar;
+	}
+
+	private void constructCancelButton(ResponsiveRow buttonBar) {
+		if (!isViewMode() && !getFormOptions().isHideCancelButton()) {
+			Button cancelButton = new Button(message("ocs.cancel"));
+			cancelButton.setStyleName(DynamoConstants.CSS_CANCEL_BUTTON);
+			cancelButton.setData(CANCEL_BUTTON_DATA);
+			cancelButton.addClickListener(event -> {
+				if (entity.getId() != null) {
+					entity = service.fetchById(entity.getId(), getDetailJoins());
+				}
+				afterEditDone(true, entity.getId() == null, entity);
+			});
+			cancelButton.setIcon(VaadinIcons.BAN);
+			buttonBar.addComponent(cancelButton);
+			buttons.get(isViewMode()).add(cancelButton);
+		}
 	}
 
 	/**
@@ -897,30 +894,30 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 	 * Constructs a field or label for a certain attribute
 	 *
 	 * @param parent         the parent layout to which to add the field
-	 * @param entityModel    the entity model
-	 * @param attributeModel the attribute model
+	 * @param em    the entity model
+	 * @param am the attribute model
 	 * @param viewMode       whether the screen is in view mode
 	 */
 	@SuppressWarnings({ "unchecked" })
-	private void constructField(Layout parent, EntityModel<T> entityModel, AttributeModel attributeModel,
+	private void constructField(Layout parent, EntityModel<T> em, AttributeModel am,
 			boolean viewMode, int tabIndex, boolean sameRow, int fieldWidth) {
 
-		EntityModel<?> fieldEntityModel = getFieldEntityModel(attributeModel);
+		EntityModel<?> fieldEntityModel = getFieldEntityModel(am);
 		// allow the user to override the construction of a field
-		AbstractComponent field = constructCustomField(entityModel, attributeModel, viewMode);
+		AbstractComponent field = constructCustomField(em, am, viewMode);
 		if (field == null) {
-			FieldFactoryContext ctx = FieldFactoryContext.create().setAttributeModel(attributeModel)
+			FieldFactoryContext ctx = FieldFactoryContext.create().setAttributeModel(am)
 					.setFieldEntityModel(fieldEntityModel).setFieldFilters(getFieldFilters()).setViewMode(viewMode);
 			field = fieldFactory.constructField(ctx);
 		}
 
 		if (field instanceof URLField) {
 			((URLField) field)
-					.setEditable(!isViewMode() && !EditableType.CREATE_ONLY.equals(attributeModel.getEditableType()));
+					.setEditable(!isViewMode() && !EditableType.CREATE_ONLY.equals(am.getEditableType()));
 		}
 
 		if (field != null) {
-			field.setId(attributeModel.getPath().replace(".", "_"));
+			field.setId(ResponsiveUtil.getId(am));
 
 			// apply styling to every field except for the switch (the switch has a fixed
 			// width)
@@ -933,15 +930,15 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 			// add converters and validators
 			if (!(field instanceof ServiceBasedDetailsEditGrid)) {
 				BindingBuilder<T, ?> builder = groups.get(viewMode).forField((HasValue<?>) field);
-				fieldFactory.addConvertersAndValidators(builder, attributeModel,
-						constructCustomConverter(attributeModel));
-				builder.bind(attributeModel.getPath());
+				fieldFactory.addConvertersAndValidators(builder, am,
+						constructCustomConverter(am));
+				builder.bind(am.getPath());
 			}
 
 			int labelWidth = SystemPropertyUtils.getDefaultLabelColumnWidth();
-			if (!attributeModel.getGroupTogetherWith().isEmpty()) {
+			if (!am.getGroupTogetherWith().isEmpty()) {
 				// group multiple fields together on the same line
-				int extraFields = attributeModel.getGroupTogetherWith().size();
+				int extraFields = am.getGroupTogetherWith().size();
 
 				switch (extraFields) {
 				case 1:
@@ -959,17 +956,17 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 						.withStyleName(DynamoConstants.CSS_DYNAMO_FORM);
 				parent.addComponent(rr);
 
-				Label label = createExtraLabel(field, attributeModel);
+				Label label = createExtraLabel(field, am);
 
 				rr.addColumn().withDisplayRules(DynamoConstants.MAX_COLUMNS, labelWidth, labelWidth, labelWidth)
 						.withComponent(label);
 				rr.addColumn().withDisplayRules(DynamoConstants.MAX_COLUMNS, fieldWidth, fieldWidth, fieldWidth)
 						.withComponent(field);
 
-				for (String path : attributeModel.getGroupTogetherWith()) {
+				for (String path : am.getGroupTogetherWith()) {
 					AttributeModel nestedAm = getEntityModel().getAttributeModel(path);
 					if (nestedAm != null) {
-						addField(rr, entityModel, nestedAm, tabIndex, true, fieldWidth);
+						addField(rr, em, nestedAm, tabIndex, true, fieldWidth);
 					}
 				}
 			} else {
@@ -979,7 +976,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 							.withStyleName(DynamoConstants.CSS_DYNAMO_FORM);
 					parent.addComponent(rr);
 
-					Label label = createExtraLabel(field, attributeModel);
+					Label label = createExtraLabel(field, am);
 					rr.addColumn().withDisplayRules(DynamoConstants.MAX_COLUMNS, labelWidth, labelWidth, labelWidth)
 							.withComponent(label);
 					field.setCaption("");
@@ -988,7 +985,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 							.withComponent(field);
 				} else {
 					// put the component on the same row as an earlier component
-					Label label = createExtraLabel(field, attributeModel);
+					Label label = createExtraLabel(field, am);
 					ResponsiveRow rr = (ResponsiveRow) parent;
 					rr.addColumn().withDisplayRules(DynamoConstants.MAX_COLUMNS, fieldWidth, fieldWidth, fieldWidth)
 							.withComponent(label);
@@ -1000,8 +997,8 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 		}
 
 		// set the default value for new objects
-		if (entity.getId() == null && attributeModel.getDefaultValue() != null) {
-			setDefaultValue((HasValue<Object>) field, attributeModel.getDefaultValue());
+		if (entity.getId() == null && am.getDefaultValue() != null) {
+			setDefaultValue((HasValue<Object>) field, am.getDefaultValue());
 		}
 
 		// store a reference to the first field so we can give it focus
@@ -1015,23 +1012,6 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 			((CanAssignEntity<ID, T>) field).assignEntity(entity);
 			assignEntityToFields.add((CanAssignEntity<ID, T>) field);
 		}
-	}
-
-	/**
-	 * Creates an extra label to replace the Vaadin label that we are hiding
-	 * 
-	 * @param field          the field
-	 * @param attributeModel the attribute model
-	 * @return
-	 */
-	private Label createExtraLabel(AbstractComponent field, AttributeModel attributeModel) {
-		Label label = new Label(attributeModel.getDisplayName(VaadinUtils.getLocale()));
-		if (attributeModel.isRequired()) {
-			label.addStyleName("required");
-		}
-		label.addStyleName("caption");
-
-		return label;
 	}
 
 	/**
@@ -1129,57 +1109,60 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 	 * @param bottom indicates whether this is the button at the bottom of the
 	 *               screen
 	 */
-	private Button constructSaveButton(boolean bottom) {
-		Button saveButton = new Button(
-				(entity != null && entity.getId() != null) ? message("ocs.save.existing") : message("ocs.save.new"));
-		saveButton.setIcon(VaadinIcons.SAFE);
-		saveButton.setStyleName(DynamoConstants.CSS_SAVE_BUTTON);
-		saveButton.addClickListener(event -> {
-			try {
-				// validate all fields
-				boolean error = validateAllFields();
-				if (!error) {
-					if (getFormOptions().isConfirmSave()) {
-						// ask for confirmation before saving
-						service.validate(entity);
-						VaadinUtils.showConfirmDialog(getMessageService(),
-								getMessageService().getMessage("ocs.confirm.save", VaadinUtils.getLocale(),
-										getEntityModel().getDisplayName(VaadinUtils.getLocale())),
-								() -> {
-									try {
-										if (customSaveConsumer != null) {
-											customSaveConsumer.accept(entity);
-										} else {
-											doSave();
+	private void constructSaveButton(ResponsiveRow buttonBar, boolean bottom) {
+		if (!isViewMode()) {
+			Button saveButton = new Button((entity != null && entity.getId() != null) ? message("ocs.save.existing")
+					: message("ocs.save.new"));
+			saveButton.setIcon(VaadinIcons.SAFE);
+			saveButton.setStyleName(DynamoConstants.CSS_SAVE_BUTTON);
+			saveButton.addClickListener(event -> {
+				try {
+					// validate all fields
+					boolean error = validateAllFields();
+					if (!error) {
+						if (getFormOptions().isConfirmSave()) {
+							// ask for confirmation before saving
+							service.validate(entity);
+							VaadinUtils.showConfirmDialog(getMessageService(),
+									getMessageService().getMessage("ocs.confirm.save", VaadinUtils.getLocale(),
+											getEntityModel().getDisplayName(VaadinUtils.getLocale())),
+									() -> {
+										try {
+											if (customSaveConsumer != null) {
+												customSaveConsumer.accept(entity);
+											} else {
+												doSave();
+											}
+										} catch (RuntimeException ex) {
+											if (!handleCustomException(ex)) {
+												handleSaveException(ex);
+											}
 										}
-									} catch (RuntimeException ex) {
-										if (!handleCustomException(ex)) {
-											handleSaveException(ex);
-										}
-									}
-								});
-					} else {
-						if (customSaveConsumer != null) {
-							customSaveConsumer.accept(entity);
+									});
 						} else {
-							doSave();
+							if (customSaveConsumer != null) {
+								customSaveConsumer.accept(entity);
+							} else {
+								doSave();
+							}
 						}
 					}
+				} catch (RuntimeException ex) {
+					if (!handleCustomException(ex)) {
+						handleSaveException(ex);
+					}
 				}
-			} catch (RuntimeException ex) {
-				if (!handleCustomException(ex)) {
-					handleSaveException(ex);
-				}
-			}
-		});
+			});
 
-		// enable/disable save button based on form validity
-		saveButton.setData(SAVE_BUTTON_DATA);
-		if (bottom) {
-			groups.get(isViewMode()).getFields()
-					.forEach(f -> f.addValueChangeListener(event -> ((AbstractComponent) f).setComponentError(null)));
+			// enable/disable save button based on form validity
+			saveButton.setData(SAVE_BUTTON_DATA);
+			if (bottom) {
+				groups.get(isViewMode()).getFields().forEach(
+						f -> f.addValueChangeListener(event -> ((AbstractComponent) f).setComponentError(null)));
+			}
+			buttons.get(isViewMode()).add(saveButton);
+			buttonBar.addComponent(saveButton);
 		}
-		return saveButton;
 	}
 
 	private Label constructTitleLabel() {
@@ -1213,6 +1196,23 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 	 */
 	private UploadComponent constructUploadField(AttributeModel attributeModel) {
 		return new UploadComponent(attributeModel);
+	}
+
+	/**
+	 * Creates an extra label to replace the Vaadin label that we are hiding
+	 * 
+	 * @param field          the field
+	 * @param attributeModel the attribute model
+	 * @return
+	 */
+	private Label createExtraLabel(AbstractComponent field, AttributeModel attributeModel) {
+		Label label = new Label(attributeModel.getDisplayName(VaadinUtils.getLocale()));
+		if (attributeModel.isRequired()) {
+			label.addStyleName("required");
+		}
+		label.addStyleName("caption");
+
+		return label;
 	}
 
 	/**
@@ -1286,6 +1286,10 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 		return filterButtons(CANCEL_BUTTON_DATA);
 	}
 
+	public int getColumnWidth() {
+		return columnWidth;
+	}
+
 	public Consumer<T> getCustomSaveConsumer() {
 		return customSaveConsumer;
 	}
@@ -1318,6 +1322,16 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 	}
 
 	/**
+	 * Returns the field with the given name, if it exists
+	 * 
+	 * @param fieldName the name of the field
+	 * @return
+	 */
+	public AbstractComponent getField(String fieldName) {
+		return getField(isViewMode(), fieldName);
+	}
+
+	/**
 	 * Returns an the field with the given name, if it exists, cast to a HasValue
 	 * 
 	 * @param fieldName the name of the field
@@ -1326,16 +1340,6 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 	@SuppressWarnings("unchecked")
 	public <U> HasValue<U> getFieldAsHasValue(String fieldName) {
 		return (HasValue<U>) getField(isViewMode(), fieldName);
-	}
-
-	/**
-	 * Returns the field with the given name, if it exists
-	 * 
-	 * @param fieldName the name of the field
-	 * @return
-	 */
-	public AbstractComponent getField(String fieldName) {
-		return getField(isViewMode(), fieldName);
 	}
 
 	/**
@@ -1701,6 +1705,10 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 		setGroupVisible(c, visible);
 	}
 
+	public void setColumnWidth(int columnWidth) {
+		this.columnWidth = columnWidth;
+	}
+
 	/**
 	 * Shows or hides the component for a certain property - this will work*
 	 * regardless of the view
@@ -2000,14 +2008,6 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 			return false;
 		});
 		return error;
-	}
-
-	public int getColumnWidth() {
-		return columnWidth;
-	}
-
-	public void setColumnWidth(int columnWidth) {
-		this.columnWidth = columnWidth;
 	}
 
 }

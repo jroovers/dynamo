@@ -4,6 +4,7 @@ import com.jarektoro.responsivelayout.ResponsiveLayout;
 import com.jarektoro.responsivelayout.ResponsiveRow;
 import com.jarektoro.responsivelayout.ResponsiveRow.SpacingSize;
 import com.ocs.dynamo.constants.DynamoConstants;
+import com.ocs.dynamo.domain.model.AttributeModel;
 import com.vaadin.ui.Component;
 
 /**
@@ -25,10 +26,6 @@ public final class ResponsiveUtil {
 				DynamoConstants.MAX_COLUMNS, DynamoConstants.MAX_COLUMNS).withComponent(component);
 	}
 
-	public static ResponsiveRow createButtonBar() {
-		return createRowWithSpacing().withStyleName(DynamoConstants.CSS_DYNAMO_BUTTON_BAR);
-	}
-
 	/**
 	 * Adds a full width row to the provided row, then adds the provided component
 	 * to it
@@ -41,6 +38,10 @@ public final class ResponsiveUtil {
 				DynamoConstants.MAX_COLUMNS, DynamoConstants.MAX_COLUMNS).withComponents(component);
 	}
 
+	public static ResponsiveRow createButtonBar() {
+		return createRowWithSpacing().withStyleName(DynamoConstants.CSS_DYNAMO_BUTTON_BAR);
+	}
+
 	/**
 	 * Creates a responsive row with spacing enabled
 	 * 
@@ -48,6 +49,36 @@ public final class ResponsiveUtil {
 	 */
 	public static ResponsiveRow createRowWithSpacing() {
 		return new ResponsiveRow().withSpacing(SpacingSize.SMALL, true);
+	}
+
+	/**
+	 * Creates a row with spacing and with the provided style name
+	 * 
+	 * @param styleName the style name
+	 * @return
+	 */
+	public static ResponsiveRow createRowWithStyle(String styleName) {
+		return createRowWithSpacing().withStyleName(styleName);
+	}
+
+	/**
+	 * Creates the CSS ID for an auxiliary search field
+	 * 
+	 * @param am
+	 * @return
+	 */
+	public static String getAuxId(AttributeModel am) {
+		return getId(am) + "_aux";
+	}
+
+	/**
+	 * Creates the CSS ID for a field
+	 * 
+	 * @param am
+	 * @return
+	 */
+	public static String getId(AttributeModel am) {
+		return am.getPath().replace('.', '_');
 	}
 
 }

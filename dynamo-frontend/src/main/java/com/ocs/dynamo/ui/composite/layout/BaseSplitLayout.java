@@ -54,9 +54,6 @@ public abstract class BaseSplitLayout<ID extends Serializable, T extends Abstrac
 
 	private static final long serialVersionUID = 4606800218149558500L;
 
-	// the add button
-	private Button addButton;
-
 	// default split position (width of first component in percent)
 	private Integer defaultSplitPosition;
 
@@ -129,7 +126,7 @@ public abstract class BaseSplitLayout<ID extends Serializable, T extends Abstrac
 			HorizontalSplitPanel splitter = null;
 			VerticalLayout splitterLayout = null;
 
-			detailLayout = new DefaultVerticalLayout();
+			detailLayout = new DefaultVerticalLayout(true, true);
 			emptyDetailView();
 
 			// optional header
@@ -190,8 +187,7 @@ public abstract class BaseSplitLayout<ID extends Serializable, T extends Abstrac
 				mainLayout.addComponent(editPanel);
 			}
 
-			addButton = constructAddButton();
-			getButtonBar().addComponent(addButton);
+			constructAddButton(getButtonBar());
 
 			removeButton = constructRemoveButton();
 			registerComponent(removeButton);
@@ -405,10 +401,6 @@ public abstract class BaseSplitLayout<ID extends Serializable, T extends Abstrac
 				new Label(message("ocs.select.item", getEntityModel().getDisplayName(VaadinUtils.getLocale()))));
 		detailLayout.replaceComponent(selectedDetailLayout, vLayout);
 		selectedDetailLayout = vLayout;
-	}
-
-	public Button getAddButton() {
-		return addButton;
 	}
 
 	public Integer getDefaultSplitPosition() {

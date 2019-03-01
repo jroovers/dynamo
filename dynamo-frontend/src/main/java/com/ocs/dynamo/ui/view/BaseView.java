@@ -48,6 +48,12 @@ public abstract class BaseView extends CustomComponent implements View {
 
 	private UI ui = UI.getCurrent();
 
+	/**
+	 * Adds a component over the full available width of the specified layout
+	 * 
+	 * @param main      the layout to add the component to
+	 * @param component the component to add
+	 */
 	protected void addFullWidthComponent(ResponsiveLayout main, Component component) {
 		main.addRow(new ResponsiveRow().withMargin(MarginSize.SMALL)).addColumn()
 				.withDisplayRules(DynamoConstants.MAX_COLUMNS, DynamoConstants.MAX_COLUMNS, DynamoConstants.MAX_COLUMNS,

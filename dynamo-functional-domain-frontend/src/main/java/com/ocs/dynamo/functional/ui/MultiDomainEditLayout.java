@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.ocs.dynamo.constants.DynamoConstants;
+import com.jarektoro.responsivelayout.ResponsiveRow;
 import com.ocs.dynamo.domain.AbstractEntity;
 import com.ocs.dynamo.domain.model.AttributeModel;
 import com.ocs.dynamo.domain.model.EntityModel;
@@ -224,7 +224,7 @@ public class MultiDomainEditLayout extends BaseCustomComponent {
 				}
 
 				@Override
-				protected void postProcessButtonBar(Layout buttonBar) {
+				protected void postProcessButtonBar(ResponsiveRow buttonBar) {
 					MultiDomainEditLayout.this.postProcessButtonBar(buttonBar);
 				}
 

@@ -15,6 +15,7 @@ package com.ocs.dynamo.ui.composite.layout;
 
 import java.io.Serializable;
 
+import com.jarektoro.responsivelayout.ResponsiveRow;
 import com.ocs.dynamo.dao.FetchJoinInformation;
 import com.ocs.dynamo.domain.AbstractEntity;
 import com.ocs.dynamo.domain.model.AttributeModel;
@@ -24,7 +25,6 @@ import com.ocs.dynamo.ui.composite.form.ModelBasedSearchForm;
 import com.ocs.dynamo.ui.provider.QueryType;
 import com.vaadin.data.provider.SortOrder;
 import com.vaadin.ui.AbstractComponent;
-import com.vaadin.ui.Layout;
 
 /**
  * A composite component that contains a search form and a results grid, along
@@ -87,7 +87,7 @@ public class SimpleSearchLayout<ID extends Serializable, T extends AbstractEntit
 			}
 
 			@Override
-			protected void postProcessButtonBar(Layout buttonBar) {
+			protected void postProcessButtonBar(ResponsiveRow buttonBar) {
 				SimpleSearchLayout.this.postProcessSearchButtonBar(buttonBar);
 			}
 

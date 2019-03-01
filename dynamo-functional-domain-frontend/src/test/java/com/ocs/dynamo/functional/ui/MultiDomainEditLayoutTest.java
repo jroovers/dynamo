@@ -78,9 +78,8 @@ public class MultiDomainEditLayoutTest extends BaseIntegrationTest {
 		BaseSplitLayout<?, ?> splitLayout = layout.getSplitLayout();
 		splitLayout.build();
 
-		// adding is not possible
-		Assert.assertNotNull(splitLayout.getAddButton());
-		Assert.assertFalse(splitLayout.getAddButton().isVisible());
+		// adding is not possible, no add button
+		Assert.assertNull(splitLayout.getAddButton());
 
 		// test the reload method
 		layout.reload();

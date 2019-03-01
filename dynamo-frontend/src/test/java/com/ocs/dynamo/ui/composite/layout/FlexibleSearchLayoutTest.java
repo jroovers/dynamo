@@ -48,7 +48,7 @@ public class FlexibleSearchLayoutTest extends BaseIntegrationTest {
 
 		Assert.assertTrue(layout.getAddButton().isVisible());
 		Assert.assertTrue(layout.getEditButton().isVisible());
-		Assert.assertFalse(layout.getRemoveButton().isVisible());
+		Assert.assertNull(layout.getRemoveButton());
 
 		Assert.assertEquals("name", layout.getSortOrders().get(0).getSorted());
 		Assert.assertEquals(SortDirection.ASCENDING, layout.getSortOrders().get(0).getDirection());

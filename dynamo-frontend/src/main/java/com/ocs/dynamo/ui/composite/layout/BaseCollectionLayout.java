@@ -143,6 +143,8 @@ public abstract class BaseCollectionLayout<ID extends Serializable, T extends Ab
 	 */
 	private Consumer<T> customSaveConsumer;
 
+	private Button addButton;
+
 	/**
 	 * Constructor
 	 * 
@@ -205,12 +207,14 @@ public abstract class BaseCollectionLayout<ID extends Serializable, T extends Ab
 	 * 
 	 * @return
 	 */
-	protected final Button constructAddButton() {
-		Button ab = new Button(message("ocs.add"));
-		ab.setIcon(VaadinIcons.PLUS);
-		ab.addClickListener(e -> doAdd());
-		ab.setVisible(!getFormOptions().isHideAddButton() && isEditAllowed());
-		return ab;
+	protected final void constructAddButton(ResponsiveRow buttonBar) {
+		if (!getFormOptions().isHideAddButton() && isEditAllowed()) {
+			addButton = new Button(message("ocs.add"));
+			addButton.setStyleName(DynamoConstants.CSS_ADD_BUTTON);
+			addButton.setIcon(VaadinIcons.PLUS);
+			addButton.addClickListener(e -> doAdd());
+			buttonBar.addComponent(addButton);
+		}
 	}
 
 	/**
@@ -278,6 +282,10 @@ public abstract class BaseCollectionLayout<ID extends Serializable, T extends Ab
 	public void doAdd() {
 		setSelectedItem(createEntity());
 		detailsMode(getSelectedItem());
+	}
+
+	public Button getAddButton() {
+		return addButton;
 	}
 
 	public ResponsiveRow getButtonBar() {
@@ -402,11 +410,11 @@ public abstract class BaseCollectionLayout<ID extends Serializable, T extends Ab
 
 	/**
 	 * Adds additional buttons to the main button bar (that appears below the
-	 * results grid in a search layout, split layout, or tabular edit layout)
+	 * results grid in a search layout, split layout, or editable grid layout)
 	 * 
 	 * @param buttonBar the button bar
 	 */
-	protected void postProcessButtonBar(Layout buttonBar) {
+	protected void postProcessButtonBar(ResponsiveRow buttonBar) {
 		// overwrite in subclass if needed
 	}
 

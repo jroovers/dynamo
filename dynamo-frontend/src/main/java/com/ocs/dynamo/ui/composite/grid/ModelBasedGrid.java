@@ -124,6 +124,7 @@ public class ModelBasedGrid<ID extends Serializable, T extends AbstractEntity<ID
 		this.fieldFilters = fieldFilters;
 		this.messageService = ServiceLocatorFactory.getServiceLocator().getMessageService();
 		this.fieldFactory = FieldFactory.getInstance();
+		setStyleName("dynamoGrid");
 
 		// we need to pre-populate the grid with the available properties
 		PropertySet<T> ps = BeanPropertySet.get(model.getEntityClass(), true,

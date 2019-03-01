@@ -58,6 +58,8 @@ public class ModelBasedSearchForm<ID extends Serializable, T extends AbstractEnt
 		BETWEEN, BOOLEAN, ENTITY, ENUM, EQUAL, LIKE
 	}
 
+	private static final int COLUMNS = 2;
+
 	private static final long serialVersionUID = -7226808613882934559L;
 
 	/**
@@ -70,8 +72,14 @@ public class ModelBasedSearchForm<ID extends Serializable, T extends AbstractEnt
 	 */
 	private Map<String, FilterGroup<T>> groups = new HashMap<>();
 
+	/**
+	 * The responsive row to which we are currently adding fields
+	 */
 	private ResponsiveRow currentRow;
 
+	/**
+	 * The number of components already added to the current row
+	 */
 	private int addCount = 0;
 
 	/**
@@ -147,7 +155,7 @@ public class ModelBasedSearchForm<ID extends Serializable, T extends AbstractEnt
 		}
 
 		if (field != null) {
-			field.setId(am.getPath().replace(".", "_"));
+			field.setId(ResponsiveUtil.getId(am));
 			field.setStyleName(DynamoConstants.CSS_DYNAMO_FIELD);
 		} else {
 			throw new OCSRuntimeException("No field could be constructed for " + am.getPath());
@@ -187,13 +195,13 @@ public class ModelBasedSearchForm<ID extends Serializable, T extends AbstractEnt
 			ResponsiveRow comp = null;
 			if (addCount == 0) {
 				// create a new row
-				comp = ResponsiveUtil.createRowWithSpacing().withStyleName(DynamoConstants.CSS_DYNAMO_FORM);
+				comp = ResponsiveUtil.createRowWithStyle(DynamoConstants.CSS_DYNAMO_FORM);
 				currentRow = comp;
-				addCount = 1;
+				addCount++;
 			} else {
 				// re-use current row
 				comp = currentRow;
-				addCount = 0;
+				addCount = (addCount + 1) % COLUMNS;
 			}
 
 			boolean between = FilterType.BETWEEN.equals(filterType);
@@ -213,6 +221,7 @@ public class ModelBasedSearchForm<ID extends Serializable, T extends AbstractEnt
 			AbstractComponent auxField = null;
 			if (between) {
 				auxField = constructField(entityModel, attributeModel);
+				auxField.setId(ResponsiveUtil.getAuxId(attributeModel));
 				auxField.setCaption(null);
 				auxField.setSizeFull();
 				comp.addColumn().withDisplayRules(DynamoConstants.MAX_COLUMNS, 2, 2, 2).withComponent(auxField);
@@ -225,11 +234,11 @@ public class ModelBasedSearchForm<ID extends Serializable, T extends AbstractEnt
 	/**
 	 * Creates an extra label that is used as a replacement for the standard label
 	 * 
-	 * @param attributeModel
+	 * @param am the attribute model
 	 * @return
 	 */
-	private Label createExtraLabel(AttributeModel attributeModel) {
-		Label label = new Label(attributeModel.getDisplayName(VaadinUtils.getLocale()));
+	private Label createExtraLabel(AttributeModel am) {
+		Label label = new Label(am.getDisplayName(VaadinUtils.getLocale()));
 		label.addStyleName("caption");
 		return label;
 	}
@@ -237,7 +246,6 @@ public class ModelBasedSearchForm<ID extends Serializable, T extends AbstractEnt
 	/**
 	 * Builds the layout that contains the various search filters
 	 * 
-	 * @param entityModel the entity model
 	 * @return
 	 */
 	@Override
@@ -256,7 +264,8 @@ public class ModelBasedSearchForm<ID extends Serializable, T extends AbstractEnt
 	 */
 	@Override
 	protected void fillButtonBar(ResponsiveRow buttonBar) {
-		buttonBar.addComponent(constructSearchButton());
+		// there is always a search button
+		constructSearchButton(buttonBar);
 		constructSearchAnyButton(buttonBar);
 		constructClearButton(buttonBar);
 		constructToggleButton(buttonBar);

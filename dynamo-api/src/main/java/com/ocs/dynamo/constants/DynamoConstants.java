@@ -23,9 +23,24 @@ import java.util.Locale;
 public final class DynamoConstants {
 
 	/**
-	 * CSS style for add button
+	 * CSS style for add buttons
 	 */
 	public static final String CSS_ADD_BUTTON = "addButton";
+
+	/**
+	 * CSS style for Add Filter button in flexible search layout
+	 */
+	public static final String CSS_ADD_FILTER_BUTTON = "addFilterButton";
+
+	/**
+	 * CSS style for back buttons
+	 */
+	public static final String CSS_BACK_BUTTON = "backButton";
+
+	/**
+	 * CSS style for cancel buttons
+	 */
+	public static final String CSS_CANCEL_BUTTON = "cancelButton";
 
 	/**
 	 * The CSS class that is given to an image component used to display an uploaded
@@ -74,6 +89,11 @@ public final class DynamoConstants {
 	public static final String CSS_FIRST = "first";
 
 	/**
+	 * The CSS class for an extra caption
+	 */
+	public static final String CSS_CAPTION = "caption";
+
+	/**
 	 * The CSS class for a flexible filter row
 	 */
 	public static final String CSS_FLEX_FILTER_ROW = "dynamoFlexFilterRow";
@@ -89,9 +109,9 @@ public final class DynamoConstants {
 	public static final String CSS_LAST_VISITED = "lastVisited";
 
 	/**
-	 * The CSS class
+	 * The CSS style for a main field
 	 */
-	public static final String CSS_NESTED = "nested";
+	public static final String CSS_MAIN_FIELD = "mainField";
 
 	/**
 	 * The CSS class that is assigned to numerical cells in a grid
