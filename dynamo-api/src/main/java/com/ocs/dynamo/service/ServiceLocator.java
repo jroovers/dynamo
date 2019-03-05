@@ -35,6 +35,14 @@ public interface ServiceLocator {
 
 	/**
 	 * 
+	 * @param name
+	 * @param clazz
+	 * @return
+	 */
+	<T> T getServiceByName(String name, Class<T> clazz);
+	
+	/**
+	 * 
 	 * @param clazz the class of the service
 	 * @return
 	 */

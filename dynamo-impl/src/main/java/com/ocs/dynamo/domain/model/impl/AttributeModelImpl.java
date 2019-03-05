@@ -100,6 +100,8 @@ public class AttributeModelImpl implements AttributeModel {
 
 	private boolean image;
 
+	private boolean localesRestricted;
+
 	private boolean mainAttribute;
 
 	private Integer maxLength;
@@ -258,6 +260,10 @@ public class AttributeModelImpl implements AttributeModel {
 
 	public String getDefaultDisplayName() {
 		return defaultDisplayName;
+	}
+
+	public String getDefaultTrueRepresentation() {
+		return defaultTrueRepresentation;
 	}
 
 	@Override
@@ -483,6 +489,10 @@ public class AttributeModelImpl implements AttributeModel {
 		return image;
 	}
 
+	public boolean isLocalesRestricted() {
+		return localesRestricted;
+	}
+
 	@Override
 	public boolean isMainAttribute() {
 		return mainAttribute;
@@ -684,6 +694,10 @@ public class AttributeModelImpl implements AttributeModel {
 		this.defaultPrompt = defaultPrompt;
 	}
 
+	public void setDefaultTrueRepresentation(String defaultTrueRepresentation) {
+		this.defaultTrueRepresentation = defaultTrueRepresentation;
+	}
+
 	public void setDefaultValue(Object defaultValue) {
 		this.defaultValue = defaultValue;
 	}
@@ -718,6 +732,10 @@ public class AttributeModelImpl implements AttributeModel {
 
 	public void setImage(boolean image) {
 		this.image = image;
+	}
+
+	public void setLocalesRestricted(boolean localesRestricted) {
+		this.localesRestricted = localesRestricted;
 	}
 
 	@Override
@@ -879,14 +897,6 @@ public class AttributeModelImpl implements AttributeModel {
 	@Override
 	public String toString() {
 		return ReflectionToStringBuilder.toStringExclude(this, "entityModel");
-	}
-
-	public String getDefaultTrueRepresentation() {
-		return defaultTrueRepresentation;
-	}
-
-	public void setDefaultTrueRepresentation(String defaultTrueRepresentation) {
-		this.defaultTrueRepresentation = defaultTrueRepresentation;
 	}
 
 }

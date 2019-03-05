@@ -48,7 +48,7 @@ import com.ocs.dynamo.utils.StringUtils;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "type")
 @Model(displayProperty = "fullDescription")
-@DiscriminatorOptions(force=true)
+@DiscriminatorOptions(force = true)
 public abstract class Translation<E> extends AbstractEntity<Integer> {
 
 	private static final long serialVersionUID = 3155835503400960383L;
@@ -70,15 +70,14 @@ public abstract class Translation<E> extends AbstractEntity<Integer> {
 	@Attribute(visible = VisibilityType.HIDE)
 	private String field;
 
-	// uni-directional many-to-one association to Domain
 	@NotNull
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "locale")
-	@Attribute(showInTable = VisibilityType.SHOW)
+	@Attribute(visibleInGrid = VisibilityType.SHOW)
 	private Locale locale;
 
 	@NotNull
-	@Attribute(showInTable = VisibilityType.SHOW)
+	@Attribute(visibleInGrid = VisibilityType.SHOW)
 	private String translation;
 
 	public Translation() {
@@ -147,6 +146,11 @@ public abstract class Translation<E> extends AbstractEntity<Integer> {
 				+ getTranslation();
 	}
 
+	@Override
+	public int hashCode() {
+		return super.hashCode();
+	}
+
 	/*
 	 * (non-Javadoc)
 	 *
@@ -156,9 +160,6 @@ public abstract class Translation<E> extends AbstractEntity<Integer> {
 	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;
-		}
-		if (!super.equals(obj)) {
-			return false;
 		}
 		if (!(obj instanceof Translation)) {
 			return false;

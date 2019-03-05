@@ -18,9 +18,8 @@ import java.util.List;
 import com.ocs.dynamo.service.BaseService;
 
 /**
- * @author Patrick.Deenen@OpenCircleSolutions.nl
  * 
- *         The service for translations
+ * @author Bas Rutten
  *
  */
 public interface TranslationService extends BaseService<Integer, Translation<?>> {
@@ -28,16 +27,12 @@ public interface TranslationService extends BaseService<Integer, Translation<?>>
 	/**
 	 * Fetches the id and translation identified by the provided IDs
 	 * 
-	 * @param entity
-	 *            the entity which contains the field
-	 * @param field
-	 *            the field for which to fetch the text
-	 * @param locale
-	 *            the locale for which to fetch the translated text
-	 * @param ids
-	 *            the IDs of the entities to fetch
+	 * @param entity the entity which contains the field
+	 * @param field  the field for which to fetch the text
+	 * @param locale the locale for which to fetch the translated text
+	 * @param ids    the IDs of the entities to fetch
 	 * @return the id in object[0] and the field in object[1]
 	 */
-	List<Object[]> fetchByIds(Class<?> entity, String field, String locale, List<Integer> ids);
+	List<?> fetchByIds(Class<?> entity, String field, String locale, List<Integer> ids);
 
 }

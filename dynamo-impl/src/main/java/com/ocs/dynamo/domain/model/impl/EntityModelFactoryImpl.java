@@ -41,7 +41,6 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
-import javax.persistence.Transient;
 import javax.validation.constraints.AssertFalse;
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotNull;
@@ -110,7 +109,6 @@ public class EntityModelFactoryImpl implements EntityModelFactory, EntityModelCo
 	 * Default constructor without the use of delegated model factories
 	 */
 	public EntityModelFactoryImpl() {
-		super();
 	}
 
 	/**
@@ -120,7 +118,6 @@ public class EntityModelFactoryImpl implements EntityModelFactory, EntityModelCo
 	 * @param delegatedModelFactories
 	 */
 	public EntityModelFactoryImpl(EntityModelFactory... delegatedModelFactories) {
-		super();
 		this.delegatedModelFactories = delegatedModelFactories;
 	}
 
@@ -1075,6 +1072,8 @@ public class EntityModelFactoryImpl implements EntityModelFactory, EntityModelCo
 				model.setRows(attribute.rows());
 			}
 
+			model.setLocalesRestricted(attribute.localesRestricted());
+
 			model.setIgnoreInSearchFilter(attribute.ignoreInSearchFilter());
 			model.setSearchDateOnly(attribute.searchDateOnly());
 		}
@@ -1405,6 +1404,11 @@ public class EntityModelFactoryImpl implements EntityModelFactory, EntityModelCo
 		msg = getAttributeMessage(entityModel, model, EntityModel.IGNORE_IN_SEARCH_FILTER);
 		if (!StringUtils.isEmpty(msg)) {
 			model.setIgnoreInSearchFilter(Boolean.valueOf(msg));
+		}
+		
+		msg = getAttributeMessage(entityModel, model, EntityModel.LOCALES_RESTRICTED);
+		if (!StringUtils.isEmpty(msg)) {
+			model.setLocalesRestricted(Boolean.valueOf(msg));
 		}
 
 		setMessageBundleCascadeOverrides(entityModel, model);

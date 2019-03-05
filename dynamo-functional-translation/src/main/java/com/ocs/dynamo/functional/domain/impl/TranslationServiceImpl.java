@@ -30,19 +30,13 @@ import com.ocs.dynamo.functional.domain.Translation;
 import com.ocs.dynamo.functional.domain.TranslationService;
 import com.ocs.dynamo.service.impl.BaseServiceImpl;
 
-/**
- * @author Patrick.Deenen@OpenCircleSolutions.nl
- * 
- *         The service for translations
- *
- */
 public class TranslationServiceImpl extends BaseServiceImpl<Integer, Translation<?>> implements TranslationService {
 
 	@Autowired
 	private BaseDao<Integer, Translation<?>> translationDao;
 
 	@Override
-	public List<Object[]> fetchByIds(Class<?> entity, String field, String locale, List<Integer> ids) {
+	public List<?> fetchByIds(Class<?> entity, String field, String locale, List<Integer> ids) {
 		if (ids.isEmpty()) {
 			return new ArrayList<>();
 		}
@@ -52,7 +46,7 @@ public class TranslationServiceImpl extends BaseServiceImpl<Integer, Translation
 				new Like("locale.code", locale, false), //
 				new In("key", ids));
 		SortOrders so = new SortOrders(new SortOrder("translation"));
-		return fetchSelect(filter, new String[] { "key", "translation" }, so);
+		return findSelect(filter, new String[] { "key", "translation" }, so);
 	}
 
 	@Override

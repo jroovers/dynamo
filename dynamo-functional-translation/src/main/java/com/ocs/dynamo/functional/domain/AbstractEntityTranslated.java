@@ -32,9 +32,8 @@ import org.hibernate.annotations.DiscriminatorOptions;
  */
 @SuppressWarnings("rawtypes")
 @MappedSuperclass
-@DiscriminatorOptions(force=true)
-public abstract class AbstractEntityTranslated<ID, T extends Translation>
-		extends AbstractAuditableEntity<ID> {
+@DiscriminatorOptions(force = true)
+public abstract class AbstractEntityTranslated<ID, T extends Translation> extends AbstractAuditableEntity<ID> {
 
 	private static final long serialVersionUID = 511877206448482880L;
 
@@ -58,10 +57,8 @@ public abstract class AbstractEntityTranslated<ID, T extends Translation>
 	/**
 	 * Gets all translations for a certain field for the provided locale
 	 *
-	 * @param field
-	 *            the field
-	 * @param locale
-	 *            the (code of) the locale
+	 * @param field  the field
+	 * @param locale the (code of) the locale
 	 * @return
 	 */
 	public T getTranslations(final String field, final String locale) {
@@ -85,8 +82,7 @@ public abstract class AbstractEntityTranslated<ID, T extends Translation>
 	/**
 	 * Gets all translations for a certain field
 	 *
-	 * @param field
-	 *            the name of the field
+	 * @param field the name of the field
 	 * @return
 	 */
 	public Set<T> getTranslations(final String field) {
@@ -105,10 +101,8 @@ public abstract class AbstractEntityTranslated<ID, T extends Translation>
 	/**
 	 * Sets all translations for a field
 	 *
-	 * @param field
-	 *            the name of the field
-	 * @param translations
-	 *            the translations
+	 * @param field        the name of the field
+	 * @param translations the translations
 	 */
 	public void setTranslations(final String field, final Set<T> translations) {
 		if (field != null && !"".equals(field)) {
@@ -142,7 +136,7 @@ public abstract class AbstractEntityTranslated<ID, T extends Translation>
 		if (requiredLocales == null || requiredTranslatedFields == null) {
 			return true;
 		}
-		for (Locale requiredLocale: requiredLocales) {
+		for (Locale requiredLocale : requiredLocales) {
 			for (String requiredTranslatedField : requiredTranslatedFields) {
 				if (getTranslations(requiredTranslatedField, requiredLocale) == null) {
 					return false;
@@ -161,7 +155,8 @@ public abstract class AbstractEntityTranslated<ID, T extends Translation>
 		}
 		for (String requiredTranslatedField : requiredTranslatedFields) {
 			Set<T> translations = getTranslations(requiredTranslatedField);
-			Set<Locale> uniqueLocales = translations.stream().map(translation -> translation.getLocale()).collect(Collectors.toSet());
+			Set<Locale> uniqueLocales = translations.stream().map(translation -> translation.getLocale())
+					.collect(Collectors.toSet());
 			if (translations.size() != uniqueLocales.size()) {
 				return false;
 			}
@@ -187,7 +182,8 @@ public abstract class AbstractEntityTranslated<ID, T extends Translation>
 
 	/**
 	 *
-	 * @return the translated fields that should be rendered as textarea instead of textfield
+	 * @return the translated fields that should be rendered as textarea instead of
+	 *         textfield
 	 */
 	public Collection<String> getTextAreaFields() {
 		return new HashSet<>();

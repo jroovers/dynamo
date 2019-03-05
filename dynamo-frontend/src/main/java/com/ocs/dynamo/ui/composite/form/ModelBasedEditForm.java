@@ -915,12 +915,15 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 	private void constructField(Layout parent, EntityModel<T> entityModel, AttributeModel attributeModel,
 			boolean viewMode, int tabIndex, boolean sameRow) {
 
+		System.out.println("Constructing field for " + attributeModel.getPath());
+
 		EntityModel<?> fieldEntityModel = getFieldEntityModel(attributeModel);
 		// allow the user to override the construction of a field
 		AbstractComponent field = constructCustomField(entityModel, attributeModel, viewMode);
 		if (field == null) {
 			FieldFactoryContext ctx = FieldFactoryContext.create().setAttributeModel(attributeModel)
-					.setFieldEntityModel(fieldEntityModel).setFieldFilters(getFieldFilters()).setViewMode(viewMode);
+					.setFieldEntityModel(fieldEntityModel).setFieldFilters(getFieldFilters()).setViewMode(viewMode)
+					.setParentEntity(entity);
 			field = fieldFactory.constructField(ctx);
 		}
 

@@ -128,6 +128,12 @@ public @interface Attribute {
 	/** @return whether the component is meant for uploading/displaying images */
 	boolean image() default false;
 
+	/**
+	 * 
+	 * @return
+	 */
+	boolean localesRestricted() default false;
+
 	/** @return whether this field is the main attribute */
 	boolean main() default false;
 
