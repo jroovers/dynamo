@@ -322,7 +322,6 @@ public abstract class BaseDetailsEditGrid<U, ID extends Serializable, T extends 
 					// add the selected items to the grid
 					Collection<T> selected = getSelectedItems();
 					if (selected != null) {
-						// afterItemsSelected(selected);
 						handleDialogSelection(selected);
 						getDataProvider().refreshAll();
 					}
@@ -461,9 +460,7 @@ public abstract class BaseDetailsEditGrid<U, ID extends Serializable, T extends 
 			getGrid().addComponentColumn((ValueProvider<T, Component>) t -> {
 				Button edit = new Button();
 				edit.setIcon(VaadinIcons.PENCIL);
-				edit.addClickListener(event -> {
-					doEdit(getService().fetchById(t.getId()));
-				});
+				edit.addClickListener(event -> doEdit(getService().fetchById(t.getId())));
 				return edit;
 			});
 		}
