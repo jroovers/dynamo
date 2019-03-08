@@ -126,10 +126,8 @@ public class EntityComboBox<ID extends Serializable, T extends AbstractEntity<ID
 			}
 		}
 		setDataProvider(new IgnoreDiacriticsCaptionFilter(true, false), provider);
-
 		setItemCaptionGenerator(t -> EntityModelUtils.getDisplayPropertyValue(t, targetEntityModel));
 		setSizeFull();
-
 	}
 
 	/**

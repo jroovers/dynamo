@@ -54,7 +54,7 @@ public abstract class Translation<E> extends AbstractEntity<Integer> {
 	private static final long serialVersionUID = 3155835503400960383L;
 
 	@Id
-	@SequenceGenerator(name = "translation_id_seq", sequenceName = "translation_id_seq")
+	@SequenceGenerator(name = "translation_id_seq", sequenceName = "translation_id_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "translation_id_seq")
 	private Integer id;
 
@@ -171,11 +171,6 @@ public abstract class Translation<E> extends AbstractEntity<Integer> {
 		return this.id.equals(other.id);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#toString()
-	 */
 	@Override
 	public String toString() {
 		return getTranslation();

@@ -30,6 +30,12 @@ import com.ocs.dynamo.functional.domain.Translation;
 import com.ocs.dynamo.functional.domain.TranslationService;
 import com.ocs.dynamo.service.impl.BaseServiceImpl;
 
+/**
+ * Implementation of the translation service
+ * 
+ * @author Bas Rutten
+ *
+ */
 public class TranslationServiceImpl extends BaseServiceImpl<Integer, Translation<?>> implements TranslationService {
 
 	@Autowired

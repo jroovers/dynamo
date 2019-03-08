@@ -14,16 +14,17 @@
 //package com.ocs.dynamo.functional.ui;
 //
 //import java.io.Serializable;
+//import java.util.ArrayList;
 //import java.util.List;
 //import java.util.Locale;
-//
-//import org.hibernate.cache.spi.support.AbstractReadWriteAccess.Item;
 //
 //import com.ocs.dynamo.domain.AbstractEntity;
 //import com.ocs.dynamo.domain.model.AttributeModel;
 //import com.ocs.dynamo.domain.model.EntityModel;
 //import com.ocs.dynamo.filter.AndPredicate;
+//import com.ocs.dynamo.filter.Compare;
 //import com.ocs.dynamo.filter.DynamoFilterUtil;
+//import com.ocs.dynamo.filter.Filter;
 //import com.ocs.dynamo.filter.FilterConverter;
 //import com.ocs.dynamo.functional.domain.Translation;
 //import com.ocs.dynamo.functional.domain.TranslationService;
@@ -33,8 +34,10 @@
 //import com.ocs.dynamo.ui.component.CustomEntityField;
 //import com.ocs.dynamo.ui.utils.VaadinUtils;
 //import com.ocs.dynamo.utils.ClassUtils;
+//import com.vaadin.data.provider.ListDataProvider;
 //import com.vaadin.server.ErrorMessage;
 //import com.vaadin.server.SerializablePredicate;
+//import com.vaadin.shared.Registration;
 //import com.vaadin.ui.ComboBox;
 //import com.vaadin.ui.Component;
 //
@@ -59,13 +62,22 @@
 //
 //	private SerializablePredicate<T> additionalFilter;
 //
-//	private ComboBox<T> comboBox;
+//	private ComboBox<TranslationPair<ID>> comboBox;
+//
+//	private ListDataProvider<TranslationPair<ID>> dataProvider;
+//
+//	private TranslationService ts = (TranslationService) ServiceLocatorFactory.getServiceLocator()
+//			.getServiceForEntity(Translation.class);
+//
+//	private boolean changing = false;
 //
 //	public TranslatedComboBox(BaseService<ID, T> service, EntityModel<T> entityModel, AttributeModel attributeModel,
 //			SerializablePredicate<T> filter) {
 //		super(service, entityModel, attributeModel, filter);
 //
-//		comboBox = new com.vaadin.ui.ComboBox<>();
+//		dataProvider = new ListDataProvider<>(new ArrayList<>());
+//		comboBox = new ComboBox<>();
+//		comboBox.setDataProvider(dataProvider);
 //		if (getAttributeModel() != null) {
 //			comboBox.setCaption(getAttributeModel().getDisplayName(VaadinUtils.getLocale()));
 //		}
@@ -79,20 +91,28 @@
 //		comboBox.setSizeFull();
 //
 //		// Select value
-//		comboBox.addValueChangeListener(event -> {
-//			T t = event.getValue();
-//			if (t != null) {
-//				T entity = getService().fetchById(t.getId());
-//				setValue(entity);
-//			} else {
-//				setValue(null);
-//			}
-//		});
+////		comboBox.addValueChangeListener(event -> {
+////			changing = true;
+////			TranslationPair<ID> pair = event.getValue();
+////			if (pair != null) {
+////				T entity = getService().fetchById(pair.getKey());
+////				setValue(entity);
+////			} else {
+////				clear();
+////			}
+////			changing = false;
+////		});
 //
 //		refresh();
 //	}
 //
-//	@SuppressWarnings("unchecked")
+//	@Override
+//	public Registration addValueChangeListener(ValueChangeListener<T> listener) {
+//		return comboBox.addValueChangeListener(event -> {
+//			listener.valueChange(new ValueChangeEvent<T>(this, null, true));
+//		});
+//	}
+//
 //	@Override
 //	protected Component initContent() {
 //		return comboBox;
@@ -101,7 +121,7 @@
 //	/**
 //	 * @return the comboBox
 //	 */
-//	public ComboBox<T> getComboBox() {
+//	public ComboBox<TranslationPair<ID>> getComboBox() {
 //		return comboBox;
 //	}
 //
@@ -129,25 +149,26 @@
 //	@SuppressWarnings("unchecked")
 //	@Override
 //	public void refresh() {
-//		comboBox.removeAllItems();
+//		dataProvider.getItems().clear();
 //		// Try to find locale in filter
 //		String locale = VaadinUtils.getLocale().toString();
-//		com.ocs.dynamo.filter.Filter cf = new FilterConverter<T>(getEntityModel()).convert(getFilter());
+//		Filter cf = new FilterConverter<T>(getEntityModel()).convert(getFilter());
 //		if (cf != null) {
 //			// Try to extract locale filter
-//			com.ocs.dynamo.filter.Filter localeFilter = DynamoFilterUtil.extractFilter(cf, TRANSLATION_PROPERTY);
+//			Filter localeFilter = DynamoFilterUtil.extractFilter(cf, TRANSLATION_PROPERTY);
 //			if (localeFilter != null) {
 //				// When found remove from entity query
 //				DynamoFilterUtil.removeFilters(cf, TRANSLATION_PROPERTY);
 //				// And use in translation query
-//				Object value = DynamoFilterUtil.extractFilterValue(getFilter(), TRANSLATION_PROPERTY);
-//				if (value != null) {
-//					if (value instanceof Locale) {
-//						locale = ((Locale) value).toLanguageTag();
-//					} else if (value instanceof com.ocs.dynamo.functional.domain.Locale) {
-//						locale = ((com.ocs.dynamo.functional.domain.Locale) value).getCode();
+//				Filter extracted = DynamoFilterUtil.extractFilter(cf, TRANSLATION_PROPERTY);
+//				if (extracted != null) {
+//					Compare.Equal pf = (Compare.Equal) extracted;
+//					if (pf.getValue() instanceof java.util.Locale) {
+//						locale = ((Locale) pf.getValue()).toLanguageTag();
+//					} else if (pf.getValue() instanceof com.ocs.dynamo.functional.domain.Locale) {
+//						locale = ((com.ocs.dynamo.functional.domain.Locale) pf.getValue()).getCode();
 //					} else {
-//						locale = value.toString();
+//						locale = pf.getValue().toString();
 //					}
 //				}
 //			}
@@ -157,19 +178,13 @@
 //		List<Integer> ids = (List<Integer>) getService().findIds(cf);
 //
 //		// Query translations
-//		TranslationService ts = (TranslationService) ServiceLocatorFactory.getServiceLocator()
-//				.getServiceForEntity(Translation.class);
+//
 //		List<Object[]> result = (List<Object[]>) ts.fetchByIds(getEntityModel().getEntityClass(),
 //				getEntityModel().getDisplayProperty(), locale, ids);
 //		// Fill combo with translations
 //		for (Object[] row : result) {
-//			if (!comboBox.containsId(row[0])) {
-//				Item newItem = comboBox.addItem(row[0]);
-//				if (newItem != null) {
-//					newItem.getItemProperty("key").setValue(row[0]);
-//					newItem.getItemProperty("translation").setValue(row[1]);
-//				}
-//			}
+//			TranslationPair<ID> p = new TranslationPair<ID>((ID) row[0], (String) row[1]);
+//			dataProvider.getItems().add(p);
 //		}
 //	}
 //
@@ -180,19 +195,19 @@
 //		refresh();
 //	}
 //
-//	@Override
-//	protected void setInternalValue(T newValue) {
-//		super.setInternalValue(newValue);
-//		if (comboBox != null) {
-//			comboBox.select(newValue != null ? newValue.getId() : null);
-//		}
-//	}
+////	@Override
+////	protected void setInternalValue(T newValue) {
+////		super.setInternalValue(newValue);
+////		if (comboBox != null) {
+////			comboBox.select(newValue != null ? newValue.getId() : null);
+////		}
+////	}
 //
 //	@Override
 //	public void setValue(T newFieldValue) {
 //		super.setValue(newFieldValue);
-//		if (comboBox != null) {
-//			comboBox.select(newFieldValue != null ? newFieldValue.getId() : null);
+//		if (comboBox != null && !changing) {
+//			comboBox.setValue(newFieldValue == null ? null : new TranslationPair<ID>(newFieldValue.getId(), "test"));
 //		}
 //	}
 //
@@ -201,5 +216,19 @@
 //		if (comboBox != null) {
 //			comboBox.setComponentError(componentError);
 //		}
+//	}
+//
+//	@Override
+//	public T getValue() {
+//		if (comboBox != null) {
+//			TranslationPair<ID> pair = comboBox.getValue();
+//			return pair == null ? null : getService().fetchById(pair.getKey());
+//		}
+//		return null;
+//	}
+//
+//	@Override
+//	protected void doSetValue(T value) {
+//
 //	}
 //}

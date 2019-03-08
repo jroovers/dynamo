@@ -46,7 +46,7 @@ import com.vaadin.ui.AbstractComponent;
  * @param <ID> The type for the id of the entity which has translated attributes
  * @param <T> The type which implements the translation for the entity
  */
-public class FieldTranslationFactory implements FieldFactory {
+public class TranslationFieldFactory implements FieldFactory {
 
 	private HashMap<String, AbstractComponent> fields = new HashMap<>();
 
@@ -55,7 +55,7 @@ public class FieldTranslationFactory implements FieldFactory {
 	/**
 	 * Default constructor
 	 */
-	public FieldTranslationFactory() {
+	public TranslationFieldFactory() {
 	}
 
 	public void clearFields() {
@@ -67,7 +67,6 @@ public class FieldTranslationFactory implements FieldFactory {
 		return constructField(FieldFactoryContext.createDefault(am));
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public AbstractComponent constructField(FieldFactoryContext context) {
 		AttributeModel am = context.getAttributeModel();

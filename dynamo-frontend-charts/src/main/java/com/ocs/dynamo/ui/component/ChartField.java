@@ -17,9 +17,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.convert.ConversionException;
 
 import com.ocs.dynamo.domain.model.AttributeModel;
+import com.ocs.dynamo.ui.utils.VaadinUtils;
 import com.ocs.dynamo.utils.ClassUtils;
 import com.vaadin.addon.charts.Chart;
 import com.vaadin.addon.charts.model.ChartType;
@@ -35,9 +37,8 @@ import com.vaadin.addon.charts.model.Tooltip;
 import com.vaadin.addon.charts.model.VerticalAlign;
 import com.vaadin.addon.charts.model.XAxis;
 import com.vaadin.addon.charts.model.YAxis;
-import com.vaadin.v7.data.util.converter.Converter.ConversionException;
 import com.vaadin.ui.Component;
-import com.vaadin.v7.ui.CustomField;
+import com.vaadin.ui.CustomField;
 
 /**
  * Custom field for displaying charts
@@ -77,17 +78,10 @@ public class ChartField<T> extends CustomField<Collection<T>> {
 	}
 
 	/**
-	 * @param chart
-	 *            the chart to set
+	 * @param chart the chart to set
 	 */
 	public void setChart(Chart chart) {
 		this.chart = chart;
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	public Class<Collection<T>> getType() {
-		return (Class<Collection<T>>) (Class<?>) Collection.class;
 	}
 
 	@Override
@@ -101,23 +95,8 @@ public class ChartField<T> extends CustomField<Collection<T>> {
 	 * @see com.vaadin.ui.AbstractField#setValue(java.lang.Object)
 	 */
 	@Override
-	public void setValue(Collection<T> data) throws ReadOnlyException, ConversionException {
+	public void setValue(Collection<T> data) throws ConversionException {
 		super.setValue(data);
-		if (chart != null && chart.getConfiguration() != null) {
-			createSeries(data);
-			chart.getConfiguration().setSeries(series);
-			chart.drawChart();
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.vaadin.ui.AbstractField#setInternalValue(java.lang.Object)
-	 */
-	@Override
-	protected void setInternalValue(Collection<T> data) {
-		super.setInternalValue(data);
 		if (chart != null && chart.getConfiguration() != null) {
 			createSeries(data);
 			chart.getConfiguration().setSeries(series);
@@ -176,17 +155,18 @@ public class ChartField<T> extends CustomField<Collection<T>> {
 	void createAxis() {
 		if (xaxis == null && nameAttribute != null) {
 			xaxis = new XAxis();
-			xaxis.setTitle(nameAttribute.getDisplayName());
+			xaxis.setTitle(nameAttribute.getDisplayName(VaadinUtils.getLocale()));
 		}
 		if (yaxis == null && seriesAttribute != null) {
 			yaxis = new YAxis();
-			yaxis.setTitle(seriesAttribute.getDisplayName());
+			yaxis.setTitle(seriesAttribute.getDisplayName(VaadinUtils.getLocale()));
 		}
 	}
 
 	/**
-	 * This method assumes the list with data is sorted by "series, name, y" and that all categories are available in
-	 * the first series found. Also creates the x and y axis.
+	 * This method assumes the list with data is sorted by "series, name, y" and
+	 * that all categories are available in the first series found. Also creates the
+	 * x and y axis.
 	 * 
 	 * @return The created series
 	 */
@@ -262,8 +242,7 @@ public class ChartField<T> extends CustomField<Collection<T>> {
 	}
 
 	/**
-	 * @param seriesAttribute
-	 *            the seriesAttribute to set
+	 * @param seriesAttribute the seriesAttribute to set
 	 */
 	public void setSeriesAttribute(AttributeModel seriesAttribute) {
 		this.seriesAttribute = seriesAttribute;
@@ -277,8 +256,7 @@ public class ChartField<T> extends CustomField<Collection<T>> {
 	}
 
 	/**
-	 * @param nameAttribute
-	 *            the nameAttribute to set
+	 * @param nameAttribute the nameAttribute to set
 	 */
 	public void setNameAttribute(AttributeModel nameAttribute) {
 		this.nameAttribute = nameAttribute;
@@ -292,10 +270,24 @@ public class ChartField<T> extends CustomField<Collection<T>> {
 	}
 
 	/**
-	 * @param dataAttribute
-	 *            the dataAttribute to set
+	 * @param dataAttribute the dataAttribute to set
 	 */
 	public void setDataAttribute(AttributeModel dataAttribute) {
 		this.dataAttribute = dataAttribute;
+	}
+
+	@Override
+	public Collection<T> getValue() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected void doSetValue(Collection<T> value) {
+		if (chart != null && chart.getConfiguration() != null) {
+			createSeries(value);
+			chart.getConfiguration().setSeries(series);
+			chart.drawChart();
+		}
 	}
 }

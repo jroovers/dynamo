@@ -25,7 +25,7 @@ import com.ocs.dynamo.service.BaseService;
 public interface TranslationService extends BaseService<Integer, Translation<?>> {
 
 	/**
-	 * Fetches the id and translation identified by the provided IDs
+	 * Fetches the entity ID and translation identified by the provided IDs
 	 * 
 	 * @param entity the entity which contains the field
 	 * @param field  the field for which to fetch the text

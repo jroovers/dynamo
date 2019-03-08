@@ -20,8 +20,6 @@ import com.ocs.dynamo.domain.model.EntityModel;
 import com.ocs.dynamo.exception.OCSRuntimeException;
 import com.ocs.dynamo.functional.domain.AbstractEntityTranslated;
 import com.ocs.dynamo.functional.domain.Translation;
-import com.ocs.dynamo.service.BaseService;
-import com.ocs.dynamo.service.ServiceLocatorFactory;
 import com.ocs.dynamo.ui.CanAssignEntity;
 import com.ocs.dynamo.ui.component.DetailsEditGrid;
 import com.ocs.dynamo.ui.composite.layout.FormOptions;
@@ -40,6 +38,8 @@ import com.vaadin.ui.TextArea;
 public class TranslationGrid<ID, E extends AbstractEntityTranslated<ID, Translation<E>>>
 		extends DetailsEditGrid<Integer, Translation<E>> implements CanAssignEntity<ID, E> {
 
+	private static final int TEXT_AREA_ROWS = 4;
+
 	private static final long serialVersionUID = 4974840467576193534L;
 
 	/**
@@ -57,10 +57,16 @@ public class TranslationGrid<ID, E extends AbstractEntityTranslated<ID, Translat
 	 */
 	private boolean localesRestricted;
 
-	@SuppressWarnings("unchecked")
-	private BaseService<Integer, Translation<E>> translationService = (BaseService<Integer, Translation<E>>) ServiceLocatorFactory
-			.getServiceLocator().getServiceForEntity(Translation.class);
-
+	/**
+	 * Constructor
+	 * 
+	 * @param entity
+	 * @param fieldName
+	 * @param entityModel
+	 * @param attributeModel
+	 * @param viewMode
+	 * @param localesRestricted
+	 */
 	public TranslationGrid(E entity, String fieldName, EntityModel<Translation<E>> entityModel,
 			AttributeModel attributeModel, boolean viewMode, boolean localesRestricted) {
 		super(entityModel, attributeModel, viewMode,
@@ -68,25 +74,6 @@ public class TranslationGrid<ID, E extends AbstractEntityTranslated<ID, Translat
 		this.entity = entity;
 		this.fieldName = fieldName;
 		this.localesRestricted = localesRestricted;
-		setCreateEntitySupplier(() -> {
-			Translation<E> translation;
-			try {
-				translation = getEntityModel().getEntityClass().newInstance();
-				translation.setField(fieldName);
-				entity.addTranslation(translation);
-			} catch (InstantiationException | IllegalAccessException e) {
-				throw new OCSRuntimeException("Could not create translation", e);
-			}
-			return translation;
-		});
-		setRemoveEntityConsumer(toRemove -> {
-			// No need to remove the entity from the database if it has not been saved yet
-			// (no id)
-			if (toRemove.getId() != null) {
-				translationService.delete(toRemove);
-			}
-			entity.removeTranslation(toRemove);
-		});
 	}
 
 	@Override
@@ -94,12 +81,32 @@ public class TranslationGrid<ID, E extends AbstractEntityTranslated<ID, Translat
 		Component result = super.initContent();
 		getGrid().setUpdateCaption(false);
 		getGrid().setCaption(null);
+
+		// manually change row height if there are any text areas to be displayed
+		if (entity.getTextAreaFields().contains(fieldName)) {
+			getGrid().setBodyRowHeight(100);
+		}
 		return result;
 	}
 
 	@Override
 	public void assignEntity(E entity) {
 		this.entity = entity;
+		setCreateEntitySupplier(() -> {
+			Translation<E> translation;
+			try {
+				translation = getEntityModel().getEntityClass().newInstance();
+				translation.setField(fieldName);
+				this.entity.addTranslation(translation);
+			} catch (InstantiationException | IllegalAccessException e) {
+				throw new OCSRuntimeException("Could not create translation", e);
+			}
+			return translation;
+		});
+
+		setRemoveEntityConsumer(t -> {
+			this.entity.removeTranslation(t);
+		});
 	}
 
 	@Override
@@ -114,8 +121,15 @@ public class TranslationGrid<ID, E extends AbstractEntityTranslated<ID, Translat
 			AttributeModel attributeModel, boolean viewMode) {
 		final Collection<String> textAreaFields = entity.getTextAreaFields();
 		if (textAreaFields.contains(fieldName) && attributeModel.getName().equals("translation")) {
-			return new TextArea();
+			TextArea ta = new TextArea();
+			ta.setRows(TEXT_AREA_ROWS);
+			return ta;
 		}
 		return null;
+	}
+
+	@Override
+	protected void doSetValue(Collection<Translation<E>> value) {
+		super.doSetValue(value);
 	}
 }

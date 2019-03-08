@@ -58,6 +58,9 @@ public final class SortUtils {
 	 * @return
 	 */
 	public static com.ocs.dynamo.dao.SortOrder[] translateSortOrders(List<SortOrder<?>> sortOrders) {
+		if (sortOrders == null) {
+			return null;
+		}
 		return translateSortOrders(sortOrders.toArray(new SortOrder[0]));
 	}
 }

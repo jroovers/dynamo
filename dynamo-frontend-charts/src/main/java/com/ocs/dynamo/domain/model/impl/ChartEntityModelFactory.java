@@ -13,16 +13,17 @@
  */
 package com.ocs.dynamo.domain.model.impl;
 
+import java.util.Locale;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.ocs.dynamo.domain.model.ChartEntityModel;
 import com.ocs.dynamo.domain.model.EntityModel;
 import com.ocs.dynamo.domain.model.EntityModelFactory;
 import com.ocs.dynamo.domain.model.annotation.Chart;
 import com.ocs.dynamo.service.MessageService;
 import com.ocs.dynamo.util.SystemPropertyUtils;
-import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.Locale;
 
 /**
  * @author patrickdeenen
@@ -38,7 +39,6 @@ public class ChartEntityModelFactory implements EntityModelFactory, EntityModelC
 	 * 
 	 */
 	public ChartEntityModelFactory() {
-		super();
 	}
 
 	/**
@@ -51,7 +51,9 @@ public class ChartEntityModelFactory implements EntityModelFactory, EntityModelC
 		this.messageService = messageService;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.ocs.dynamo.domain.model.EntityModelFactory#getModel(java.lang.Class)
 	 */
 	@Override
@@ -59,8 +61,12 @@ public class ChartEntityModelFactory implements EntityModelFactory, EntityModelC
 		return getModel(entityClass.getSimpleName(), entityClass);
 	}
 
-	/* (non-Javadoc)
-	 * @see com.ocs.dynamo.domain.model.EntityModelFactory#getModel(java.lang.String, java.lang.Class)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.ocs.dynamo.domain.model.EntityModelFactory#getModel(java.lang.String,
+	 * java.lang.Class)
 	 */
 	@Override
 	public <T> EntityModel<T> getModel(String reference, Class<T> entityClass) {
