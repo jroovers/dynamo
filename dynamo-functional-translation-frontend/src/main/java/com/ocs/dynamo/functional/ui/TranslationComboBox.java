@@ -29,6 +29,18 @@ public class TranslationComboBox<ID extends Serializable, T extends AbstractEnti
 
 	private static final long serialVersionUID = 4403245109020319295L;
 
+	/**
+	 * Constructor
+	 * 
+	 * @param targetEntityModel the entity model of the encapsulating entry
+	 * @param attributeModel    the attribute model
+	 * @param service           the service
+	 * @param mode              the selection mode (single)
+	 * @param filter            the filter to apply to the search results
+	 * @param sharedProvider    shared data provider
+	 * @param items             the items
+	 * @param sortOrders        list of sort orders to apply
+	 */
 	public TranslationComboBox(EntityModel<T> targetEntityModel, AttributeModel attributeModel,
 			BaseService<ID, T> service, SelectMode mode, SerializablePredicate<T> filter,
 			ListDataProvider<T> sharedProvider, List<T> items, SortOrder<?>... sortOrders) {
@@ -37,19 +49,20 @@ public class TranslationComboBox<ID extends Serializable, T extends AbstractEnti
 
 	@Override
 	public void refresh(SerializablePredicate<T> filter) {
-		Locale locale = VaadinUtils.getLocale();
-		com.ocs.dynamo.functional.domain.Locale loc = new com.ocs.dynamo.functional.domain.Locale();
-		loc.setCode(locale.toString());
-		this.setItemCaptionGenerator(t -> {
-			E e = t.getTranslations(getAttributeModel().getPath(), loc);
-			return e.getTranslation();
-		});
-
+		updateLocale();
 		super.refresh(filter);
 	}
 
 	@Override
 	public void refresh() {
+		updateLocale();
+		super.refresh();
+	}
+
+	/**
+	 * Updates the locale settings
+	 */
+	private void updateLocale() {
 		Locale locale = VaadinUtils.getLocale();
 		com.ocs.dynamo.functional.domain.Locale loc = new com.ocs.dynamo.functional.domain.Locale();
 		loc.setCode(locale.toString());
@@ -57,8 +70,6 @@ public class TranslationComboBox<ID extends Serializable, T extends AbstractEnti
 			E e = t.getTranslations(getAttributeModel().getPath(), loc);
 			return e == null ? null : e.getTranslation();
 		});
-
-		super.refresh();
 	}
 
 }
