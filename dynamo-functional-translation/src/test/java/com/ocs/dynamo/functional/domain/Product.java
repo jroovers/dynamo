@@ -21,11 +21,15 @@ import java.util.List;
 import java.util.Set;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
 
 import com.ocs.dynamo.domain.model.annotation.Attribute;
 
 /**
- * Exmple of translated entity
+ * Exmaple of translated entity
  * 
  * @author patrickdeenen
  *
@@ -33,84 +37,87 @@ import com.ocs.dynamo.domain.model.annotation.Attribute;
 @Entity
 public class Product extends AbstractEntityTranslated<Integer, ProductTranslation> {
 
-	private static final long serialVersionUID = -1281716785808553371L;
+    private static final long serialVersionUID = -1281716785808553371L;
 
-	enum TranslatedFields {
-		NAME
-	}
+    enum TranslatedFields {
+        NAME
+    }
 
-	public Product() {
-	}
+    public Product() {
+    }
 
-	private Integer id;
-	private String sku;
-	private BigDecimal price;
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_id_seq")
+    @SequenceGenerator(name = "product_id_seq", sequenceName = "product_id_seq", allocationSize = 1)
+    private Integer id;
 
-	@Override
-	public Collection<Locale> getRequiredLocales() {
-		return Arrays.asList(new Locale[] { new Locale("NL", "NL"), new Locale("EN", "EN") });
-	}
+    private String sku;
 
-	@Override
-	protected List<String> getRequiredTranslatedFields() {
-		ArrayList<String> enums = new ArrayList<>();
-		for (TranslatedFields f : TranslatedFields.values()) {
-			enums.add(f.name());
-		}
-		return enums;
-	}
+    private BigDecimal price;
 
-	public ProductTranslation getName(String locale) {
-		return getTranslations(TranslatedFields.NAME.name(), locale);
-	}
+    @Override
+    public Collection<Locale> getRequiredLocales() {
+        return Arrays.asList(new Locale[] { new Locale("NL", "NL"), new Locale("EN", "EN") });
+    }
 
-	@Attribute(complexEditable = true, memberType = ProductTranslation.class)
-	public Set<ProductTranslation> getName() {
-		return getTranslations(TranslatedFields.NAME.name());
-	}
+    @Override
+    protected List<String> getRequiredTranslatedFields() {
+        ArrayList<String> enums = new ArrayList<>();
+        for (TranslatedFields f : TranslatedFields.values()) {
+            enums.add(f.name());
+        }
+        return enums;
+    }
 
-	public void setName(Set<ProductTranslation> names) {
-		setTranslations(TranslatedFields.NAME.name(), names);
-	}
+    public ProductTranslation getName(String locale) {
+        return getTranslations(TranslatedFields.NAME.name(), locale);
+    }
 
-	@Override
-	public Integer getId() {
-		return id;
-	}
+    @Attribute(complexEditable = true, memberType = ProductTranslation.class)
+    public Set<ProductTranslation> getName() {
+        return getTranslations(TranslatedFields.NAME.name());
+    }
 
-	@Override
-	public void setId(Integer id) {
-		this.id = id;
-	}
+    public void setName(Set<ProductTranslation> names) {
+        setTranslations(TranslatedFields.NAME.name(), names);
+    }
 
-	/**
-	 * @return the sku
-	 */
-	public String getSku() {
-		return sku;
-	}
+    @Override
+    public Integer getId() {
+        return id;
+    }
 
-	/**
-	 * @param sku
-	 *            the sku to set
-	 */
-	public void setSku(String sku) {
-		this.sku = sku;
-	}
+    @Override
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-	/**
-	 * @return the price
-	 */
-	public BigDecimal getPrice() {
-		return price;
-	}
+    /**
+     * @return the sku
+     */
+    public String getSku() {
+        return sku;
+    }
 
-	/**
-	 * @param price
-	 *            the price to set
-	 */
-	public void setPrice(BigDecimal price) {
-		this.price = price;
-	}
+    /**
+     * @param sku the sku to set
+     */
+    public void setSku(String sku) {
+        this.sku = sku;
+    }
+
+    /**
+     * @return the price
+     */
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    /**
+     * @param price the price to set
+     */
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
 
 }

@@ -89,7 +89,6 @@
 		<module>dynamo-envers-frontend</module>
 		<module>dynamo-functional-domain-frontend</module>
 		<module>dynamo-functional-translation-frontend</module>
-		<!-- <module>dynamo-frontend-charts</module> -->
 	</modules>
 	<properties>
 		<!-- Build settings. -->

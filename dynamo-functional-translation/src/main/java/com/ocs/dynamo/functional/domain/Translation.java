@@ -17,14 +17,11 @@ import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
@@ -38,10 +35,11 @@ import com.ocs.dynamo.domain.model.annotation.Model;
 import com.ocs.dynamo.utils.StringUtils;
 
 /**
- * @author Patrick Deenen
+ * Entity for a generic translation
  * 
- *         The persistent class for the translation database table.
- * 
+ * @author Bas Rutten
+ *
+ * @param <E> the type of the entity to which to add the translation
  */
 @Entity
 @Table(name = "translation")
@@ -51,128 +49,125 @@ import com.ocs.dynamo.utils.StringUtils;
 @DiscriminatorOptions(force = true)
 public abstract class Translation<E> extends AbstractEntity<Integer> {
 
-	private static final long serialVersionUID = 3155835503400960383L;
+    private static final long serialVersionUID = 3155835503400960383L;
 
-	@Id
-	@SequenceGenerator(name = "translation_id_seq", sequenceName = "translation_id_seq", allocationSize = 1)
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "translation_id_seq")
-	private Integer id;
+    @Id
+    private Integer id;
 
-	@Column(insertable = false, updatable = false)
-	@Attribute(visible = VisibilityType.HIDE)
-	private String type;
+    @Column(insertable = false, updatable = false)
+    @Attribute(visible = VisibilityType.HIDE)
+    private String type;
 
-	@Column(insertable = false, updatable = false)
-	@Attribute(visible = VisibilityType.HIDE)
-	private Integer key;
+    @Column(insertable = false, updatable = false)
+    @Attribute(visible = VisibilityType.HIDE)
+    private Integer key;
 
-	@NotNull
-	@Attribute(visible = VisibilityType.HIDE)
-	private String field;
+    @NotNull
+    @Attribute(visible = VisibilityType.HIDE)
+    private String field;
 
-	@NotNull
-	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "locale")
-	@Attribute(visibleInGrid = VisibilityType.SHOW)
-	private Locale locale;
+    @NotNull
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "locale")
+    @Attribute(visibleInGrid = VisibilityType.SHOW)
+    private Locale locale;
 
-	@NotNull
-	@Attribute(visibleInGrid = VisibilityType.SHOW)
-	private String translation;
+    @NotNull
+    @Attribute(visibleInGrid = VisibilityType.SHOW)
+    private String translation;
 
-	public Translation() {
-	}
+    public Translation() {
+    }
 
-	public Translation(String field, Locale locale, String translation) {
-		this.field = field;
-		this.locale = locale;
-		this.translation = translation;
-	}
+    public Translation(String field, Locale locale, String translation) {
+        this.field = field;
+        this.locale = locale;
+        this.translation = translation;
+    }
 
-	@Override
-	public Integer getId() {
-		return this.id;
-	}
+    @Override
+    public Integer getId() {
+        return this.id;
+    }
 
-	@Override
-	public void setId(Integer id) {
-		this.id = id;
-	}
+    @Override
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-	public String getType() {
-		return this.type;
-	}
+    public String getType() {
+        return this.type;
+    }
 
-	/**
-	 * @return the key
-	 */
-	public Integer getKey() {
-		return key;
-	}
+    /**
+     * @return the key
+     */
+    public Integer getKey() {
+        return key;
+    }
 
-	public String getField() {
-		return this.field;
-	}
+    public String getField() {
+        return this.field;
+    }
 
-	public void setField(String field) {
-		this.field = field;
-	}
+    public void setField(String field) {
+        this.field = field;
+    }
 
-	public Locale getLocale() {
-		return this.locale;
-	}
+    public Locale getLocale() {
+        return this.locale;
+    }
 
-	public void setLocale(Locale locale) {
-		this.locale = locale;
-	}
+    public void setLocale(Locale locale) {
+        this.locale = locale;
+    }
 
-	public String getTranslation() {
-		return this.translation;
-	}
+    public String getTranslation() {
+        return this.translation;
+    }
 
-	public void setTranslation(String translation) {
-		this.translation = translation;
-	}
+    public void setTranslation(String translation) {
+        this.translation = translation;
+    }
 
-	@NotNull
-	@Attribute(visible = VisibilityType.HIDE)
-	public abstract E getEntity();
+    @NotNull
+    @Attribute(visible = VisibilityType.HIDE)
+    public abstract E getEntity();
 
-	public abstract void setEntity(E entity);
+    public abstract void setEntity(E entity);
 
-	@Attribute(editable = EditableType.READ_ONLY, visible = VisibilityType.HIDE)
-	public String getFullDescription() {
-		return StringUtils.camelCaseToHumanFriendly(getField(), false) + " - " + getLocale().getName() + " - "
-				+ getTranslation();
-	}
+    @Attribute(editable = EditableType.READ_ONLY, visible = VisibilityType.HIDE)
+    public String getFullDescription() {
+        return StringUtils.camelCaseToHumanFriendly(getField(), false) + " - " + getLocale().getName() + " - " + getTranslation();
+    }
 
-	@Override
-	public int hashCode() {
-		return super.hashCode();
-	}
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (!(obj instanceof Translation)) {
-			return false;
-		}
-		Translation<?> other = (Translation<?>) obj;
-		if (this.id == null || other.id == null) {
-			return false;
-		}
-		return this.id.equals(other.id);
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof Translation)) {
+            return false;
+        }
+        Translation<?> other = (Translation<?>) obj;
+        if (this.id == null || other.id == null) {
+            return false;
+        }
+        return this.id.equals(other.id);
+    }
 
-	@Override
-	public String toString() {
-		return getTranslation();
-	}
+    @Override
+    public String toString() {
+        return getTranslation();
+    }
 }
