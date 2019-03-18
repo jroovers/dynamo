@@ -134,6 +134,11 @@ public abstract class Translation<E> extends AbstractEntity<Integer> {
     @Attribute(visible = VisibilityType.HIDE)
     public abstract E getEntity();
 
+    /**
+     * Sets the entity related to this translations
+     * 
+     * @param entity
+     */
     public abstract void setEntity(E entity);
 
     @Attribute(editable = EditableType.READ_ONLY, visible = VisibilityType.HIDE)

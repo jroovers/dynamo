@@ -67,7 +67,7 @@ public class TranslationComboBox<ID extends Serializable, T extends AbstractEnti
 		com.ocs.dynamo.functional.domain.Locale loc = new com.ocs.dynamo.functional.domain.Locale();
 		loc.setCode(locale.toString());
 		this.setItemCaptionGenerator(t -> {
-			E e = t.getTranslations(getAttributeModel().getPath(), loc);
+			E e = t.getTranslation(getAttributeModel().getPath(), loc);
 			return e == null ? null : e.getTranslation();
 		});
 	}

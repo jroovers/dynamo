@@ -17,12 +17,18 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.persistence.*;
+
+import javax.persistence.CascadeType;
+import javax.persistence.FetchType;
+import javax.persistence.MappedSuperclass;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.AssertTrue;
+
+import org.hibernate.annotations.DiscriminatorOptions;
+
 import com.ocs.dynamo.domain.AbstractAuditableEntity;
 import com.ocs.dynamo.domain.model.VisibilityType;
 import com.ocs.dynamo.domain.model.annotation.Attribute;
-import org.hibernate.annotations.DiscriminatorOptions;
 
 /**
  * Base class for entities that contain a collection of Translations
@@ -35,158 +41,159 @@ import org.hibernate.annotations.DiscriminatorOptions;
 @DiscriminatorOptions(force = true)
 public abstract class AbstractEntityTranslated<ID, T extends Translation> extends AbstractAuditableEntity<ID> {
 
-	private static final long serialVersionUID = 511877206448482880L;
+    private static final long serialVersionUID = 511877206448482880L;
 
-	@OneToMany(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE,
-			CascadeType.PERSIST }, mappedBy = "entity", orphanRemoval = true)
-	@Attribute(visible = VisibilityType.HIDE)
-	private Set<T> translations = new HashSet<>();
+    @OneToMany(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST }, mappedBy = "entity", orphanRemoval = true)
+    @Attribute(visible = VisibilityType.HIDE)
+    private Set<T> translations = new HashSet<>();
 
-	public Set<T> getTranslations() {
-		return translations;
-	}
+    @SuppressWarnings("unchecked")
+    public void addTranslation(T translation) {
+        this.translations.add(translation);
+        translation.setEntity(this);
+    }
 
-	public void setTranslations(final Set<T> translations) {
-		this.translations = translations;
-	}
+    /**
+     * 
+     * @return the required locales
+     */
+    public Collection<Locale> getRequiredLocales() {
+        return new HashSet<>();
+    }
 
-	public T getTranslations(final String field, final Locale locale) {
-		return getTranslations(field, locale == null ? null : locale.getCode());
-	}
+    /**
+     * 
+     * @return the translated fields that are required
+     */
+    protected Collection<String> getRequiredTranslatedFields() {
+        return new HashSet<>();
+    }
 
-	/**
-	 * Gets all translations for a certain field for the provided locale
-	 *
-	 * @param field  the field
-	 * @param locale the (code of) the locale
-	 * @return
-	 */
-	public T getTranslations(final String field, final String locale) {
-		T translation = null;
-		Set<T> translations = getTranslations(field);
-		if (translations != null && !translations.isEmpty()) {
-			if (locale == null || "".equals(locale)) {
-				translation = translations.iterator().next();
-			} else {
-				for (T t : translations) {
-					if (t.getLocale() != null && locale.equalsIgnoreCase(t.getLocale().getCode())) {
-						translation = t;
-						break;
-					}
-				}
-			}
-		}
-		return translation;
-	}
+    /**
+     *
+     * @return the translated fields that should be rendered as text area instead of
+     *         text field
+     */
+    public Collection<String> getTextAreaFields() {
+        return new HashSet<>();
+    }
 
-	/**
-	 * Gets all translations for a certain field
-	 *
-	 * @param field the name of the field
-	 * @return
-	 */
-	public Set<T> getTranslations(final String field) {
-		Set<T> translations = null;
-		if (field != null && !"".equals(field)) {
-			translations = new HashSet<>();
-			for (final T translation : getTranslations()) {
-				if (field.equalsIgnoreCase(translation.getField())) {
-					translations.add(translation);
-				}
-			}
-		}
-		return translations;
-	}
+    /**
+     * Gets the translations for a field in the specified locale
+     * 
+     * @param field  the field
+     * @param locale the locale
+     * @return
+     */
+    public T getTranslation(String field, Locale locale) {
+        return getTranslation(field, locale == null ? null : locale.getCode());
+    }
 
-	/**
-	 * Sets all translations for a field
-	 *
-	 * @param field        the name of the field
-	 * @param translations the translations
-	 */
-	public void setTranslations(final String field, final Set<T> translations) {
-		if (field != null && !"".equals(field)) {
-			for (final T translation : getTranslations()) {
-				if (field.equalsIgnoreCase(translation.getField())) {
-					this.removeTranslation(translation);
-				}
-			}
-			for (final T translation : translations) {
-				this.addTranslation(translation);
-			}
-		}
-	}
+    /**
+     * Gets the translations for a field for the provided locale
+     *
+     * @param field  the field
+     * @param locale the (code of) the locale
+     * @return
+     */
+    public T getTranslation(String field, String locale) {
+        if (locale == null) {
+            return null;
+        }
 
-	@SuppressWarnings("unchecked")
-	public void addTranslation(final T translation) {
-		this.translations.add(translation);
-		translation.setEntity(this);
-	}
+        T translation = null;
+        Set<T> translations = getTranslations(field);
+        if (translations != null && !translations.isEmpty()) {
+            translation = translations.stream().filter(t -> t.getLocale() != null && t.getLocale().getCode().equalsIgnoreCase(locale))
+                    .findFirst().orElse(null);
+        }
+        return translation;
+    }
 
-	@SuppressWarnings("unchecked")
-	public void removeTranslation(final T translation) {
-		this.translations.remove(translation);
-		translation.setEntity(null);
-	}
+    public Set<T> getTranslations() {
+        return translations;
+    }
 
-	@AssertTrue(message = "{ocs.not.all.translations.provided}")
-	protected boolean isValidRequiredTranslations() {
-		final Collection<Locale> requiredLocales = getRequiredLocales();
-		final Collection<String> requiredTranslatedFields = getRequiredTranslatedFields();
-		if (requiredLocales == null || requiredTranslatedFields == null) {
-			return true;
-		}
-		for (Locale requiredLocale : requiredLocales) {
-			for (String requiredTranslatedField : requiredTranslatedFields) {
-				if (getTranslations(requiredTranslatedField, requiredLocale) == null) {
-					return false;
-				}
-			}
+    /**
+     * Gets all translations for all locales for the specified field
+     *
+     * @param field the name of the field
+     * @return
+     */
+    public Set<T> getTranslations(String field) {
+        return translations.stream().filter(t -> t.getField().equalsIgnoreCase(field)).collect(Collectors.toSet());
+    }
 
-		}
-		return true;
-	}
+    /**
+     * 
+     * @return check that the translation set for a field does not contain
+     *         duplicates
+     */
+    @AssertTrue(message = "{ocs.multiple.translations.provided}")
+    protected boolean isTranslationsDoesNotContainDuplicates() {
+        final Collection<String> requiredTranslatedFields = getRequiredTranslatedFields();
+        if (requiredTranslatedFields == null) {
+            return true;
+        }
+        for (String requiredTranslatedField : requiredTranslatedFields) {
+            Set<T> translations = getTranslations(requiredTranslatedField);
+            Set<Locale> uniqueLocales = translations.stream().map(translation -> translation.getLocale()).collect(Collectors.toSet());
+            if (translations.size() != uniqueLocales.size()) {
+                return false;
+            }
+        }
+        return true;
+    }
 
-	@AssertTrue(message = "{ocs.multiple.translations.provided}")
-	protected boolean isTranslationsDoesNotContainDuplicates() {
-		final Collection<String> requiredTranslatedFields = getRequiredTranslatedFields();
-		if (requiredTranslatedFields == null) {
-			return true;
-		}
-		for (String requiredTranslatedField : requiredTranslatedFields) {
-			Set<T> translations = getTranslations(requiredTranslatedField);
-			Set<Locale> uniqueLocales = translations.stream().map(translation -> translation.getLocale())
-					.collect(Collectors.toSet());
-			if (translations.size() != uniqueLocales.size()) {
-				return false;
-			}
-		}
-		return true;
-	}
+    /**
+     * 
+     * @return whether all required translations are present
+     */
+    @AssertTrue(message = "{ocs.not.all.translations.provided}")
+    protected boolean isValidRequiredTranslations() {
+        final Collection<Locale> requiredLocales = getRequiredLocales();
+        final Collection<String> requiredTranslatedFields = getRequiredTranslatedFields();
+        if (requiredLocales == null || requiredTranslatedFields == null) {
+            return true;
+        }
+        for (Locale requiredLocale : requiredLocales) {
+            for (String requiredTranslatedField : requiredTranslatedFields) {
+                if (getTranslation(requiredTranslatedField, requiredLocale) == null) {
+                    return false;
+                }
+            }
 
-	/**
-	 * 
-	 * @return the required locales
-	 */
-	public Collection<Locale> getRequiredLocales() {
-		return new HashSet<>();
-	}
+        }
+        return true;
+    }
 
-	/**
-	 * 
-	 * @return the translated fields that are required
-	 */
-	protected Collection<String> getRequiredTranslatedFields() {
-		return new HashSet<>();
-	}
+    @SuppressWarnings("unchecked")
+    public void removeTranslation(final T translation) {
+        this.translations.remove(translation);
+        translation.setEntity(null);
+    }
 
-	/**
-	 *
-	 * @return the translated fields that should be rendered as textarea instead of
-	 *         textfield
-	 */
-	public Collection<String> getTextAreaFields() {
-		return new HashSet<>();
-	}
+    public void setTranslations(final Set<T> translations) {
+        this.translations = translations;
+    }
+
+    /**
+     * Sets all translations for a field
+     *
+     * @param field        the name of the field
+     * @param translations the translations
+     */
+    public void setTranslations(String field, Set<T> translations) {
+        if (field != null && !"".equals(field)) {
+            for (final T translation : getTranslations()) {
+                if (field.equalsIgnoreCase(translation.getField())) {
+                    this.removeTranslation(translation);
+                }
+            }
+            for (final T translation : translations) {
+                this.addTranslation(translation);
+            }
+        }
+    }
 
 }

@@ -57,7 +57,7 @@ public class Product extends AbstractEntityTranslated<Integer, ProductTranslatio
 
     @Override
     public Collection<Locale> getRequiredLocales() {
-        return Arrays.asList(new Locale[] { new Locale("NL", "NL"), new Locale("EN", "EN") });
+        return Arrays.asList(new Locale[] { new Locale("nl", "NL"), new Locale("en", "EN") });
     }
 
     @Override
@@ -70,7 +70,7 @@ public class Product extends AbstractEntityTranslated<Integer, ProductTranslatio
     }
 
     public ProductTranslation getName(String locale) {
-        return getTranslations(TranslatedFields.NAME.name(), locale);
+        return getTranslation(TranslatedFields.NAME.name(), locale);
     }
 
     @Attribute(complexEditable = true, memberType = ProductTranslation.class)
