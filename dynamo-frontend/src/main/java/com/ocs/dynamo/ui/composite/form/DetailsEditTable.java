@@ -36,6 +36,8 @@ import com.ocs.dynamo.ui.component.DefaultVerticalLayout;
 import com.ocs.dynamo.ui.composite.dialog.ModelBasedSearchDialog;
 import com.ocs.dynamo.ui.composite.layout.FormOptions;
 import com.ocs.dynamo.ui.composite.table.ModelBasedTable;
+import com.ocs.dynamo.ui.composite.table.export.TableExportActionHandler;
+import com.ocs.dynamo.ui.composite.table.export.TableExportMode;
 import com.ocs.dynamo.ui.utils.VaadinUtils;
 import com.vaadin.data.Container.Filter;
 import com.vaadin.data.Validator.InvalidValueException;
@@ -67,10 +69,8 @@ import com.vaadin.ui.VerticalLayout;
  * not contain logic for switching between the modes
  * 
  * @author bas.rutten
- * @param <ID>
- *            the type of the primary key
- * @param <T>
- *            the type of the entity
+ * @param <ID> the type of the primary key
+ * @param <T> the type of the entity
  */
 @SuppressWarnings("serial")
 public abstract class DetailsEditTable<ID extends Serializable, T extends AbstractEntity<ID>>
@@ -184,14 +184,10 @@ public abstract class DetailsEditTable<ID extends Serializable, T extends Abstra
 	/**
 	 * Constructor
 	 * 
-	 * @param items
-	 *            the entities to display
-	 * @param entityModel
-	 *            the entity model of the entities to display
-	 * @param viewMode
-	 *            the view mode
-	 * @param formOptions
-	 *            the form options that determine how the table
+	 * @param items       the entities to display
+	 * @param entityModel the entity model of the entities to display
+	 * @param viewMode    the view mode
+	 * @param formOptions the form options that determine how the table
 	 */
 	public DetailsEditTable(Collection<T> items, EntityModel<T> entityModel, boolean viewMode,
 			FormOptions formOptions) {
@@ -237,8 +233,7 @@ public abstract class DetailsEditTable<ID extends Serializable, T extends Abstra
 	/**
 	 * Constructs the button that is used for adding new items
 	 * 
-	 * @param buttonBar
-	 *            the button bar
+	 * @param buttonBar the button bar
 	 */
 	protected void constructAddButton(Layout buttonBar) {
 		addButton = new Button(messageService.getMessage("ocs.add", VaadinUtils.getLocale()));
@@ -258,8 +253,7 @@ public abstract class DetailsEditTable<ID extends Serializable, T extends Abstra
 	/**
 	 * Constructs the button bar
 	 * 
-	 * @param parent
-	 *            the layout to which to add the button bar
+	 * @param parent the layout to which to add the button bar
 	 */
 	protected void constructButtonBar(Layout parent) {
 		Layout buttonBar = new DefaultHorizontalLayout();
@@ -275,13 +269,11 @@ public abstract class DetailsEditTable<ID extends Serializable, T extends Abstra
 	 * Method that is called to create a custom field. Override in subclasses if
 	 * needed
 	 * 
-	 * @param entityModel
-	 *            the entity model of the entity that is displayed in the table
-	 * @param attributeModel
-	 *            the attribute model of the attribute for which we are constructing
-	 *            a field
-	 * @param viewMode
-	 *            whether the form is in view mode
+	 * @param entityModel    the entity model of the entity that is displayed in the
+	 *                       table
+	 * @param attributeModel the attribute model of the attribute for which we are
+	 *                       constructing a field
+	 * @param viewMode       whether the form is in view mode
 	 * @return
 	 */
 	protected Field<?> constructCustomField(EntityModel<T> entityModel, AttributeModel attributeModel,
@@ -485,6 +477,17 @@ public abstract class DetailsEditTable<ID extends Serializable, T extends Abstra
 		VerticalLayout layout = new DefaultVerticalLayout(false, true);
 		layout.addComponent(table);
 
+		if (formOptions.isTableExportAllowed()) {
+			List<EntityModel<?>> list = new ArrayList<>();
+			list.add(entityModel);
+			table.addActionHandler(new TableExportActionHandler(UI.getCurrent(), list,
+					entityModel.getDisplayNamePlural(), null, false, TableExportMode.EXCEL, null));
+			table.addActionHandler(new TableExportActionHandler(UI.getCurrent(), list,
+					entityModel.getDisplayNamePlural(), null, false, TableExportMode.EXCEL_SIMPLIFIED, null));
+			table.addActionHandler(new TableExportActionHandler(UI.getCurrent(), list,
+					entityModel.getDisplayNamePlural(), null, false, TableExportMode.CSV, null));
+		}
+
 		// add a change listener (to make sure the buttons are correctly
 		// enabled/disabled)
 		table.addValueChangeListener(event -> {
@@ -565,8 +568,7 @@ public abstract class DetailsEditTable<ID extends Serializable, T extends Abstra
 	 * use the "mustEnableButton" callback method to impose additional constraints
 	 * on when the button must be enabled
 	 * 
-	 * @param button
-	 *            the button to register
+	 * @param button the button to register
 	 */
 	public void registerButton(Button button) {
 		if (button != null) {
@@ -604,8 +606,7 @@ public abstract class DetailsEditTable<ID extends Serializable, T extends Abstra
 	/**
 	 * Refreshes the items that are displayed in the table
 	 * 
-	 * @param items
-	 *            the new set of items to be displayed
+	 * @param items the new set of items to be displayed
 	 */
 	public void setItems(Collection<T> items) {
 
