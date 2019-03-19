@@ -16,7 +16,8 @@ package com.ocs.dynamo.ui.component;
 import com.vaadin.ui.VerticalLayout;
 
 /**
- * Default vertical layout - provides convenience constructor for setting the margin and the spacing
+ * Default vertical layout - provides convenience constructor for setting the
+ * margin and the spacing
  * 
  * @author bas.rutten
  */

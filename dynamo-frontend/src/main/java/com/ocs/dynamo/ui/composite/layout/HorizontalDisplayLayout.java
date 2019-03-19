@@ -23,9 +23,6 @@ import com.ocs.dynamo.domain.model.AttributeModel;
 import com.ocs.dynamo.domain.model.AttributeType;
 import com.ocs.dynamo.domain.model.EntityModel;
 import com.ocs.dynamo.service.BaseService;
-import com.ocs.dynamo.ui.component.DefaultHorizontalLayout;
-import com.ocs.dynamo.ui.component.ResponsiveUtil;
-import com.vaadin.ui.HorizontalLayout;
 
 /**
  * A simple horizontal layout for read-only display of attributes (i.e. for a

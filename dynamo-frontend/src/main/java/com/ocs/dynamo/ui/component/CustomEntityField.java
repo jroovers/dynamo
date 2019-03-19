@@ -80,7 +80,6 @@ public abstract class CustomEntityField<ID extends Serializable, T extends Abstr
 		this.attributeModel = attributeModel;
 		this.messageService = ServiceLocatorFactory.getServiceLocator().getMessageService();
 		setFilter(filter);
-		setResponsive(true);
 	}
 
 	public AttributeModel getAttributeModel() {

@@ -13,6 +13,7 @@
  */
 package com.ocs.dynamo.envers.ui;
 
+import com.jarektoro.responsivelayout.ResponsiveRow;
 import com.ocs.dynamo.constants.DynamoConstants;
 import com.ocs.dynamo.domain.AbstractEntity;
 import com.ocs.dynamo.domain.model.AttributeModel;
@@ -32,7 +33,6 @@ import com.ocs.dynamo.ui.provider.QueryType;
 import com.ocs.dynamo.ui.utils.VaadinUtils;
 import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Layout;
 
 /**
@@ -109,7 +109,7 @@ public class ViewRevisionDialog<ID, T extends AbstractEntity<ID>, U extends Vers
 	}
 
 	@Override
-	protected void doBuildButtonBar(HorizontalLayout buttonBar) {
+	protected void doBuildButtonBar(ResponsiveRow buttonBar) {
 		Button closeButton = new Button(messageService.getMessage("ocs.close", VaadinUtils.getLocale()));
 		closeButton.addClickListener(e -> close());
 		buttonBar.addComponent(closeButton);

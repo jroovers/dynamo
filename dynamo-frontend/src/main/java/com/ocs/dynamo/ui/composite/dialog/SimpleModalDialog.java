@@ -13,12 +13,12 @@
  */
 package com.ocs.dynamo.ui.composite.dialog;
 
+import com.jarektoro.responsivelayout.ResponsiveRow;
 import com.ocs.dynamo.service.MessageService;
 import com.ocs.dynamo.service.ServiceLocatorFactory;
 import com.ocs.dynamo.ui.utils.VaadinUtils;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.HorizontalLayout;
 
 /**
  * A simple modal dialog with a single "OK" button. The content of this dialog
@@ -46,7 +46,7 @@ public abstract class SimpleModalDialog extends BaseModalDialog {
 	}
 
 	@Override
-	protected void doBuildButtonBar(HorizontalLayout buttonBar) {
+	protected void doBuildButtonBar(ResponsiveRow buttonBar) {
 		cancelButton = new Button(message("ocs.cancel"));
 		cancelButton.setIcon(VaadinIcons.BAN);
 		cancelButton.addClickListener(event -> {

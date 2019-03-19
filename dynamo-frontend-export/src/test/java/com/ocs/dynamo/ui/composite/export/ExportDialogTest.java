@@ -6,6 +6,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import com.jarektoro.responsivelayout.ResponsiveLayout;
 import com.ocs.dynamo.domain.TestEntity;
 import com.ocs.dynamo.domain.model.EntityModel;
 import com.ocs.dynamo.domain.model.EntityModelFactory;
@@ -18,7 +19,6 @@ import com.ocs.dynamo.ui.composite.type.ExportMode;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.UI;
-import com.vaadin.ui.VerticalLayout;
 
 public class ExportDialogTest extends BaseMockitoTest {
 
@@ -52,7 +52,7 @@ public class ExportDialogTest extends BaseMockitoTest {
 		dialog.build();
 		Panel panel = (Panel) dialog.iterator().next();
 
-		VerticalLayout layout = (VerticalLayout) panel.getContent();
+		ResponsiveLayout layout = (ResponsiveLayout) panel.getContent();
 		Iterator<Component> it = layout.iterator();
 
 		Component button1 = it.next();

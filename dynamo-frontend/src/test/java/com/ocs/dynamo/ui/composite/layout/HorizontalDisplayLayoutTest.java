@@ -6,6 +6,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.jarektoro.responsivelayout.ResponsiveLayout;
 import com.ocs.dynamo.domain.TestEntity;
 import com.ocs.dynamo.domain.model.EntityModelFactory;
 import com.ocs.dynamo.service.TestEntityService;
@@ -36,7 +37,7 @@ public class HorizontalDisplayLayoutTest extends BaseIntegrationTest {
         layout.build();
 
         Component comp = layout.iterator().next();
-        Assert.assertTrue(comp instanceof HorizontalLayout);
+        Assert.assertTrue(comp instanceof ResponsiveLayout);
     }
 
 }

@@ -23,7 +23,6 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 import com.jarektoro.responsivelayout.ResponsiveRow;
-import com.jarektoro.responsivelayout.ResponsiveRow.SpacingSize;
 import com.ocs.dynamo.constants.DynamoConstants;
 import com.ocs.dynamo.dao.FetchJoinInformation;
 import com.ocs.dynamo.domain.AbstractEntity;
@@ -31,6 +30,7 @@ import com.ocs.dynamo.domain.model.EntityModel;
 import com.ocs.dynamo.service.BaseService;
 import com.ocs.dynamo.ui.Refreshable;
 import com.ocs.dynamo.ui.Reloadable;
+import com.ocs.dynamo.ui.component.ResponsiveUtil;
 import com.ocs.dynamo.ui.composite.form.ModelBasedEditForm;
 import com.ocs.dynamo.ui.composite.grid.BaseGridWrapper;
 import com.ocs.dynamo.utils.ClassUtils;
@@ -63,8 +63,7 @@ public abstract class BaseCollectionLayout<ID extends Serializable, T extends Ab
 	/**
 	 * The main button bar that appears below the search results grid
 	 */
-	private ResponsiveRow buttonBar = new ResponsiveRow().withSpacing(SpacingSize.SMALL, true)
-			.withStyleName(DynamoConstants.CSS_DYNAMO_BUTTON_BAR);
+	private ResponsiveRow buttonBar = ResponsiveUtil.createButtonBar();
 
 	/**
 	 * The relations to fetch when retrieving a single entity

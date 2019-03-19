@@ -33,6 +33,7 @@ import com.vaadin.server.Resource;
 import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Notification;
+import com.vaadin.ui.UI;
 
 /**
  * Base class for UI components that need/have access to a Service that can read
@@ -42,242 +43,255 @@ import com.vaadin.ui.Notification;
  * @param <T> type of the entity
  * @author bas.rutten
  */
-public abstract class BaseServiceCustomComponent<ID extends Serializable, T extends AbstractEntity<ID>>
-		extends BaseCustomComponent {
+public abstract class BaseServiceCustomComponent<ID extends Serializable, T extends AbstractEntity<ID>> extends BaseCustomComponent {
 
-	/**
-	 * A remove button with a built in confirmation message
-	 *
-	 * @author bas.rutten
-	 */
-	protected abstract class RemoveButton extends Button {
+    /**
+     * A remove button with a built in confirmation message
+     *
+     * @author bas.rutten
+     */
+    protected abstract class RemoveButton extends Button {
 
-		private static final long serialVersionUID = -942298948585447203L;
+        private static final long serialVersionUID = -942298948585447203L;
 
-		public RemoveButton(String message, Resource icon) {
-			super(message);
-			setIcon(icon);
-			this.addClickListener(event -> {
-				Runnable r = () -> {
-					try {
-						doDelete();
-					} catch (OCSRuntimeException ex) {
-						showNotifification(ex.getMessage(), Notification.Type.ERROR_MESSAGE);
-					}
-				};
-				VaadinUtils.showConfirmDialog(getMessageService(), message("ocs.delete.confirm", getItemToDelete()), r);
-			});
-		}
+        public RemoveButton(String message, Resource icon) {
+            super(message);
+            setIcon(icon);
+            this.addClickListener(event -> {
+                Runnable r = () -> {
+                    try {
+                        doDelete();
+                    } catch (OCSRuntimeException ex) {
+                        showNotifification(ex.getMessage(), Notification.Type.ERROR_MESSAGE);
+                    }
+                };
+                VaadinUtils.showConfirmDialog(getMessageService(), message("ocs.delete.confirm", getItemToDelete()), r);
+            });
+        }
 
-		/**
-		 * Performs the actual deletion
-		 */
-		protected abstract void doDelete();
+        /**
+         * Performs the actual deletion
+         */
+        protected abstract void doDelete();
 
-		/**
-		 * @return the description of the item to delete (for use in the confirmation
-		 *         dialog)
-		 */
-		protected abstract String getItemToDelete();
-	}
+        /**
+         * @return the description of the item to delete (for use in the confirmation
+         *         dialog)
+         */
+        protected abstract String getItemToDelete();
+    }
 
-	private static final long serialVersionUID = 6015180039863418544L;
+    private static final long serialVersionUID = 6015180039863418544L;
 
-	/**
-	 * The entity model of the entity or entities to display
-	 */
-	private EntityModel<T> entityModel;
+    /**
+     * The entity model of the entity or entities to display
+     */
+    private EntityModel<T> entityModel;
 
-	/**
-	 * The entity models used for rendering the individual fields (mostly useful for
-	 * lookup components)
-	 */
-	private Map<String, String> fieldEntityModels = new HashMap<>();
+    /**
+     * The entity models used for rendering the individual fields (mostly useful for
+     * lookup components)
+     */
+    private Map<String, String> fieldEntityModels = new HashMap<>();
 
-	/**
-	 * The form options that determine what options are available in the screen
-	 */
-	private FormOptions formOptions;
+    /**
+     * The form options that determine what options are available in the screen
+     */
+    private FormOptions formOptions;
 
-	/**
-	 * The service used for retrieving data
-	 */
-	private BaseService<ID, T> service;
+    /**
+     * The service used for retrieving data
+     */
+    private BaseService<ID, T> service;
 
-	/**
-	 * The list of components to update after an entity is selected
-	 */
-	private List<AbstractComponent> componentsToUpdate = new ArrayList<>();
+    /**
+     * The list of components to update after an entity is selected
+     */
+    private List<AbstractComponent> componentsToUpdate = new ArrayList<>();
 
-	/**
-	 * 
-	 */
-	private int formColumnWidth = SystemPropertyUtils.getDefaultFormColumnWidth();
+    /**
+     * Default column
+     */
+    private int formColumnWidth = SystemPropertyUtils.getDefaultFormColumnWidth();
 
-	/**
-	 * Constructor
-	 *
-	 * @param service     the service used to query the database
-	 * @param entityModel the entity model
-	 * @param formOptions the form options that govern how the component behaves
-	 */
-	public BaseServiceCustomComponent(BaseService<ID, T> service, EntityModel<T> entityModel, FormOptions formOptions) {
-		this.service = service;
-		this.entityModel = entityModel;
-		this.formOptions = formOptions;
-	}
+    private boolean resizeListenerAdded;
 
-	/**
-	 * Adds an attribute entity model - this can be used to overwrite the default
-	 * entity model that is used for rendering complex selection components (lookup
-	 * dialogs)
-	 *
-	 * @param path      the path to the field
-	 * @param reference the unique ID of the entity model
-	 */
-	public final void addAttributeEntityModel(String path, String reference) {
-		fieldEntityModels.put(path, reference);
-	}
+    /**
+     * Constructor
+     *
+     * @param service     the service used to query the database
+     * @param entityModel the entity model
+     * @param formOptions the form options that govern how the component behaves
+     */
+    public BaseServiceCustomComponent(BaseService<ID, T> service, EntityModel<T> entityModel, FormOptions formOptions) {
+        this.service = service;
+        this.entityModel = entityModel;
+        this.formOptions = formOptions;
+    }
 
-	/**
-	 * Method that is called after the user selects an entity to view in Details
-	 * mode
-	 *
-	 * @param editForm the edit form which displays the entity
-	 * @param entity   the selected entity
-	 */
-	protected void afterEntitySelected(ModelBasedEditForm<ID, T> editForm, T entity) {
-		// override in subclass
-	}
+    /**
+     * Adds an attribute entity model - this can be used to overwrite the default
+     * entity model that is used for rendering complex selection components (lookup
+     * dialogs)
+     *
+     * @param path      the path to the field
+     * @param reference the unique ID of the entity model
+     */
+    public final void addAttributeEntityModel(String path, String reference) {
+        fieldEntityModels.put(path, reference);
+    }
 
-	/**
-	 * Method that is called after the mode is changed (from editable to read only
-	 * or vice versa)
-	 *
-	 * @param viewMode whether the component is now in view mode (after the change)
-	 * @param editForm the edit form
-	 */
-	protected void afterModeChanged(boolean viewMode, ModelBasedEditForm<ID, T> editForm) {
-		// override in subclasses
-	}
+    /**
+     * Method that is called after the user selects an entity to view in Details
+     * mode
+     *
+     * @param editForm the edit form which displays the entity
+     * @param entity   the selected entity
+     */
+    protected void afterEntitySelected(ModelBasedEditForm<ID, T> editForm, T entity) {
+        // override in subclass
+    }
 
-	/**
-	 * Checks which buttons in the button bar must be enabled after an item has been
-	 * selected
-	 *
-	 * @param selectedItem the selected item
-	 */
-	protected void checkButtonState(T selectedItem) {
-		for (AbstractComponent b : componentsToUpdate) {
-			if (b instanceof DownloadButton) {
-				((DownloadButton) b).update();
-			}
-			boolean enabled = selectedItem != null && mustEnableComponent(b, selectedItem);
-			b.setEnabled(enabled);
-		}
-	}
+    /**
+     * Method that is called after the mode is changed (from editable to read only
+     * or vice versa)
+     *
+     * @param viewMode whether the component is now in view mode (after the change)
+     * @param editForm the edit form
+     */
+    protected void afterModeChanged(boolean viewMode, ModelBasedEditForm<ID, T> editForm) {
+        // override in subclasses
+    }
 
-	/**
-	 * Callback method for constructing a custom converter - currently only
-	 * supported for text fields
-	 * 
-	 * @param am the attribute model to base the field on
-	 * @return
-	 */
-	protected Converter<String, ?> constructCustomConverter(AttributeModel am) {
-		return null;
-	}
+    /**
+     * Checks which buttons in the button bar must be enabled after an item has been
+     * selected
+     *
+     * @param selectedItem the selected item
+     */
+    protected void checkButtonState(T selectedItem) {
+        for (AbstractComponent b : componentsToUpdate) {
+            if (b instanceof DownloadButton) {
+                ((DownloadButton) b).update();
+            }
+            boolean enabled = selectedItem != null && mustEnableComponent(b, selectedItem);
+            b.setEnabled(enabled);
+        }
+    }
 
-	/**
-	 * Creates a custom field - override in subclass
-	 *
-	 * @param entityModel    the entity model of the entity to display
-	 * @param attributeModel the attribute model of the entity to display
-	 * @param viewMode       indicates whether the screen is in read only mode
-	 * @param searchMode     indicates whether the screen is in search mode
-	 * @return
-	 */
-	protected AbstractComponent constructCustomField(EntityModel<T> entityModel, AttributeModel attributeModel,
-			boolean viewMode, boolean searchMode) {
-		// overwrite in subclass
-		return null;
-	}
+    /**
+     * Callback method for constructing a custom converter - currently only
+     * supported for text fields
+     * 
+     * @param am the attribute model to base the field on
+     * @return
+     */
+    protected Converter<String, ?> constructCustomConverter(AttributeModel am) {
+        return null;
+    }
 
-	public EntityModel<T> getEntityModel() {
-		return entityModel;
-	}
+    /**
+     * Creates a custom field - override in subclass
+     *
+     * @param entityModel    the entity model of the entity to display
+     * @param attributeModel the attribute model of the entity to display
+     * @param viewMode       indicates whether the screen is in read only mode
+     * @param searchMode     indicates whether the screen is in search mode
+     * @return
+     */
+    protected AbstractComponent constructCustomField(EntityModel<T> entityModel, AttributeModel attributeModel, boolean viewMode,
+            boolean searchMode) {
+        // overwrite in subclass
+        return null;
+    }
 
-	public Map<String, String> getFieldEntityModels() {
-		return fieldEntityModels;
-	}
+    public EntityModel<T> getEntityModel() {
+        return entityModel;
+    }
 
-	public FormOptions getFormOptions() {
-		return formOptions;
-	}
+    public Map<String, String> getFieldEntityModels() {
+        return fieldEntityModels;
+    }
 
-	public BaseService<ID, T> getService() {
-		return service;
-	}
+    public FormOptions getFormOptions() {
+        return formOptions;
+    }
 
-	/**
-	 * Callback method that is called during the save process. Allows the developer
-	 * to respond to a specific type of exception thrown in the service layer in a
-	 * custom way
-	 * 
-	 * @param ex
-	 * @return <code>true</code> if the exception was handled by this method, false
-	 *         otherwise
-	 */
-	protected boolean handleCustomException(RuntimeException ex) {
-		return false;
-	}
+    public BaseService<ID, T> getService() {
+        return service;
+    }
 
-	/**
-	 * Method that is called in order to enable/disable a component (i.e. a button)
-	 * in a button bar after selecting an item in the grid
-	 *
-	 * @param component    the component
-	 * @param selectedItem the currently selected item in the grid
-	 * @return
-	 */
-	protected boolean mustEnableComponent(AbstractComponent component, T selectedItem) {
-		// overwrite in subclasses if needed
-		return true;
-	}
+    /**
+     * Callback method that is called during the save process. Allows the developer
+     * to respond to a specific type of exception thrown in the service layer in a
+     * custom way
+     * 
+     * @param ex
+     * @return <code>true</code> if the exception was handled by this method, false
+     *         otherwise
+     */
+    protected boolean handleCustomException(RuntimeException ex) {
+        return false;
+    }
 
-	/**
-	 * Registers a component that must be enabled/disabled after an item is
-	 * selected. use the "mustEnableButton" callback method to impose additional
-	 * constraints on when the button must be enabled
-	 *
-	 * @param comp the component to register
-	 */
-	public final void registerComponent(AbstractComponent comp) {
-		if (comp != null) {
-			comp.setEnabled(false);
-			componentsToUpdate.add(comp);
-		}
-	}
+    /**
+     * Method that is called in order to enable/disable a component (i.e. a button)
+     * in a button bar after selecting an item in the grid
+     *
+     * @param component    the component
+     * @param selectedItem the currently selected item in the grid
+     * @return
+     */
+    protected boolean mustEnableComponent(AbstractComponent component, T selectedItem) {
+        // overwrite in subclasses if needed
+        return true;
+    }
 
-	/**
-	 * Removes the custom field entity model for a certain attribute
-	 *
-	 * @param path the path to the attribute
-	 */
-	public final void removeFieldEntityModel(String path) {
-		fieldEntityModels.remove(path);
-	}
+    /**
+     * Registers a component that must be enabled/disabled after an item is
+     * selected. use the "mustEnableButton" callback method to impose additional
+     * constraints on when the button must be enabled
+     *
+     * @param comp the component to register
+     */
+    public final void registerComponent(AbstractComponent comp) {
+        if (comp != null) {
+            comp.setEnabled(false);
+            componentsToUpdate.add(comp);
+        }
+    }
 
-	public void setService(BaseService<ID, T> service) {
-		this.service = service;
-	}
+    /**
+     * Removes the custom field entity model for a certain attribute
+     *
+     * @param path the path to the attribute
+     */
+    public final void removeFieldEntityModel(String path) {
+        fieldEntityModels.remove(path);
+    }
 
-	public int getFormColumnWidth() {
-		return formColumnWidth;
-	}
+    public void setService(BaseService<ID, T> service) {
+        this.service = service;
+    }
 
-	public void setFormColumnWidth(int formColumnWidth) {
-		this.formColumnWidth = formColumnWidth;
-	}
+    public int getFormColumnWidth() {
+        return formColumnWidth;
+    }
 
+    public void setFormColumnWidth(int formColumnWidth) {
+        this.formColumnWidth = formColumnWidth;
+    }
+
+    /**
+     * Adds a resize listener that makes sure the grid resizes properly after the
+     * browser window is resized
+     */
+    protected void addResizeListener() {
+        if (!resizeListenerAdded && UI.getCurrent() != null) {
+            UI.getCurrent().getPage().addBrowserWindowResizeListener(evt -> {
+                this.markAsDirtyRecursive();
+            });
+            resizeListenerAdded = true;
+        }
+    }
 }

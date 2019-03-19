@@ -299,7 +299,7 @@ public class MultiDomainEditLayout extends BaseCustomComponent {
 	/**
 	 * @param buttonBar
 	 */
-	protected void postProcessButtonBar(Layout buttonBar) {
+	protected void postProcessButtonBar(ResponsiveRow buttonBar) {
 		// overwrite in subclasses
 	}
 

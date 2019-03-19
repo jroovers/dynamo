@@ -15,13 +15,13 @@ package com.ocs.dynamo.ui.composite.export;
 
 import java.io.Serializable;
 
+import com.jarektoro.responsivelayout.ResponsiveRow;
 import com.ocs.dynamo.domain.AbstractEntity;
 import com.ocs.dynamo.domain.model.EntityModel;
 import com.ocs.dynamo.ui.composite.dialog.BaseModalDialog;
 import com.ocs.dynamo.ui.composite.type.ExportMode;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Layout;
 
 /**
@@ -34,59 +34,59 @@ import com.vaadin.ui.Layout;
  */
 public abstract class BaseExportDialog<ID extends Serializable, T extends AbstractEntity<ID>> extends BaseModalDialog {
 
-	private static final long serialVersionUID = 2066899457738401866L;
+    private static final long serialVersionUID = 2066899457738401866L;
 
-	protected static final String EXTENSION_CSV = ".csv";
+    protected static final String EXTENSION_CSV = ".csv";
 
-	protected static final String EXTENSION_XLS = ".xlsx";
+    protected static final String EXTENSION_XLS = ".xlsx";
 
-	private final ExportService exportService;
+    private final ExportService exportService;
 
-	private final ExportMode exportMode;
+    private final ExportMode exportMode;
 
-	private final EntityModel<T> entityModel;
+    private final EntityModel<T> entityModel;
 
-	public BaseExportDialog(ExportService exportService, EntityModel<T> entityModel, ExportMode exportMode) {
-		this.entityModel = entityModel;
-		this.exportService = exportService;
-		this.exportMode = exportMode;
-	}
+    public BaseExportDialog(ExportService exportService, EntityModel<T> entityModel, ExportMode exportMode) {
+        this.entityModel = entityModel;
+        this.exportService = exportService;
+        this.exportMode = exportMode;
+    }
 
-	protected abstract Button createDownloadCSVButton();
+    protected abstract Button createDownloadCSVButton();
 
-	protected abstract Button createDownloadExcelButton();
+    protected abstract Button createDownloadExcelButton();
 
-	@Override
-	protected void doBuild(Layout parent) {
-		Button exportExcelButton = createDownloadExcelButton();
-		parent.addComponent(exportExcelButton);
-		Button exportCsvButton = createDownloadCSVButton();
-		parent.addComponent(exportCsvButton);
-	}
+    @Override
+    protected void doBuild(Layout parent) {
+        Button exportExcelButton = createDownloadExcelButton();
+        parent.addComponent(exportExcelButton);
+        Button exportCsvButton = createDownloadCSVButton();
+        parent.addComponent(exportCsvButton);
+    }
 
-	@Override
-	protected void doBuildButtonBar(HorizontalLayout buttonBar) {
-		Button cancelButton = new Button(message("ocs.cancel"));
-		cancelButton.addClickListener(event -> close());
-		cancelButton.setIcon(VaadinIcons.BAN);
-		buttonBar.addComponent(cancelButton);
-	}
+    @Override
+    protected void doBuildButtonBar(ResponsiveRow buttonBar) {
+        Button cancelButton = new Button(message("ocs.cancel"));
+        cancelButton.addClickListener(event -> close());
+        cancelButton.setIcon(VaadinIcons.BAN);
+        buttonBar.addComponent(cancelButton);
+    }
 
-	public EntityModel<T> getEntityModel() {
-		return entityModel;
-	}
+    public EntityModel<T> getEntityModel() {
+        return entityModel;
+    }
 
-	public ExportMode getExportMode() {
-		return exportMode;
-	}
+    public ExportMode getExportMode() {
+        return exportMode;
+    }
 
-	public ExportService getExportService() {
-		return exportService;
-	}
+    public ExportService getExportService() {
+        return exportService;
+    }
 
-	@Override
-	protected String getTitle() {
-		return message("ocs.export");
-	}
+    @Override
+    protected String getTitle() {
+        return message("ocs.export");
+    }
 
 }

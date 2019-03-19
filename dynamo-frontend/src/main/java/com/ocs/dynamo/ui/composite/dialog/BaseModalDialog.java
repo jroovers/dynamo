@@ -15,19 +15,18 @@ package com.ocs.dynamo.ui.composite.dialog;
 
 import org.apache.log4j.Logger;
 
+import com.jarektoro.responsivelayout.ResponsiveLayout;
+import com.jarektoro.responsivelayout.ResponsiveRow;
 import com.ocs.dynamo.constants.DynamoConstants;
 import com.ocs.dynamo.service.MessageService;
 import com.ocs.dynamo.service.ServiceLocatorFactory;
 import com.ocs.dynamo.ui.Buildable;
-import com.ocs.dynamo.ui.component.DefaultHorizontalLayout;
-import com.ocs.dynamo.ui.component.DefaultVerticalLayout;
+import com.ocs.dynamo.ui.component.ResponsiveUtil;
 import com.ocs.dynamo.ui.utils.VaadinUtils;
 import com.vaadin.server.Page;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Panel;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
 /**
@@ -39,101 +38,94 @@ import com.vaadin.ui.Window;
  */
 public abstract class BaseModalDialog extends Window implements Buildable {
 
-	private static final Logger LOG = Logger.getLogger(BaseModalDialog.class);
+    private static final Logger LOG = Logger.getLogger(BaseModalDialog.class);
 
-	private static final long serialVersionUID = -2265149201475495504L;
+    private static final long serialVersionUID = -2265149201475495504L;
 
-	private MessageService messageService = ServiceLocatorFactory.getServiceLocator().getMessageService();
+    private MessageService messageService = ServiceLocatorFactory.getServiceLocator().getMessageService();
 
-	@Override
-	public void build() {
-		constructLayout();
-	}
+    @Override
+    public void build() {
+        constructLayout();
+    }
 
-	/**
-	 * Constructs the layout
-	 */
-	private void constructLayout() {
-		this.setModal(true);
-		this.setResizable(false);
+    /**
+     * Constructs the layout
+     */
+    private void constructLayout() {
+        this.setModal(true);
+        // this.setResizable(false);
 
-		Panel panel = new Panel();
-		panel.setCaptionAsHtml(true);
-		panel.setCaption(getTitle());
+        Panel panel = new Panel();
+        panel.setCaptionAsHtml(true);
+        panel.setCaption(getTitle());
 
-		this.setContent(panel);
+        this.setContent(panel);
 
-		VerticalLayout main = new DefaultVerticalLayout();
-		main.setStyleName(DynamoConstants.CSS_OCS_DIALOG);
-		panel.setContent(main);
+        ResponsiveLayout main = new ResponsiveLayout();
+        main.setStyleName(DynamoConstants.CSS_OCS_DIALOG);
+        panel.setContent(main);
 
-		doBuild(main);
+        doBuild(main);
 
-		DefaultHorizontalLayout buttonBar = new DefaultHorizontalLayout();
-		main.addComponent(buttonBar);
+        ResponsiveRow buttonBar = ResponsiveUtil.createButtonBar();
+        main.addRow(buttonBar);
+        doBuildButtonBar(buttonBar);
+    }
 
-		doBuildButtonBar(buttonBar);
-	}
+    /**
+     * Constructs the actual contents of the window
+     * 
+     * @param parent the parent layout to which to add the specific components
+     */
+    protected abstract void doBuild(Layout parent);
 
-	/**
-	 * Constructs the actual contents of the window
-	 * 
-	 * @param parent
-	 *            the parent layout to which to add the specific components
-	 */
-	protected abstract void doBuild(Layout parent);
+    /**
+     * Constructs the button bar
+     * 
+     * @param buttonBar the button bar
+     */
+    protected abstract void doBuildButtonBar(ResponsiveRow buttonBar);
 
-	/**
-	 * Constructs the button bar
-	 * 
-	 * @param buttonBar
-	 *            the button bar
-	 */
-	protected abstract void doBuildButtonBar(HorizontalLayout buttonBar);
+    /**
+     * Returns the title of the dialog
+     * 
+     * @return
+     */
+    protected abstract String getTitle();
 
-	/**
-	 * Returns the title of the dialog
-	 * 
-	 * @return
-	 */
-	protected abstract String getTitle();
+    /**
+     * Shows a notification message - this method will check for the availability of
+     * a Vaadin Page object and if this is not present, write the notification to
+     * the log instead
+     * 
+     * @param message the message
+     * @param type    the type of the message
+     */
+    protected void showNotification(String message, Notification.Type type) {
+        if (Page.getCurrent() != null) {
+            Notification.show(message, type);
+        } else {
+            LOG.info(message);
+        }
+    }
 
-	/**
-	 * Shows a notification message - this method will check for the availability of
-	 * a Vaadin Page object and if this is not present, write the notification to
-	 * the log instead
-	 * 
-	 * @param message
-	 *            the message
-	 * @param type
-	 *            the type of the message
-	 */
-	protected void showNotification(String message, Notification.Type type) {
-		if (Page.getCurrent() != null) {
-			Notification.show(message, type);
-		} else {
-			LOG.info(message);
-		}
-	}
-	
-	protected String message(String key) {
-		return messageService.getMessage(key, VaadinUtils.getLocale());
-	}
-	
-	/**
-	 * Retrieves a message based on its key
-	 * 
-	 * @param key
-	 *            the key of the message
-	 * @param args
-	 *            any arguments to pass to the message
-	 * @return
-	 */
-	protected String message(String key, Object... args) {
-		return messageService.getMessage(key, VaadinUtils.getLocale(), args);
-	}
+    protected String message(String key) {
+        return messageService.getMessage(key, VaadinUtils.getLocale());
+    }
 
-	public MessageService getMessageService() {
-		return messageService;
-	}
+    /**
+     * Retrieves a message based on its key
+     * 
+     * @param key  the key of the message
+     * @param args any arguments to pass to the message
+     * @return
+     */
+    protected String message(String key, Object... args) {
+        return messageService.getMessage(key, VaadinUtils.getLocale(), args);
+    }
+
+    public MessageService getMessageService() {
+        return messageService;
+    }
 }
