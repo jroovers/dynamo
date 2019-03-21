@@ -953,7 +953,6 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
             // width)
             if (!(field instanceof Switch)) {
                 field.addStyleName(DynamoConstants.CSS_DYNAMO_FIELD);
-                field.setResponsive(true);
                 field.setSizeFull();
             }
 
