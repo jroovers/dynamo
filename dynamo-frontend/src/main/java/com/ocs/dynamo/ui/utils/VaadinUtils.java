@@ -44,7 +44,6 @@ import com.vaadin.data.converter.StringToLongConverter;
 import com.vaadin.server.Page;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TabSheet.Tab;
@@ -662,19 +661,6 @@ public final class VaadinUtils {
 	public static Long stringToLong(boolean grouping, String value, Locale locale) {
 		StringToLongConverter converter = ConverterFactory.createLongConverter(grouping, false);
 		return converter.convertToModel(value, new ValueContext(locale)).getOrThrow(r -> new OCSRuntimeException());
-	}
-
-	/**
-	 * Wraps the provided component inside a form layout
-	 *
-	 * @param c the component to wrap
-	 * @return
-	 */
-	public static FormLayout wrapInFormLayout(Component c) {
-		FormLayout fl = new FormLayout();
-		fl.setMargin(false);
-		fl.addComponent(c);
-		return fl;
 	}
 
 	private VaadinUtils() {

@@ -38,6 +38,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 /**
@@ -82,6 +83,9 @@ public abstract class BaseSplitLayout<ID extends Serializable, T extends Abstrac
     // the currently selected detail layout (can be either edit mode or
     // read-only mode)
     private Component selectedDetailLayout;
+    
+    // whether a resize listener has been added
+    private boolean resizeListenerAdded;
 
     /**
      * Constructor
@@ -95,6 +99,7 @@ public abstract class BaseSplitLayout<ID extends Serializable, T extends Abstrac
     public BaseSplitLayout(BaseService<ID, T> service, EntityModel<T> entityModel, FormOptions formOptions, SortOrder<?> sortOrder,
             FetchJoinInformation... joins) {
         super(service, entityModel, formOptions, sortOrder, joins);
+        setLabelWidth(SystemPropertyUtils.getDefaultSplitLabelColumnWidth());
     }
 
     /**
@@ -196,10 +201,8 @@ public abstract class BaseSplitLayout<ID extends Serializable, T extends Abstrac
             postProcessButtonBar(getButtonBar());
 
             postProcessLayout(mainLayout);
-
-            addResizeListener();
-
             checkButtonState(null);
+            //addResizeListener();
             setCompositionRoot(mainLayout);
         }
     }
@@ -369,6 +372,7 @@ public abstract class BaseSplitLayout<ID extends Serializable, T extends Abstrac
             editForm.setCustomSaveConsumer(getCustomSaveConsumer());
             editForm.setDetailJoins(getDetailJoins());
             editForm.setFieldEntityModels(getFieldEntityModels());
+            editForm.setLabelWidth(getLabelWidth());
             editForm.build();
             detailFormLayout.addComponent(editForm);
         } else {
@@ -534,6 +538,18 @@ public abstract class BaseSplitLayout<ID extends Serializable, T extends Abstrac
     public void setViewMode(boolean viewMode) {
         if (getSelectedItem() != null) {
             editForm.setViewMode(viewMode);
+        }
+    }
+    
+    /**
+     * Adds a resize listener
+     */
+    protected void addResizeListener() {
+        if (!resizeListenerAdded && UI.getCurrent() != null) {
+            UI.getCurrent().getPage().addBrowserWindowResizeListener(evt -> {
+                this.markAsDirtyRecursive();
+            });
+            resizeListenerAdded = true;
         }
     }
 

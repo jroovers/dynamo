@@ -17,6 +17,7 @@ import java.io.Serializable;
 
 import org.springframework.util.StringUtils;
 
+import com.jarektoro.responsivelayout.ResponsiveLayout;
 import com.ocs.dynamo.domain.AbstractEntity;
 import com.ocs.dynamo.domain.model.AttributeModel;
 import com.ocs.dynamo.domain.model.EntityModel;
@@ -26,7 +27,6 @@ import com.ocs.dynamo.service.MessageService;
 import com.ocs.dynamo.ui.composite.dialog.SimpleModalDialog;
 import com.ocs.dynamo.ui.utils.VaadinUtils;
 import com.ocs.dynamo.utils.ClassUtils;
-import com.vaadin.ui.Layout;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextField;
 
@@ -77,7 +77,7 @@ public abstract class AddNewValueDialog<ID extends Serializable, T extends Abstr
 	protected abstract void afterNewEntityAdded(T entity);
 
 	@Override
-	protected void doBuild(Layout parent) {
+	protected void doBuild(ResponsiveLayout parent) {
 		// add a text field that hold the new value
 		valueField = new TextField(messageService.getMessage("ocs.enter.new.value", VaadinUtils.getLocale()));
 		valueField.setSizeFull();

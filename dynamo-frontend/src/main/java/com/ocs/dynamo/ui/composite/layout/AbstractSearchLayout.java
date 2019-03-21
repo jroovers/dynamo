@@ -294,7 +294,6 @@ public abstract class AbstractSearchLayout<ID extends Serializable, T extends Ab
             mainSearchLayout.addComponent(getButtonBar());
 
             // post process the layout
-            addResizeListener();
             postProcessLayout(mainSearchLayout);
         }
         setCompositionRoot(mainSearchLayout);

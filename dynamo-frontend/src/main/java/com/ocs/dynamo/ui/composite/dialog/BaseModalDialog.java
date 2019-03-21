@@ -24,7 +24,6 @@ import com.ocs.dynamo.ui.Buildable;
 import com.ocs.dynamo.ui.component.ResponsiveUtil;
 import com.ocs.dynamo.ui.utils.VaadinUtils;
 import com.vaadin.server.Page;
-import com.vaadin.ui.Layout;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.Window;
@@ -54,7 +53,7 @@ public abstract class BaseModalDialog extends Window implements Buildable {
      */
     private void constructLayout() {
         this.setModal(true);
-        // this.setResizable(false);
+        this.setResizable(false);
 
         Panel panel = new Panel();
         panel.setCaptionAsHtml(true);
@@ -62,7 +61,7 @@ public abstract class BaseModalDialog extends Window implements Buildable {
 
         this.setContent(panel);
 
-        ResponsiveLayout main = new ResponsiveLayout();
+        ResponsiveLayout main = new ResponsiveLayout().withFullSize().withSpacing().withStyleName(DynamoConstants.CSS_MODAL_DIALOG);
         main.setStyleName(DynamoConstants.CSS_OCS_DIALOG);
         panel.setContent(main);
 
@@ -78,7 +77,7 @@ public abstract class BaseModalDialog extends Window implements Buildable {
      * 
      * @param parent the parent layout to which to add the specific components
      */
-    protected abstract void doBuild(Layout parent);
+    protected abstract void doBuild(ResponsiveLayout parent);
 
     /**
      * Constructs the button bar

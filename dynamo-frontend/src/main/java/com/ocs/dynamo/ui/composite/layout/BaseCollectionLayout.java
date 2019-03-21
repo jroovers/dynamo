@@ -142,8 +142,16 @@ public abstract class BaseCollectionLayout<ID extends Serializable, T extends Ab
 	 */
 	private Consumer<T> customSaveConsumer;
 
+	/**
+	 * The add button
+	 */
 	private Button addButton;
 
+	/**
+	 * The default label width
+	 */
+	private int labelWidth;
+	
 	/**
 	 * Constructor
 	 * 
@@ -561,5 +569,13 @@ public abstract class BaseCollectionLayout<ID extends Serializable, T extends Ab
 	public void setSortEnabled(boolean sortEnabled) {
 		this.sortEnabled = sortEnabled;
 	}
+
+    public int getLabelWidth() {
+        return labelWidth;
+    }
+
+    public void setLabelWidth(int labelWidth) {
+        this.labelWidth = labelWidth;
+    }
 
 }

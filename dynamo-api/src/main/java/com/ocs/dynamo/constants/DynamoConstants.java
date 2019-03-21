@@ -87,11 +87,6 @@ public final class DynamoConstants {
      * CSS style for details edit grid
      */
     public static final String CSS_DETAILS_EDIT_GRID = "detailsEditGrid";
-    
-    /**
-     * The CSS class used to indicate that an element is the first child element
-     */
-    public static final String CSS_FIRST = "first";
 
     /**
      * The CSS class for an extra caption
@@ -114,9 +109,26 @@ public final class DynamoConstants {
     public static final String CSS_LAST_VISITED = "lastVisited";
 
     /**
+     * The CSS class for lazy container
+     */
+    public static final String CSS_LAZY_CONTAINER = "lazyContainer";
+
+    /**
+     * The CSS class for modal dialog
+     */
+    public static final String CSS_MODAL_DIALOG = "modalDialog";
+
+    /**
      * The CSS style for a main field
      */
     public static final String CSS_MAIN_FIELD = "mainField";
+
+    /**
+     * The CSS class for a main form
+     */
+    public static final String CSS_MAIN_FORM = "mainForm";
+
+    public static final String CSS_PADDED_FORM = "paddedForm";
 
     /**
      * The CSS class that is assigned to numerical cells in a grid
@@ -284,6 +296,11 @@ public final class DynamoConstants {
      * Default label width in columns (out of 12)
      */
     public static final String SP_DEFAULT_LABEL_COLUMN_WIDTH = "ocs.default.label.column.width";
+
+    /**
+     * Default label width in columns (out of 12)
+     */
+    public static final String SP_DEFAULT_SPLIT_LABEL_COLUMN_WIDTH = "ocs.default.split.label.column.width";
 
     /**
      * Name of the system property that is used to determine the amount of rows in a

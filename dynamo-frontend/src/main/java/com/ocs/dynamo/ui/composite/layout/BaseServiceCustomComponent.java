@@ -110,11 +110,9 @@ public abstract class BaseServiceCustomComponent<ID extends Serializable, T exte
     private List<AbstractComponent> componentsToUpdate = new ArrayList<>();
 
     /**
-     * Default column
+     * Default column width (out of 12)
      */
     private int formColumnWidth = SystemPropertyUtils.getDefaultFormColumnWidth();
-
-    private boolean resizeListenerAdded;
 
     /**
      * Constructor
@@ -282,16 +280,4 @@ public abstract class BaseServiceCustomComponent<ID extends Serializable, T exte
         this.formColumnWidth = formColumnWidth;
     }
 
-    /**
-     * Adds a resize listener that makes sure the grid resizes properly after the
-     * browser window is resized
-     */
-    protected void addResizeListener() {
-        if (!resizeListenerAdded && UI.getCurrent() != null) {
-            UI.getCurrent().getPage().addBrowserWindowResizeListener(evt -> {
-                this.markAsDirtyRecursive();
-            });
-            resizeListenerAdded = true;
-        }
-    }
 }

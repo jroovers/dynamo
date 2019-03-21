@@ -38,6 +38,11 @@ public final class ResponsiveUtil {
                 DynamoConstants.MAX_COLUMNS).withComponents(component);
     }
 
+    /**
+     * Creates a button bar
+     * 
+     * @return
+     */
     public static ResponsiveRow createButtonBar() {
         return createRowWithSpacing().withStyleName(DynamoConstants.CSS_DYNAMO_BUTTON_BAR);
     }
@@ -48,6 +53,14 @@ public final class ResponsiveUtil {
      */
     public static ResponsiveRow createFormRow() {
         return new ResponsiveRow().withSpacing(SpacingSize.SMALL, true).withStyleName(DynamoConstants.CSS_DYNAMO_FORM);
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public static ResponsiveLayout createPaddedLayout() {
+        return new ResponsiveLayout().withFullSize().withSpacing().withStyleName(DynamoConstants.CSS_PADDED_FORM);
     }
 
     /**

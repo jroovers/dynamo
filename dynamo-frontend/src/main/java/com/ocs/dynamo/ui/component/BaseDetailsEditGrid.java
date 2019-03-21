@@ -208,7 +208,9 @@ public abstract class BaseDetailsEditGrid<U, ID extends Serializable, T extends 
      * @param service
      * @param entityModel
      * @param attributeModel
-     * @param viewMode
+     * @param serviceBasedEditMode indicate whether we are in "service based edit
+     *                             mode" -> this will cause the application to use a
+     *                             pop-up for adding/editing
      * @param formOptions
      * @param joins
      */
@@ -277,6 +279,7 @@ public abstract class BaseDetailsEditGrid<U, ID extends Serializable, T extends 
      *         needed
      */
     protected Converter<String, ?> constructCustomConverter(AttributeModel am) {
+        // overwrite in subclasses
         return null;
     }
 
@@ -299,7 +302,7 @@ public abstract class BaseDetailsEditGrid<U, ID extends Serializable, T extends 
     /**
      * Constructs a button that brings up a search dialog
      *
-     * @param buttonBar the button bar to adde the search button to
+     * @param buttonBar the button bar to add the search button to
      */
     protected void constructSearchButton(Layout buttonBar) {
         if (!viewMode && formOptions.isDetailsGridSearchMode()) {
@@ -542,7 +545,8 @@ public abstract class BaseDetailsEditGrid<U, ID extends Serializable, T extends 
      * Method that is called in order to enable/disable a button after selecting an
      * item in the grid
      *
-     * @param button
+     * @param button       the button
+     * @param selectedItem the currently selected item
      * @return
      */
     protected boolean mustEnableButton(Button button, T selectedItem) {

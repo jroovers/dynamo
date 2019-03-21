@@ -15,14 +15,15 @@ package com.ocs.dynamo.ui.composite.export;
 
 import java.io.Serializable;
 
+import com.jarektoro.responsivelayout.ResponsiveLayout;
 import com.jarektoro.responsivelayout.ResponsiveRow;
 import com.ocs.dynamo.domain.AbstractEntity;
 import com.ocs.dynamo.domain.model.EntityModel;
+import com.ocs.dynamo.ui.component.ResponsiveUtil;
 import com.ocs.dynamo.ui.composite.dialog.BaseModalDialog;
 import com.ocs.dynamo.ui.composite.type.ExportMode;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Layout;
 
 /**
  * Base class for export dialogs
@@ -57,11 +58,15 @@ public abstract class BaseExportDialog<ID extends Serializable, T extends Abstra
     protected abstract Button createDownloadExcelButton();
 
     @Override
-    protected void doBuild(Layout parent) {
+    protected void doBuild(ResponsiveLayout parent) {
+
+        ResponsiveRow rr = ResponsiveUtil.createRowWithSpacing();
+        parent.addRow(rr);
+
         Button exportExcelButton = createDownloadExcelButton();
-        parent.addComponent(exportExcelButton);
+        rr.addColumn().withComponent(exportExcelButton);
         Button exportCsvButton = createDownloadCSVButton();
-        parent.addComponent(exportCsvButton);
+        rr.addColumn().withComponent(exportCsvButton);
     }
 
     @Override

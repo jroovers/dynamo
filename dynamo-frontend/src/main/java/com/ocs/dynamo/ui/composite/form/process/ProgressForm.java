@@ -15,9 +15,9 @@ package com.ocs.dynamo.ui.composite.form.process;
 
 import org.apache.log4j.Logger;
 
+import com.jarektoro.responsivelayout.ResponsiveLayout;
 import com.jarektoro.responsivelayout.ResponsiveRow;
 import com.ocs.dynamo.exception.OCSRuntimeException;
-import com.ocs.dynamo.ui.component.DefaultVerticalLayout;
 import com.ocs.dynamo.ui.component.ResponsiveUtil;
 import com.ocs.dynamo.ui.composite.layout.BaseCustomComponent;
 import com.vaadin.ui.Button;
@@ -59,13 +59,13 @@ public abstract class ProgressForm<T> extends BaseCustomComponent implements Pro
     private ProgressCounter counter = new DefaultProgressCounter();
 
     // the main layout
-    private Layout mainLayout;
+    private ResponsiveLayout mainLayout;
 
     // the progress bar
     private ProgressBar progressBar;
 
     // the progress layout
-    private Layout progressLayout;
+    private ResponsiveLayout progressLayout;
 
     // the progress mode - indicates whether to render a progress bar
     private ProgressMode progressMode;
@@ -130,7 +130,7 @@ public abstract class ProgressForm<T> extends BaseCustomComponent implements Pro
      * @param main the layout that serves as the container for everything that is
      *             being added
      */
-    protected abstract void doBuildLayout(Layout main);
+    protected abstract void doBuildLayout(ResponsiveLayout main);
 
     /**
      * Method that is called after the job completes
@@ -180,7 +180,7 @@ public abstract class ProgressForm<T> extends BaseCustomComponent implements Pro
      */
     protected void formMode() {
         if (mainLayout == null) {
-            mainLayout = new DefaultVerticalLayout(false, true);
+            mainLayout = ResponsiveUtil.createPaddedLayout();
 
             Label label = new Label(getTitle());
             mainLayout.addComponent(label);
@@ -259,8 +259,7 @@ public abstract class ProgressForm<T> extends BaseCustomComponent implements Pro
     private void progressMode() {
         // lazily build the layout
         if (progressLayout == null) {
-            progressLayout = new DefaultVerticalLayout(true, true);
-
+            progressLayout = ResponsiveUtil.createPaddedLayout();
             progressBar = new ProgressBar(0.0f);
             progressBar.setSizeFull();
             progressLayout.addComponent(progressBar);

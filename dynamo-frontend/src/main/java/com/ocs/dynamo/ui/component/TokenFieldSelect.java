@@ -265,6 +265,7 @@ public class TokenFieldSelect<ID extends Serializable, T extends AbstractEntity<
     protected Component initContent() {
         ResponsiveLayout layout = new ResponsiveLayout().withFullSize();
         ResponsiveRow row = ResponsiveUtil.createRowWithSpacing();
+        layout.addRow(row);
 
         extTokenField.setInputField(comboBox);
         extTokenField.setEnableDefaultDeleteTokenAction(true);

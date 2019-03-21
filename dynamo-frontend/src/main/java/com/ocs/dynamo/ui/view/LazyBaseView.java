@@ -13,13 +13,15 @@
  */
 package com.ocs.dynamo.ui.view;
 
+import com.jarektoro.responsivelayout.ResponsiveLayout;
+import com.ocs.dynamo.constants.DynamoConstants;
+import com.ocs.dynamo.ui.component.ResponsiveUtil;
 /**
  * A base class for a "lazy" view that is only constructed once per UI - data will not be
  * reloaded once the view is opened again
  */
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.Layout;
 
 /**
  * A view that is only built once per scope
@@ -29,40 +31,46 @@ import com.vaadin.ui.Layout;
  */
 public abstract class LazyBaseView extends BaseView {
 
-	private static final long serialVersionUID = -2500168085668166838L;
+    private static final long serialVersionUID = -2500168085668166838L;
 
-	private Layout lazy = null;
+    private ResponsiveLayout lazy = null;
 
-	/**
-	 * Method that is called when the view is entered - lazily constructs the layout
-	 */
-	@Override
-	public final void enter(ViewChangeEvent event) {
-		if (lazy == null) {
-			lazy = initLayout();
-			lazy.addComponent(build());
-			setCompositionRoot(lazy);
-			afterBuild();
-		} else {
-			refresh();
-		}
-	}
+    /**
+     * Method that is called when the view is entered - lazily constructs the layout
+     */
+    @Override
+    public final void enter(ViewChangeEvent event) {
+        if (lazy == null) {
+            lazy = initLayout();
+            lazy.setStyleName(DynamoConstants.CSS_LAZY_CONTAINER);
+            ResponsiveUtil.addFullWidthRow(lazy, build());
+            setCompositionRoot(lazy);
+            afterBuild();
+            addResizeListener();
+        } else {
+            refresh();
+        }
+    }
 
-	/**
-	 * Constructs the view
-	 * 
-	 * @return the parent component of the constructed view
-	 */
-	protected abstract Component build();
+    /**
+     * Constructs the view
+     * 
+     * @return the parent component of the constructed view
+     */
+    protected abstract Component build();
 
-	/**
-	 * Refreshes the screen after it is re-opened
-	 */
-	protected void refresh() {
-		// override in subclasses
-	}
+    /**
+     * Refreshes the screen after it is re-opened
+     */
+    protected void refresh() {
+        // override in subclasses
+    }
 
-	protected void afterBuild() {
+    /**
+     * One-time method to be carried out after the component has been built
+     */
+    protected void afterBuild() {
+        // override in subclasses
+    }
 
-	}
 }

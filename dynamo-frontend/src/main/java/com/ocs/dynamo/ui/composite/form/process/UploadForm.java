@@ -16,10 +16,10 @@ package com.ocs.dynamo.ui.composite.form.process;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 
-import com.ocs.dynamo.ui.composite.type.ScreenMode;
+import com.jarektoro.responsivelayout.ResponsiveLayout;
+import com.jarektoro.responsivelayout.ResponsiveRow;
+import com.ocs.dynamo.ui.component.ResponsiveUtil;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Layout;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Upload;
@@ -34,105 +34,103 @@ import com.vaadin.ui.Upload.SucceededListener;
  */
 public abstract class UploadForm extends ProgressForm<byte[]> {
 
-	/**
-	 * Callback object for handling a file upload
-	 * 
-	 * @author bas.rutten
-	 */
-	private class UploadReceiver implements SucceededListener, Receiver {
+    /**
+     * Callback object for handling a file upload
+     * 
+     * @author bas.rutten
+     */
+    private class UploadReceiver implements SucceededListener, Receiver {
 
-		private static final long serialVersionUID = -8672072143565385035L;
+        private static final long serialVersionUID = -8672072143565385035L;
 
-		private ByteArrayOutputStream stream;
+        private ByteArrayOutputStream stream;
 
-		@Override
-		public OutputStream receiveUpload(String filename, String mimeType) {
-			stream = new ByteArrayOutputStream();
-			return stream;
-		}
+        @Override
+        public OutputStream receiveUpload(String filename, String mimeType) {
+            stream = new ByteArrayOutputStream();
+            return stream;
+        }
 
-		@Override
-		public void uploadSucceeded(final SucceededEvent event) {
-			final byte[] bytes = stream.toByteArray();
-			if (bytes != null && bytes.length > 0) {
-				UploadForm.this.fileName = event.getFilename();
-				startWork(bytes);
-			} else {
-				showNotification(message("ocs.no.file.selected"), Notification.Type.ERROR_MESSAGE);
-			}
-		}
-	}
+        @Override
+        public void uploadSucceeded(final SucceededEvent event) {
+            final byte[] bytes = stream.toByteArray();
+            if (bytes != null && bytes.length > 0) {
+                UploadForm.this.fileName = event.getFilename();
+                startWork(bytes);
+            } else {
+                showNotification(message("ocs.no.file.selected"), Notification.Type.ERROR_MESSAGE);
+            }
+        }
+    }
 
-	private static final long serialVersionUID = -4717815709838453902L;
+    private static final long serialVersionUID = -4717815709838453902L;
 
-	private String fileName;
+    private String fileName;
 
-	private ScreenMode screenMode;
+    private boolean showCancelButton;
 
-	private boolean showCancelButton;
+    private Upload upload;
 
-	private Upload upload;
+    /**
+     * Constructor
+     * 
+     * @param progressMode     the desired progress mode
+     * @param screenMode       the desired screen mode
+     * @param showCancelButton whether to include a cancel button
+     */
+    public UploadForm(UI ui, ProgressMode progressMode, boolean showCancelButton) {
+        super(ui, progressMode);
+        this.showCancelButton = showCancelButton;
+    }
 
-	/**
-	 * Constructor
-	 * 
-	 * @param progressMode     the desired progress mode
-	 * @param screenMode       the desired screen mode
-	 * @param showCancelButton whether to include a cancel button
-	 */
-	public UploadForm(UI ui, ProgressMode progressMode, ScreenMode screenMode, boolean showCancelButton) {
-		super(ui, progressMode);
-		this.screenMode = screenMode;
-		this.showCancelButton = showCancelButton;
-	}
+    /**
+     * The method that is executed after the cancel button is clicked
+     */
+    protected void cancel() {
+        // override in subclass if needed
+    }
 
-	/**
-	 * The method that is executed after the cancel button is clicked
-	 */
-	protected void cancel() {
-		// override in subclass if needed
-	}
+    /**
+     * Constructs the screen-specific form content
+     * 
+     * @param layout
+     */
+    protected void doBuildForm(ResponsiveLayout layout) {
+        // override in subclass
+    }
 
-	/**
-	 * Constructs the screen-specific form content
-	 * 
-	 * @param layout
-	 */
-	protected void doBuildForm(Layout layout) {
-		// override in subclass
-	}
+    @Override
+    protected void doBuildLayout(ResponsiveLayout main) {
 
-	@Override
-	protected void doBuildLayout(Layout main) {
-		FormLayout form = new FormLayout();
-		form.setMargin(true);
+        ResponsiveLayout form = ResponsiveUtil.createPaddedLayout();
+        main.addComponent(form);
 
-		main.addComponent(form);
+        // add custom components
+        doBuildForm(form);
 
-		// add custom components
-		doBuildForm(form);
+        // add file upload field
+        UploadReceiver receiver = new UploadReceiver();
 
-		// add file upload field
-		UploadReceiver receiver = new UploadReceiver();
+        upload = new Upload(message("ocs.uploadform.title"), receiver);
 
-		upload = new Upload(message("ocs.uploadform.title"), receiver);
+        upload.addSucceededListener(receiver);
+        ResponsiveRow row = ResponsiveUtil.createRowWithSpacing();
+        form.addRow(row).withComponents(upload);
 
-		upload.addSucceededListener(receiver);
-		form.addComponent(upload);
+        if (showCancelButton) {
+            Button cancelButton = new Button(message("ocs.cancel"));
+            cancelButton.addClickListener((Button.ClickListener) event -> cancel());
+            ResponsiveRow row2 = ResponsiveUtil.createRowWithSpacing();
+            form.addRow(row2).withComponents(cancelButton);
+        }
+    }
 
-		if (showCancelButton) {
-			Button cancelButton = new Button(message("ocs.cancel"));
-			cancelButton.addClickListener((Button.ClickListener) event -> cancel());
-			main.addComponent(cancelButton);
-		}
-	}
+    public String getFileName() {
+        return fileName;
+    }
 
-	public String getFileName() {
-		return fileName;
-	}
-
-	public Upload getUpload() {
-		return upload;
-	}
+    public Upload getUpload() {
+        return upload;
+    }
 
 }

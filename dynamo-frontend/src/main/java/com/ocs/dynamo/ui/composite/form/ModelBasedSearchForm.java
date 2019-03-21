@@ -65,374 +65,377 @@ public class ModelBasedSearchForm<ID extends Serializable, T extends AbstractEnt
 	/**
 	 * The main form layout
 	 */
-	private ResponsiveLayout form;
+    private ResponsiveLayout form;
 
-	/**
-	 * The various filter groups
-	 */
-	private Map<String, FilterGroup<T>> groups = new HashMap<>();
+    /**
+     * The various filter groups
+     */
+    private Map<String, FilterGroup<T>> groups = new HashMap<>();
 
-	/**
-	 * The responsive row to which we are currently adding fields
-	 */
-	private ResponsiveRow currentRow;
+    /**
+     * The responsive row to which we are currently adding fields
+     */
+    private ResponsiveRow currentRow;
 
-	/**
-	 * The number of components already added to the current row
-	 */
-	private int addCount = 0;
+    /**
+     * The number of components already added to the current row
+     */
+    private int addCount = 0;
 
-	/**
-	 * Constructor
-	 * 
-	 * @param searchable  the component on which to carry out the search
-	 * @param entityModel the entity model
-	 * @param formOptions the form options
-	 */
-	public ModelBasedSearchForm(Searchable<T> searchable, EntityModel<T> entityModel, FormOptions formOptions) {
-		this(searchable, entityModel, formOptions, null, null);
-	}
+    /**
+     * Constructor
+     * 
+     * @param searchable  the component on which to carry out the search
+     * @param entityModel the entity model
+     * @param formOptions the form options
+     */
+    public ModelBasedSearchForm(Searchable<T> searchable, EntityModel<T> entityModel, FormOptions formOptions) {
+        this(searchable, entityModel, formOptions, null, null);
+    }
 
-	/**
-	 * Constructor
-	 * 
-	 * @param searchable     the component on which to carry out the search
-	 * @param entityModel    the entity model
-	 * @param formOptions    the form options
-	 * @param defaultFilters the additional filters to apply to every search action
-	 * @param fieldFilters   a map of filters to apply to the individual fields
-	 */
-	public ModelBasedSearchForm(Searchable<T> searchable, EntityModel<T> entityModel, FormOptions formOptions,
-			List<SerializablePredicate<T>> defaultFilters, Map<String, SerializablePredicate<?>> fieldFilters) {
-		super(searchable, entityModel, formOptions, defaultFilters, fieldFilters);
-	}
+    /**
+     * Constructor
+     * 
+     * @param searchable     the component on which to carry out the search
+     * @param entityModel    the entity model
+     * @param formOptions    the form options
+     * @param defaultFilters the additional filters to apply to every search action
+     * @param fieldFilters   a map of filters to apply to the individual fields
+     */
+    public ModelBasedSearchForm(Searchable<T> searchable, EntityModel<T> entityModel, FormOptions formOptions,
+            List<SerializablePredicate<T>> defaultFilters, Map<String, SerializablePredicate<?>> fieldFilters) {
+        super(searchable, entityModel, formOptions, defaultFilters, fieldFilters);
+    }
 
-	/**
-	 * Clears all filters then performs a fresh search
-	 */
-	@Override
-	public void clear() {
-		// Clear all filter groups
-		for (FilterGroup<T> group : groups.values()) {
-			group.reset();
-		}
-		super.clear();
-	}
+    /**
+     * Clears all filters then performs a fresh search
+     */
+    @Override
+    public void clear() {
+        // Clear all filter groups
+        for (FilterGroup<T> group : groups.values()) {
+            group.reset();
+        }
+        super.clear();
+    }
 
-	/**
-	 * Adds any value change listeners for taking care of cascading search
-	 */
-	protected void constructCascadeListeners() {
-		for (final AttributeModel am : getEntityModel().getCascadeAttributeModels()) {
-			if (am.isSearchable()) {
-				AbstractComponent field = groups.get(am.getPath()).getField();
-				if (field instanceof HasValue) {
-					((HasValue<?>) field).addValueChangeListener(event -> {
-						for (String cascadePath : am.getCascadeAttributes()) {
-							handleCascade(event, am, cascadePath);
-						}
-					});
-				}
-			}
-		}
-	}
+    /**
+     * Adds any value change listeners for taking care of cascading search
+     */
+    protected void constructCascadeListeners() {
+        for (final AttributeModel am : getEntityModel().getCascadeAttributeModels()) {
+            if (am.isSearchable()) {
+                AbstractComponent field = groups.get(am.getPath()).getField();
+                if (field instanceof HasValue) {
+                    ((HasValue<?>) field).addValueChangeListener(event -> {
+                        for (String cascadePath : am.getCascadeAttributes()) {
+                            handleCascade(event, am, cascadePath);
+                        }
+                    });
+                }
+            }
+        }
+    }
 
-	/**
-	 * Creates a search field based on an attribute model
-	 * 
-	 * @param em the entity model of the entity to search for
-	 * @param am the attribute model the attribute model of the property that is
-	 *           bound to the field
-	 * @return
-	 */
-	protected AbstractComponent constructField(EntityModel<T> em, AttributeModel am) {
-		AbstractComponent field = constructCustomField(em, am);
-		if (field == null) {
-			EntityModel<?> emm = getFieldEntityModel(am);
-			FieldFactoryContext ctx = FieldFactoryContext.create().setAttributeModel(am).setFieldEntityModel(emm)
-					.setFieldFilters(getFieldFilters()).setViewMode(false).setSearch(true);
-			field = getFieldFactory().constructField(ctx);
-		}
+    /**
+     * Creates a search field based on an attribute model
+     * 
+     * @param em the entity model of the entity to search for
+     * @param am the attribute model the attribute model of the property that is
+     *           bound to the field
+     * @return
+     */
+    protected AbstractComponent constructField(EntityModel<T> em, AttributeModel am) {
+        AbstractComponent field = constructCustomField(em, am);
+        if (field == null) {
+            EntityModel<?> emm = getFieldEntityModel(am);
+            FieldFactoryContext ctx = FieldFactoryContext.create().setAttributeModel(am).setFieldEntityModel(emm)
+                    .setFieldFilters(getFieldFilters()).setViewMode(false).setSearch(true);
+            field = getFieldFactory().constructField(ctx);
+        }
 
-		if (field != null) {
-			field.setId(ResponsiveUtil.getId(am));
-			field.setStyleName(DynamoConstants.CSS_DYNAMO_FIELD);
-		} else {
-			throw new OCSRuntimeException("No field could be constructed for " + am.getPath());
-		}
+        if (field != null) {
+            field.setId(ResponsiveUtil.getId(am));
+            field.setStyleName(DynamoConstants.CSS_DYNAMO_FIELD);
+        } else {
+            throw new OCSRuntimeException("No field could be constructed for " + am.getPath());
+        }
 
-		return field;
-	}
+        return field;
+    }
 
-	/**
-	 * Constructs a filter group for searching on a single attribute
-	 * 
-	 * @param entityModel    the entity model
-	 * @param attributeModel the attribute model
-	 * @return
-	 */
-	protected FilterGroup<T> constructFilterGroup(EntityModel<T> entityModel, AttributeModel attributeModel) {
-		AbstractComponent field = this.constructField(entityModel, attributeModel);
-		if (field != null) {
-			FilterType filterType = FilterType.BETWEEN;
-			if (String.class.isAssignableFrom(attributeModel.getType())) {
-				filterType = FilterType.LIKE;
-			} else if (Boolean.class.isAssignableFrom(attributeModel.getType())
-					|| Boolean.TYPE.isAssignableFrom(attributeModel.getType())) {
-				filterType = FilterType.BOOLEAN;
-			} else if (attributeModel.getType().isEnum()) {
-				filterType = FilterType.ENUM;
-			} else if (AttributeType.ELEMENT_COLLECTION.equals(attributeModel.getAttributeType())) {
-				filterType = FilterType.EQUAL;
-			} else if (AbstractEntity.class.isAssignableFrom(attributeModel.getType())
-					|| AttributeType.DETAIL.equals(attributeModel.getAttributeType())) {
-				// search for an entity
-				filterType = FilterType.ENTITY;
-			} else if (attributeModel.isSearchForExactValue() || attributeModel.isSearchDateOnly()) {
-				filterType = FilterType.EQUAL;
-			}
+    /**
+     * Constructs a filter group for searching on a single attribute
+     * 
+     * @param entityModel    the entity model
+     * @param attributeModel the attribute model
+     * @return
+     */
+    protected FilterGroup<T> constructFilterGroup(EntityModel<T> entityModel, AttributeModel attributeModel) {
+        AbstractComponent field = this.constructField(entityModel, attributeModel);
+        if (field != null) {
+            FilterType filterType = FilterType.BETWEEN;
+            if (String.class.isAssignableFrom(attributeModel.getType())) {
+                filterType = FilterType.LIKE;
+            } else if (Boolean.class.isAssignableFrom(attributeModel.getType())
+                    || Boolean.TYPE.isAssignableFrom(attributeModel.getType())) {
+                filterType = FilterType.BOOLEAN;
+            } else if (attributeModel.getType().isEnum()) {
+                filterType = FilterType.ENUM;
+            } else if (AttributeType.ELEMENT_COLLECTION.equals(attributeModel.getAttributeType())) {
+                filterType = FilterType.EQUAL;
+            } else if (AbstractEntity.class.isAssignableFrom(attributeModel.getType())
+                    || AttributeType.DETAIL.equals(attributeModel.getAttributeType())) {
+                // search for an entity
+                filterType = FilterType.ENTITY;
+            } else if (attributeModel.isSearchForExactValue() || attributeModel.isSearchDateOnly()) {
+                filterType = FilterType.EQUAL;
+            }
 
-			ResponsiveRow comp = null;
-			if (addCount == 0) {
-				// create a new row
-				comp = ResponsiveUtil.createRowWithStyle(DynamoConstants.CSS_DYNAMO_FORM);
-				currentRow = comp;
-				addCount++;
-			} else {
-				// re-use current row
-				comp = currentRow;
-				addCount = (addCount + 1) % COLUMNS;
-			}
+            ResponsiveRow comp = null;
+            if (addCount == 0) {
+                // create a new row
+                comp = ResponsiveUtil.createRowWithStyle(DynamoConstants.CSS_DYNAMO_FORM);
+                currentRow = comp;
+                addCount++;
+            } else {
+                // re-use current row
+                comp = currentRow;
+                addCount = (addCount + 1) % COLUMNS;
+            }
 
-			boolean between = FilterType.BETWEEN.equals(filterType);
+            boolean between = FilterType.BETWEEN.equals(filterType);
 
-			// add a label to replace the regular label
-			Label label = createExtraLabel(attributeModel);
-			comp.addColumn().withDisplayRules(DynamoConstants.MAX_COLUMNS, 2, 2, 2).withComponent(label);
-			field.setCaption("");
-			field.setSizeFull();
+            // add a label to replace the regular label
+            Label label = createExtraLabel(attributeModel);
+            comp.addColumn().withDisplayRules(DynamoConstants.MAX_COLUMNS, 2, 2, 2).withComponent(label);
+            field.setCaption("");
+            field.setSizeFull();
 
-			if (between) {
-				comp.addColumn().withDisplayRules(DynamoConstants.MAX_COLUMNS, 2, 2, 2).withComponent(field);
-			} else {
-				comp.addColumn().withDisplayRules(DynamoConstants.MAX_COLUMNS, 4, 4, 4).withComponent(field);
-			}
+            if (between) {
+                comp.addColumn().withDisplayRules(DynamoConstants.MAX_COLUMNS, 2, 2, 2).withComponent(field);
+            } else {
+                comp.addColumn().withDisplayRules(DynamoConstants.MAX_COLUMNS, 4, 4, 4).withComponent(field);
+            }
 
-			AbstractComponent auxField = null;
-			if (between) {
-				auxField = constructField(entityModel, attributeModel);
-				auxField.setId(ResponsiveUtil.getAuxId(attributeModel));
-				auxField.setCaption(null);
-				auxField.setSizeFull();
-				comp.addColumn().withDisplayRules(DynamoConstants.MAX_COLUMNS, 2, 2, 2).withComponent(auxField);
-			}
-			return new FilterGroup<>(attributeModel, filterType, comp, field, auxField);
-		}
-		return null;
-	}
+            AbstractComponent auxField = null;
+            if (between) {
+                auxField = constructField(entityModel, attributeModel);
+                auxField.setId(ResponsiveUtil.getAuxId(attributeModel));
+                auxField.setCaption(null);
+                auxField.setSizeFull();
+                comp.addColumn().withDisplayRules(DynamoConstants.MAX_COLUMNS, 2, 2, 2).withComponent(auxField);
+            }
+            return new FilterGroup<>(attributeModel, filterType, comp, field, auxField);
+        }
+        return null;
+    }
 
-	/**
-	 * Creates an extra label that is used as a replacement for the standard label
-	 * 
-	 * @param am the attribute model
-	 * @return
-	 */
-	private Label createExtraLabel(AttributeModel am) {
-		Label label = new Label(am.getDisplayName(VaadinUtils.getLocale()));
-		label.addStyleName("caption");
-		return label;
-	}
+    /**
+     * Creates an extra label that is used as a replacement for the standard label
+     * 
+     * @param am the attribute model
+     * @return
+     */
+    private Label createExtraLabel(AttributeModel am) {
+        Label label = new Label(am.getDisplayName(VaadinUtils.getLocale()));
+        label.addStyleName("caption");
+        return label;
+    }
 
-	/**
-	 * Builds the layout that contains the various search filters
-	 * 
-	 * @return
-	 */
-	@Override
-	protected Layout constructFilterLayout() {
-		form = new ResponsiveLayout().withFullSize().withStyleName(DynamoConstants.CSS_DYNAMO_SEARCH_FORM);
+    /**
+     * Builds the layout that contains the various search filters
+     * 
+     * @return
+     */
+    @Override
+    protected Layout constructFilterLayout() {
+        form = new ResponsiveLayout().withFullSize().withStyleName(DynamoConstants.CSS_DYNAMO_SEARCH_FORM);
 
-		// iterate over the searchable attributes and add a field for each
-		iterate(getEntityModel().getAttributeModels());
-		constructCascadeListeners();
+        // iterate over the searchable attributes and add a field for each
+        iterate(getEntityModel().getAttributeModels());
+        constructCascadeListeners();
 
-		return form;
-	}
+        // hide if there are no search criteria
+        if (groups.isEmpty()) {
+            form.setVisible(false);
+        }
 
-	/**
-	 * Constructs the button bar for the search form
-	 */
-	@Override
-	protected void fillButtonBar(ResponsiveRow buttonBar) {
-		// there is always a search button
-		constructSearchButton(buttonBar);
-		constructSearchAnyButton(buttonBar);
-		constructClearButton(buttonBar);
-		constructToggleButton(buttonBar);
-	}
+        return form;
+    }
 
-	/**
-	 * Programmatically force a search
-	 * 
-	 * @param propertyId the property ID to search on
-	 * @param value      the value of the property
-	 */
-	public <R> void forceSearch(String propertyId, R value) {
-		setSearchValue(propertyId, value);
-		search();
-	}
+    /**
+     * Constructs the button bar for the search form
+     */
+    @Override
+    protected void fillButtonBar(ResponsiveRow buttonBar) {
+        // there is always a search button
+        constructSearchButton(buttonBar);
+        constructSearchAnyButton(buttonBar);
+        constructClearButton(buttonBar);
+        constructToggleButton(buttonBar);
+    }
 
-	/**
-	 * Sets a search filter then forces a search
-	 * 
-	 * @param propertyId the property to search on
-	 * @param lower      the lower bound
-	 * @param upper      the upper bound
-	 */
-	public <R> void forceSearch(String propertyId, R lower, R upper) {
-		setSearchValue(propertyId, lower, upper);
-		search();
-	}
+    /**
+     * Programmatically force a search
+     * 
+     * @param propertyId the property ID to search on
+     * @param value      the value of the property
+     */
+    public <R> void forceSearch(String propertyId, R value) {
+        setSearchValue(propertyId, value);
+        search();
+    }
 
-	/**
-	 * Returns all filter groups
-	 * 
-	 * @return
-	 */
-	public Map<String, FilterGroup<T>> getGroups() {
-		return groups;
-	}
+    /**
+     * Sets a search filter then forces a search
+     * 
+     * @param propertyId the property to search on
+     * @param lower      the lower bound
+     * @param upper      the upper bound
+     */
+    public <R> void forceSearch(String propertyId, R lower, R upper) {
+        setSearchValue(propertyId, lower, upper);
+        search();
+    }
 
-	/**
-	 * Handles a cascade event
-	 * 
-	 * @param event       the event that triggered the cascade
-	 * @param am          the attribute model of the property that triggered the
-	 *                    cascade
-	 * @param cascadePath the path to the property that is the target of the cascade
-	 */
-	@SuppressWarnings("unchecked")
-	private <S> void handleCascade(ValueChangeEvent<?> event, AttributeModel am, String cascadePath) {
-		CascadeMode cm = am.getCascadeMode(cascadePath);
-		if (CascadeMode.BOTH.equals(cm) || CascadeMode.SEARCH.equals(cm)) {
-			HasValue<?> cascadeField = (HasValue<?>) groups.get(cascadePath).getField();
-			if (cascadeField instanceof Cascadable) {
-				Cascadable<S> ca = (Cascadable<S>) cascadeField;
-				if (event.getValue() == null) {
-					ca.clearAdditionalFilter();
-				} else {
-					ca.setAdditionalFilter(
-							new EqualsPredicate<S>(am.getCascadeFilterPath(cascadePath), event.getValue()));
-				}
-			} else {
-				// field not found or does not support cascading
-				throw new OCSRuntimeException("Cannot setup cascading from " + am.getPath() + " to " + cascadePath);
-			}
-		}
-	}
+    /**
+     * Returns all filter groups
+     * 
+     * @return
+     */
+    public Map<String, FilterGroup<T>> getGroups() {
+        return groups;
+    }
 
-	/**
-	 * Recursively iterate over the attribute models (including nested models) and
-	 * add search fields if the fields are searchable
-	 * 
-	 * @param attributeModels the attribute models to iterate over
-	 */
-	private void iterate(List<AttributeModel> attributeModels) {
+    /**
+     * Handles a cascade event
+     * 
+     * @param event       the event that triggered the cascade
+     * @param am          the attribute model of the property that triggered the
+     *                    cascade
+     * @param cascadePath the path to the property that is the target of the cascade
+     */
+    @SuppressWarnings("unchecked")
+    private <S> void handleCascade(ValueChangeEvent<?> event, AttributeModel am, String cascadePath) {
+        CascadeMode cm = am.getCascadeMode(cascadePath);
+        if (CascadeMode.BOTH.equals(cm) || CascadeMode.SEARCH.equals(cm)) {
+            HasValue<?> cascadeField = (HasValue<?>) groups.get(cascadePath).getField();
+            if (cascadeField instanceof Cascadable) {
+                Cascadable<S> ca = (Cascadable<S>) cascadeField;
+                if (event.getValue() == null) {
+                    ca.clearAdditionalFilter();
+                } else {
+                    ca.setAdditionalFilter(new EqualsPredicate<S>(am.getCascadeFilterPath(cascadePath), event.getValue()));
+                }
+            } else {
+                // field not found or does not support cascading
+                throw new OCSRuntimeException("Cannot setup cascading from " + am.getPath() + " to " + cascadePath);
+            }
+        }
+    }
 
-		for (AttributeModel attributeModel : attributeModels) {
-			if (attributeModel.isSearchable()) {
+    /**
+     * Recursively iterate over the attribute models (including nested models) and
+     * add search fields if the fields are searchable
+     * 
+     * @param attributeModels the attribute models to iterate over
+     */
+    private void iterate(List<AttributeModel> attributeModels) {
 
-				FilterGroup<T> group = constructFilterGroup(getEntityModel(), attributeModel);
+        for (AttributeModel attributeModel : attributeModels) {
+            if (attributeModel.isSearchable()) {
 
-				form.addRow((ResponsiveRow) group.getFilterComponent());
+                FilterGroup<T> group = constructFilterGroup(getEntityModel(), attributeModel);
 
-				// register with the form and set the listener
-				group.addListener(this);
-				groups.put(group.getPropertyId(), group);
-			}
+                form.addRow((ResponsiveRow) group.getFilterComponent());
 
-			// also support search on nested attributes
-			if (attributeModel.getNestedEntityModel() != null) {
-				EntityModel<?> nested = attributeModel.getNestedEntityModel();
-				iterate(nested.getAttributeModels());
-			}
-		}
-	}
+                // register with the form and set the listener
+                group.addListener(this);
+                groups.put(group.getPropertyId(), group);
+            }
 
-	/**
-	 * Callback method that allows the you to modify the various filter groups
-	 * 
-	 * @param groups the filter groups
-	 */
-	protected void postProcessFilterGroups(Map<String, FilterGroup<T>> groups) {
-		// overwrite in subclasses
-	}
+            // also support search on nested attributes
+            if (attributeModel.getNestedEntityModel() != null) {
+                EntityModel<?> nested = attributeModel.getNestedEntityModel();
+                iterate(nested.getAttributeModels());
+            }
+        }
+    }
 
-	/**
-	 * Callback method that is called once the processing of the layout is complete.
-	 * Allows you to modify the layout or add extra components at the end
-	 * 
-	 * @param layout the main layout
-	 */
-	@Override
-	protected void postProcessLayout(Layout layout) {
-		postProcessFilterGroups(groups);
-	}
+    /**
+     * Callback method that allows the you to modify the various filter groups
+     * 
+     * @param groups the filter groups
+     */
+    protected void postProcessFilterGroups(Map<String, FilterGroup<T>> groups) {
+        // overwrite in subclasses
+    }
 
-	/**
-	 * Refreshes any fields that are susceptible to this
-	 */
-	@Override
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void refresh() {
-		for (FilterGroup<?> group : getGroups().values()) {
-			if (group.getField() instanceof Refreshable) {
-				if (getFieldFilters().containsKey(group.getPropertyId())
-						&& group.getField() instanceof CustomEntityField) {
-					SerializablePredicate<?> ff = getFieldFilters().get(group.getPropertyId());
-					((CustomEntityField) group.getField()).refresh(ff);
-				} else {
-					((Refreshable) group.getField()).refresh();
-				}
-			}
-		}
-	}
+    /**
+     * Callback method that is called once the processing of the layout is complete.
+     * Allows you to modify the layout or add extra components at the end
+     * 
+     * @param layout the main layout
+     */
+    @Override
+    protected void postProcessLayout(Layout layout) {
+        postProcessFilterGroups(groups);
+    }
 
-	/**
-	 * Manually set the value for a certain search field (and clear the value of the
-	 * auxiliary search field if present)
-	 * 
-	 * @param propertyId the ID of the property
-	 * @param value      the desired value
-	 */
-	public <R> void setSearchValue(String propertyId, R value) {
-		setSearchValue(propertyId, value, null);
-	}
+    /**
+     * Refreshes any fields that are susceptible to this
+     */
+    @Override
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public void refresh() {
+        for (FilterGroup<?> group : getGroups().values()) {
+            if (group.getField() instanceof Refreshable) {
+                if (getFieldFilters().containsKey(group.getPropertyId()) && group.getField() instanceof CustomEntityField) {
+                    SerializablePredicate<?> ff = getFieldFilters().get(group.getPropertyId());
+                    ((CustomEntityField) group.getField()).refresh(ff);
+                } else {
+                    ((Refreshable) group.getField()).refresh();
+                }
+            }
+        }
+    }
 
-	/**
-	 * Manually set the value for a certain search field
-	 * 
-	 * @param propertyId the ID of the property
-	 * @param value      the desired value for the main field
-	 * @param auxValue   the desired value for the auxiliary field
-	 */
-	@SuppressWarnings("unchecked")
-	public <R> void setSearchValue(String propertyId, R value, R auxValue) {
-		FilterGroup<T> group = groups.get(propertyId);
+    /**
+     * Manually set the value for a certain search field (and clear the value of the
+     * auxiliary search field if present)
+     * 
+     * @param propertyId the ID of the property
+     * @param value      the desired value
+     */
+    public <R> void setSearchValue(String propertyId, R value) {
+        setSearchValue(propertyId, value, null);
+    }
 
-		if (value != null) {
-			((HasValue<R>) group.getField()).setValue(value);
-		} else {
-			((HasValue<R>) group.getField()).clear();
-		}
+    /**
+     * Manually set the value for a certain search field
+     * 
+     * @param propertyId the ID of the property
+     * @param value      the desired value for the main field
+     * @param auxValue   the desired value for the auxiliary field
+     */
+    @SuppressWarnings("unchecked")
+    public <R> void setSearchValue(String propertyId, R value, R auxValue) {
+        FilterGroup<T> group = groups.get(propertyId);
 
-		if (group.getAuxField() != null) {
-			if (auxValue != null) {
-				((HasValue<R>) group.getAuxField()).setValue(auxValue);
-			} else {
-				((HasValue<R>) group.getAuxField()).clear();
-			}
-		}
-	}
+        if (value != null) {
+            ((HasValue<R>) group.getField()).setValue(value);
+        } else {
+            ((HasValue<R>) group.getField()).clear();
+        }
+
+        if (group.getAuxField() != null) {
+            if (auxValue != null) {
+                ((HasValue<R>) group.getAuxField()).setValue(auxValue);
+            } else {
+                ((HasValue<R>) group.getAuxField()).clear();
+            }
+        }
+    }
 
 }

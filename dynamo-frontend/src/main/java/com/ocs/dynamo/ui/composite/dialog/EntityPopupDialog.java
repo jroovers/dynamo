@@ -18,19 +18,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jarektoro.responsivelayout.ResponsiveLayout;
 import com.jarektoro.responsivelayout.ResponsiveRow;
 import com.ocs.dynamo.domain.AbstractEntity;
 import com.ocs.dynamo.domain.model.EntityModel;
 import com.ocs.dynamo.service.BaseService;
 import com.ocs.dynamo.service.MessageService;
 import com.ocs.dynamo.service.ServiceLocatorFactory;
+import com.ocs.dynamo.ui.component.ResponsiveUtil;
 import com.ocs.dynamo.ui.composite.form.ModelBasedEditForm;
 import com.ocs.dynamo.ui.composite.layout.FormOptions;
 import com.ocs.dynamo.ui.composite.layout.SimpleEditLayout;
 import com.ocs.dynamo.ui.utils.VaadinUtils;
+import com.ocs.dynamo.util.SystemPropertyUtils;
 import com.vaadin.server.SerializablePredicate;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Layout;
 
 /**
  * A pop-up dialog for adding a new entity or viewing the details of an existing
@@ -83,6 +85,11 @@ public class EntityPopupDialog<ID extends Serializable, T extends AbstractEntity
     private Map<String, SerializablePredicate<?>> fieldFilters = new HashMap<>();
 
     /**
+     * Label width in columns (out of 12)
+     */
+    private int labelWidth = SystemPropertyUtils.getDefaultSplitLabelColumnWidth();
+
+    /**
      * Constructor
      * 
      * @param service
@@ -120,7 +127,7 @@ public class EntityPopupDialog<ID extends Serializable, T extends AbstractEntity
     }
 
     @Override
-    protected void doBuild(Layout parent) {
+    protected void doBuild(ResponsiveLayout parent) {
 
         // cancel button makes no sense in a popup
         formOptions.setHideCancelButton(false);
@@ -153,7 +160,9 @@ public class EntityPopupDialog<ID extends Serializable, T extends AbstractEntity
 
         };
         layout.setFieldFilters(fieldFilters);
-        parent.addComponent(layout);
+        layout.setLabelWidth(labelWidth);
+
+        ResponsiveUtil.addFullWidthRow(parent, layout);
     }
 
     @Override
@@ -169,6 +178,10 @@ public class EntityPopupDialog<ID extends Serializable, T extends AbstractEntity
 
     public T getEntity() {
         return layout.getEntity();
+    }
+
+    public int getLabelWidth() {
+        return labelWidth;
     }
 
     public SimpleEditLayout<ID, T> getLayout() {
@@ -194,6 +207,10 @@ public class EntityPopupDialog<ID extends Serializable, T extends AbstractEntity
 
     protected void postProcessEditFields(ModelBasedEditForm<ID, T> editForm) {
         // overwrite in subclasses when needed
+    }
+
+    public void setLabelWidth(int labelWidth) {
+        this.labelWidth = labelWidth;
     }
 
 }

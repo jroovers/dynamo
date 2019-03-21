@@ -373,6 +373,11 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
     private int columnWidth = SystemPropertyUtils.getDefaultFormColumnWidth();
 
     /**
+     * Label column with (out of 12) of the edit form
+     */
+    private int labelWidth = SystemPropertyUtils.getDefaultLabelColumnWidth();
+
+    /**
      * Constructor
      *
      * @param entity       the entity
@@ -450,7 +455,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
                     // for a LOB field we need to construct a rather
                     // elaborate upload component
                     UploadComponent uploadForm = constructUploadField(attributeModel);
-                    addFormRow(parent, uploadForm, attributeModel, SystemPropertyUtils.getDefaultLabelColumnWidth());
+                    addFormRow(parent, uploadForm, attributeModel, labelWidth);
                     uploads.get(isViewMode()).put(attributeModel, uploadForm);
                 }
             }
@@ -610,7 +615,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
      */
     protected ResponsiveLayout buildMainLayout(EntityModel<T> entityModel) {
         ResponsiveLayout layout = new ResponsiveLayout().withFullSize();
-        layout.setStyleName("mainForm");
+        layout.setStyleName(DynamoConstants.CSS_MAIN_FORM);
         titleLabels.put(isViewMode(), constructTitleLabel());
 
         titleBars.put(isViewMode(), ResponsiveUtil.createRowWithSpacing().withStyleName("titleBar"));
@@ -635,7 +640,8 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
             if (tabs) {
                 TabSheet tabSheet = new TabSheet();
                 tabSheets.put(isViewMode(), tabSheet);
-                layout.addComponent(new ResponsiveRow().withComponents(tabSheet));
+
+                ResponsiveUtil.addFullWidthRow(layout, tabSheet);
 
                 // focus first field after tab change
                 addTabChangeListener(tabSheet);
@@ -645,14 +651,16 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
                 // extra layer of grouping (always tabs)
                 int tabIndex = 0;
                 for (String parentGroupHeader : getParentGroupHeaders()) {
-                    Layout innerLayout = constructAttributeGroupLayout(layout, tabs, tabSheets.get(isViewMode()), parentGroupHeader, false);
+                    ResponsiveLayout innerLayout = constructAttributeGroupLayout(layout, tabs, tabSheets.get(isViewMode()),
+                            parentGroupHeader, false);
 
                     // add a tab sheet on the inner level if needed
                     TabSheet innerTabSheet = null;
                     boolean innerTabs = !tabs;
                     if (innerTabs) {
                         innerTabSheet = new TabSheet();
-                        innerLayout.addComponent(new ResponsiveRow().withComponents(innerTabSheet));
+                        ResponsiveRow row = innerLayout.addRow();
+                        row.addColumn().withComponent(innerTabSheet);
                     }
 
                     // add all appropriate inner groups
@@ -737,7 +745,8 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
      * @param lowest     indicates whether this is the lowest level
      * @return
      */
-    private Layout constructAttributeGroupLayout(Layout parent, boolean tabs, TabSheet tabSheet, String messageKey, boolean lowest) {
+    private ResponsiveLayout constructAttributeGroupLayout(Layout parent, boolean tabs, TabSheet tabSheet, String messageKey,
+            boolean lowest) {
 
         ResponsiveLayout innerLayout = new ResponsiveLayout().withFullSize().withSpacing();
         innerLayout.setStyleName("innerLayout");
@@ -791,39 +800,50 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
             editButton.setData(EDIT_BUTTON_DATA);
         }
 
+        Button prevButton = null;
+        Button nextButton = null;
+
         // button for moving to the previous record
-        Button prevButton = new Button(message("ocs.previous"));
-        prevButton.setIcon(VaadinIcons.ARROW_LEFT);
-        prevButton.addClickListener(e -> {
-            T prev = getPreviousEntity();
-            if (prev != null) {
-                setEntity(prev, true);
-            }
-            getPreviousButtons().stream().forEach(b -> b.setEnabled(hasPrevEntity()));
-        });
-        prevButton.setData(PREV_BUTTON_DATA);
-        buttons.get(isViewMode()).add(prevButton);
-        buttonBar.addComponent(prevButton);
-        prevButton.setEnabled(hasPrevEntity());
+        if (isSupportsIteration() && getFormOptions().isShowPrevButton()) {
+            prevButton = new Button(message("ocs.previous"));
+            prevButton.setIcon(VaadinIcons.ARROW_LEFT);
+            prevButton.addClickListener(e -> {
+                T prev = getPreviousEntity();
+                if (prev != null) {
+                    setEntity(prev, true);
+                }
+                getPreviousButtons().stream().forEach(b -> b.setEnabled(hasPrevEntity()));
+            });
+            prevButton.setData(PREV_BUTTON_DATA);
+            buttons.get(isViewMode()).add(prevButton);
+            buttonBar.addComponent(prevButton);
+            prevButton.setEnabled(hasPrevEntity());
+        }
 
         // button for moving to the next record
-        Button nextButton = new Button(message("ocs.next"));
-        nextButton.setIcon(VaadinIcons.ARROW_RIGHT);
-        nextButton.addClickListener(e -> {
-            T next = getNextEntity();
-            if (next != null) {
-                setEntity(next, true);
-            }
-            getNextButtons().stream().forEach(b -> b.setEnabled(hasNextEntity()));
+        if (isSupportsIteration() && getFormOptions().isShowNextButton()) {
+            nextButton = new Button(message("ocs.next"));
+            nextButton.setIcon(VaadinIcons.ARROW_RIGHT);
+            nextButton.addClickListener(e -> {
+                T next = getNextEntity();
+                if (next != null) {
+                    setEntity(next, true);
+                }
+                getNextButtons().stream().forEach(b -> b.setEnabled(hasNextEntity()));
 
-        });
-        nextButton.setEnabled(hasNextEntity());
-        nextButton.setData(NEXT_BUTTON_DATA);
-        buttons.get(isViewMode()).add(nextButton);
+            });
+            nextButton.setEnabled(hasNextEntity());
+            nextButton.setData(NEXT_BUTTON_DATA);
+            buttons.get(isViewMode()).add(nextButton);
+            buttonBar.addComponent(nextButton);
+        }
 
-        buttonBar.addComponent(nextButton);
-        prevButton.setVisible(isSupportsIteration() && getFormOptions().isShowPrevButton() && entity.getId() != null);
-        nextButton.setVisible(isSupportsIteration() && getFormOptions().isShowNextButton() && entity.getId() != null);
+        if (prevButton != null) {
+            prevButton.setVisible(isSupportsIteration() && getFormOptions().isShowPrevButton() && entity.getId() != null);
+        }
+        if (nextButton != null) {
+            nextButton.setVisible(isSupportsIteration() && getFormOptions().isShowNextButton() && entity.getId() != null);
+        }
 
         postProcessButtonBar(buttonBar, isViewMode());
 
@@ -948,7 +968,6 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
                 builder.bind(am.getPath());
             }
 
-            int labelWidth = SystemPropertyUtils.getDefaultLabelColumnWidth();
             if (!am.getGroupTogetherWith().isEmpty()) {
                 // group multiple fields together on the same line
                 int extraFields = am.getGroupTogetherWith().size();
@@ -982,7 +1001,6 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
             } else {
                 if (!sameRow) {
                     addFormRow(parent, field, am, labelWidth);
-
                 } else {
                     // put the component on the same row as an earlier component
                     Label label = createExtraLabel(field, am);
@@ -1038,7 +1056,6 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
             int fieldWidth) {
         AbstractComponent label = constructLabel(entity, attributeModel);
         labels.get(isViewMode()).put(attributeModel, label);
-        int labelWidth = SystemPropertyUtils.getDefaultLabelColumnWidth();
 
         if (!attributeModel.getGroupTogetherWith().isEmpty()) {
 
@@ -1992,6 +2009,14 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
             return false;
         });
         return error;
+    }
+
+    public int getLabelWidth() {
+        return labelWidth;
+    }
+
+    public void setLabelWidth(int labelWidth) {
+        this.labelWidth = labelWidth;
     }
 
 }

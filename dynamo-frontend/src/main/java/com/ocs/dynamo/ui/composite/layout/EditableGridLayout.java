@@ -175,7 +175,6 @@ public class EditableGridLayout<ID extends Serializable, T extends AbstractEntit
             constructButtonBar();
 
             constructGridDividers();
-            addResizeListener();
             postProcessLayout(mainLayout);
         }
         setCompositionRoot(mainLayout);

@@ -16,6 +16,7 @@ package com.ocs.dynamo.ui.component;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.jarektoro.responsivelayout.ResponsiveLayout;
 import com.ocs.dynamo.test.BaseIntegrationTest;
 import com.ocs.dynamo.ui.composite.dialog.SimpleModalDialog;
 import com.vaadin.ui.Layout;
@@ -29,7 +30,7 @@ public class SimpleModalDialogTest extends BaseIntegrationTest {
             private static final long serialVersionUID = 87021849566418546L;
 
             @Override
-            protected void doBuild(Layout parent) {
+            protected void doBuild(ResponsiveLayout parent) {
 
             }
 
@@ -57,7 +58,7 @@ public class SimpleModalDialogTest extends BaseIntegrationTest {
             private static final long serialVersionUID = 87021849566418546L;
 
             @Override
-            protected void doBuild(Layout parent) {
+            protected void doBuild(ResponsiveLayout parent) {
 
             }
 

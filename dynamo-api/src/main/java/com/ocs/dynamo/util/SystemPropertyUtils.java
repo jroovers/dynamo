@@ -163,20 +163,11 @@ public final class SystemPropertyUtils {
 	
 	/**
 	 * 
-	 * @return the default width in columns (out of 12) for an edit form
-
-	 */
-	public static int getDefaultSplitFormColumnWidth() {
-		return Integer.getInteger(DynamoConstants.SP_DEFAULT_SPLIT_FORM_COLUMN_WIDTH, 12);
-	}
-
-	/**
-	 * 
 	 * @return the default width in columns (out of 12) for the caption label
 	 */
-	public static int getDefaultLabelColumnWidth() {
-		return Integer.getInteger(DynamoConstants.SP_DEFAULT_LABEL_COLUMN_WIDTH, 2);
-	}
+    public static int getDefaultLabelColumnWidth() {
+        return Integer.getInteger(DynamoConstants.SP_DEFAULT_LABEL_COLUMN_WIDTH, 2);
+    }
 
 	/**
 	 * @return the default number of rows in a list select component. Also used as
@@ -185,14 +176,15 @@ public final class SystemPropertyUtils {
 	public static int getDefaultListSelectRows() {
 		return Integer.getInteger(DynamoConstants.SP_DEFAULT_LISTSELECT_ROWS, DEFAULT_LISTSELECT_ROWS);
 	}
-
-	/**
+    
+    /**
 	 *
 	 * @return the default locale used for e.g. the decimal and thousands separators
 	 */
 	public static String getDefaultLocale() {
 		return System.getProperty(DynamoConstants.SP_DEFAULT_LOCALE, DynamoConstants.DEFAULT_LOCALE.toString());
 	}
+
 
 	/**
 	 * @return whether searches on text fields will be default be case insensitive
@@ -207,6 +199,23 @@ public final class SystemPropertyUtils {
 	public static boolean getDefaultSearchPrefixOnly() {
 		return Boolean.getBoolean(DynamoConstants.SP_DEFAULT_SEARCH_PREFIX_ONLY);
 	}
+
+	/**
+	 * 
+	 * @return the default width in columns (out of 12) for an edit form
+
+	 */
+	public static int getDefaultSplitFormColumnWidth() {
+		return Integer.getInteger(DynamoConstants.SP_DEFAULT_SPLIT_FORM_COLUMN_WIDTH, 12);
+	}
+
+	/**
+     * 
+     * @return the default width in columns (out of 12) for the caption label
+     */
+    public static int getDefaultSplitLabelColumnWidth() {
+        return Integer.getInteger(DynamoConstants.SP_DEFAULT_SPLIT_LABEL_COLUMN_WIDTH, 3);
+    }
 
 	/**
 	 * 

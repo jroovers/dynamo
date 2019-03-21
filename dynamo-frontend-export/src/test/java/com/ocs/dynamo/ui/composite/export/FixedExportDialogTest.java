@@ -1,10 +1,8 @@
 package com.ocs.dynamo.ui.composite.export;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.function.Supplier;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -16,9 +14,7 @@ import com.ocs.dynamo.domain.model.EntityModelFactory;
 import com.ocs.dynamo.domain.model.impl.EntityModelFactoryImpl;
 import com.ocs.dynamo.service.TestEntityService;
 import com.ocs.dynamo.test.BaseMockitoTest;
-import com.ocs.dynamo.ui.component.DownloadButton;
 import com.ocs.dynamo.ui.composite.type.ExportMode;
-import com.vaadin.ui.Component;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.UI;
 
@@ -61,13 +57,5 @@ public class FixedExportDialogTest extends BaseMockitoTest {
         Panel panel = (Panel) dialog.iterator().next();
 
         ResponsiveLayout layout = (ResponsiveLayout) panel.getContent();
-        Iterator<Component> it = layout.iterator();
-
-        Component button1 = it.next();
-        Assert.assertTrue(button1 instanceof DownloadButton);
-
-        Component button2 = it.next();
-        Assert.assertTrue(button1 instanceof DownloadButton);
-        ((DownloadButton) button2).click();
     }
 }

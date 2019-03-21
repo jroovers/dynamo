@@ -183,7 +183,7 @@ public class ModelBasedFlexibleSearchForm<ID extends Serializable, T extends Abs
 			this.listener = listener;
 			layout = ResponsiveUtil.createRowWithStyle(DynamoConstants.CSS_FLEX_FILTER_ROW);
 
-			removeButton = new Button(message("ocs.remove"));
+			removeButton = new Button("");
 			removeButton.setIcon(VaadinIcons.TRASH);
 			removeButton.setSizeFull();
 			removeButton.addStyleName(DynamoConstants.CSS_REMOVE_BUTTON);

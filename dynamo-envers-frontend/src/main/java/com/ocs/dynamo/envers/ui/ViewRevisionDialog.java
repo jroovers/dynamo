@@ -13,6 +13,7 @@
  */
 package com.ocs.dynamo.envers.ui;
 
+import com.jarektoro.responsivelayout.ResponsiveLayout;
 import com.jarektoro.responsivelayout.ResponsiveRow;
 import com.ocs.dynamo.constants.DynamoConstants;
 import com.ocs.dynamo.domain.AbstractEntity;
@@ -33,7 +34,6 @@ import com.ocs.dynamo.ui.provider.QueryType;
 import com.ocs.dynamo.ui.utils.VaadinUtils;
 import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Layout;
 
 /**
  * A dialog for viewing the revisions of an entity
@@ -89,7 +89,7 @@ public class ViewRevisionDialog<ID, T extends AbstractEntity<ID>, U extends Vers
 	}
 
 	@Override
-	protected void doBuild(Layout parent) {
+	protected void doBuild(ResponsiveLayout parent) {
 		FormOptions fo = new FormOptions().setReadOnly(true).setScreenMode(ScreenMode.VERTICAL)
 				.setAttributeGroupMode(AttributeGroupMode.TABSHEET).setExportAllowed(true);
 		ServiceBasedSplitLayout<RevisionKey<ID>, U> layout = new ServiceBasedSplitLayout<RevisionKey<ID>, U>(service,

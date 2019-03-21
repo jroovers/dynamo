@@ -36,99 +36,111 @@ import com.vaadin.ui.UI;
  */
 public abstract class BaseView extends CustomComponent implements View {
 
-	public static final String SELECTED_ID = "selectedId";
+    public static final String SELECTED_ID = "selectedId";
 
-	private static final long serialVersionUID = 8340448520371840427L;
+    private static final long serialVersionUID = 8340448520371840427L;
 
-	@Autowired
-	private MessageService messageService;
+    @Autowired
+    private MessageService messageService;
 
-	@Autowired
-	private EntityModelFactory modelFactory;
+    @Autowired
+    private EntityModelFactory modelFactory;
 
-	private UI ui = UI.getCurrent();
+    private UI ui = UI.getCurrent();
 
-	/**
-	 * Adds a component over the full available width of the specified layout
-	 * 
-	 * @param main      the layout to add the component to
-	 * @param component the component to add
-	 */
-	protected void addFullWidthComponent(ResponsiveLayout main, Component component) {
-		main.addRow(new ResponsiveRow().withMargin(MarginSize.SMALL)).addColumn()
-				.withDisplayRules(DynamoConstants.MAX_COLUMNS, DynamoConstants.MAX_COLUMNS, DynamoConstants.MAX_COLUMNS,
-						DynamoConstants.MAX_COLUMNS)
-				.withComponent(component);
-	}
+    private boolean resizeListenerAdded;
 
-	/**
-	 * Clears the current screen mode
-	 */
-	protected void clearScreenMode() {
-		if (ui instanceof BaseUI) {
-			BaseUI b = (BaseUI) ui;
-			b.setScreenMode(null);
-		}
-	}
+    /**
+     * Adds a component over the full available width of the specified layout
+     * 
+     * @param main      the layout to add the component to
+     * @param component the component to add
+     */
+    protected void addFullWidthComponent(ResponsiveLayout main, Component component) {
+        main.addRow(new ResponsiveRow().withMargin(MarginSize.SMALL)).addColumn().withDisplayRules(DynamoConstants.MAX_COLUMNS,
+                DynamoConstants.MAX_COLUMNS, DynamoConstants.MAX_COLUMNS, DynamoConstants.MAX_COLUMNS).withComponent(component);
+    }
 
-	public MessageService getMessageService() {
-		return messageService;
-	}
+    /**
+     * Clears the current screen mode
+     */
+    protected void clearScreenMode() {
+        if (ui instanceof BaseUI) {
+            BaseUI b = (BaseUI) ui;
+            b.setScreenMode(null);
+        }
+    }
 
-	public EntityModelFactory getModelFactory() {
-		return modelFactory;
-	}
+    public MessageService getMessageService() {
+        return messageService;
+    }
 
-	/**
-	 * Returns the current screen mode
-	 */
-	protected String getScreenMode() {
-		if (ui instanceof BaseUI) {
-			BaseUI b = (BaseUI) ui;
-			return b.getScreenMode();
-		}
-		return null;
-	}
+    public EntityModelFactory getModelFactory() {
+        return modelFactory;
+    }
 
-	/**
-	 * Sets up the outermost layout
-	 * 
-	 * @return
-	 */
-	protected ResponsiveLayout initLayout() {
-		ResponsiveLayout container = new ResponsiveLayout();
-		setCompositionRoot(container);
-		return container;
-	}
+    /**
+     * Returns the current screen mode
+     */
+    protected String getScreenMode() {
+        if (ui instanceof BaseUI) {
+            BaseUI b = (BaseUI) ui;
+            return b.getScreenMode();
+        }
+        return null;
+    }
 
-	/**
-	 * Retrieves a message based on its key
-	 * 
-	 * @param key the key of the message
-	 * @return
-	 */
-	protected String message(String key) {
-		return messageService.getMessage(key, VaadinUtils.getLocale());
-	}
+    /**
+     * Sets up the outermost layout
+     * 
+     * @return
+     */
+    protected ResponsiveLayout initLayout() {
+        ResponsiveLayout container = new ResponsiveLayout().withSpacing().withFullSize();
+        setCompositionRoot(container);
+        return container;
+    }
 
-	/**
-	 * Retrieves a message based on its key
-	 * 
-	 * @param key  the key of the message
-	 * @param args any arguments to pass to the message
-	 * @return
-	 */
-	protected String message(String key, Object... args) {
-		return messageService.getMessage(key, VaadinUtils.getLocale(), args);
-	}
+    /**
+     * Retrieves a message based on its key
+     * 
+     * @param key the key of the message
+     * @return
+     */
+    protected String message(String key) {
+        return messageService.getMessage(key, VaadinUtils.getLocale());
+    }
 
-	/**
-	 * Navigates to the selected view
-	 * 
-	 * @param viewId the ID of the desired view
-	 */
-	protected void navigate(String viewId) {
-		ui.getNavigator().navigateTo(viewId);
-	}
+    /**
+     * Retrieves a message based on its key
+     * 
+     * @param key  the key of the message
+     * @param args any arguments to pass to the message
+     * @return
+     */
+    protected String message(String key, Object... args) {
+        return messageService.getMessage(key, VaadinUtils.getLocale(), args);
+    }
+
+    /**
+     * Navigates to the selected view
+     * 
+     * @param viewId the ID of the desired view
+     */
+    protected void navigate(String viewId) {
+        ui.getNavigator().navigateTo(viewId);
+    }
+
+    /**
+     * Adds a resize listener
+     */
+    protected void addResizeListener() {
+        if (!resizeListenerAdded && UI.getCurrent() != null) {
+            UI.getCurrent().getPage().addBrowserWindowResizeListener(evt -> {
+                this.markAsDirtyRecursive();
+            });
+            resizeListenerAdded = true;
+        }
+    }
 
 }
