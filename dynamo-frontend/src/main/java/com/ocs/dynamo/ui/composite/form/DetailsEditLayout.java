@@ -484,6 +484,7 @@ public abstract class DetailsEditLayout<ID extends Serializable, T extends Abstr
 			items.sort(comparator);
 		}
 
+		detailComponentsValid.clear();
 		for (T t : items) {
 			addDetailEditForm(t);
 		}
@@ -621,6 +622,7 @@ public abstract class DetailsEditLayout<ID extends Serializable, T extends Abstr
 
 		List<T> list = new ArrayList<>();
 		list.addAll(items);
+		detailComponentsValid.clear();
 		if (comparator != null) {
 			list.sort(comparator);
 		}
