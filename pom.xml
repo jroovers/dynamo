@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.dynamoframework</groupId>
@@ -69,18 +68,9 @@
 			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 		</repository>
 	</distributionManagement>
-	<!--  
-	<distributionManagement>
-		<snapshotRepository>
-			<id>ocs-maven-snapshot</id>
-			<url>https://maven.square.opencirclesolutions.nl/snapshots/</url>
-		</snapshotRepository>
-		<repository>
-			<id>ocs-maven-release</id>
-			<url>https://maven.square.opencirclesolutions.nl/releases/</url>
-		</repository>
-	</distributionManagement>
-	-->	
+	<!-- <distributionManagement> <snapshotRepository> <id>ocs-maven-snapshot</id> <url>https://maven.square.opencirclesolutions.nl/snapshots/</url> 
+		</snapshotRepository> <repository> <id>ocs-maven-release</id> <url>https://maven.square.opencirclesolutions.nl/releases/</url> </repository> 
+		</distributionManagement> -->
 	<modules>
 		<module>dynamo-api</module>
 		<module>dynamo-impl</module>
@@ -145,21 +135,13 @@
 
 	<dependencyManagement>
 		<dependencies>
-			<!-- Vaadin -->
 			<dependency>
+				<!-- Import dependency management from Spring Boot -->
 				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-starter-test</artifactId>
+				<artifactId>spring-boot-dependencies</artifactId>
 				<version>${spring.boot.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-autoconfigure</artifactId>
-				<version>${spring.boot.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-starter-data-jpa</artifactId>
-				<version>${spring.boot.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.vaadin</groupId>
@@ -201,13 +183,6 @@
 				<artifactId>switch</artifactId>
 				<version>${vaadin.switch.version}</version>
 			</dependency>
-			<!-- Bean Validation API -->
-			<dependency>
-				<groupId>javax.validation</groupId>
-				<artifactId>validation-api</artifactId>
-				<version>${javax.validation.api.version}</version>
-				<scope>provided</scope>
-			</dependency>
 			<dependency>
 				<groupId>org.eclipse.persistence</groupId>
 				<artifactId>javax.persistence</artifactId>
@@ -224,143 +199,6 @@
 				<version>${glassfish.javax.el.version}</version>
 				<scope>test</scope>
 			</dependency>
-			<!-- Spring -->
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-core</artifactId>
-				<version>${spring.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-beans</artifactId>
-				<version>${spring.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-web</artifactId>
-				<version>${spring.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-expression</artifactId>
-				<version>${spring.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-context</artifactId>
-				<version>${spring.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-tx</artifactId>
-				<version>${spring.version}</version>
-				<exclusions>
-					<exclusion>
-						<artifactId>commons-logging</artifactId>
-						<groupId>commons-logging</groupId>
-					</exclusion>
-				</exclusions>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-aop</artifactId>
-				<version>${spring.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-orm</artifactId>
-				<version>${spring.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-jdbc</artifactId>
-				<version>${spring.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-test</artifactId>
-				<version>${spring.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework.security</groupId>
-				<artifactId>spring-security-core</artifactId>
-				<version>${spring.security.version}</version>
-			</dependency>
-			<!-- Aspect -->
-			<dependency>
-				<groupId>org.aspectj</groupId>
-				<artifactId>aspectjrt</artifactId>
-				<version>${aspectj.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.aspectj</groupId>
-				<artifactId>aspectjweaver</artifactId>
-				<version>${aspectj.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>ch.qos.logback</groupId>
-				<artifactId>logback-classic</artifactId>
-				<version>${logback.version}</version>
-			</dependency>
-			<!-- logging -->
-			<dependency>
-				<groupId>org.slf4j</groupId>
-				<artifactId>slf4j-api</artifactId>
-				<version>${slf4j.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>javax.servlet</groupId>
-				<artifactId>javax.servlet-api</artifactId>
-				<version>${javax.servlet.api.version}</version>
-				<scope>provided</scope>
-			</dependency>
-			<!-- Hibernate -->
-			<dependency>
-				<groupId>org.hibernate</groupId>
-				<artifactId>hibernate-core</artifactId>
-				<version>${hibernate.version}</version>
-				<exclusions>
-					<exclusion>
-						<artifactId>xml-apis</artifactId>
-						<groupId>xml-apis</groupId>
-					</exclusion>
-				</exclusions>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.hibernate</groupId>
-				<artifactId>hibernate-entitymanager</artifactId>
-				<version>${hibernate.version}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.hibernate</groupId>
-				<artifactId>hibernate-envers</artifactId>
-				<version>${hibernate.version}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.hibernate.validator</groupId>
-				<artifactId>hibernate-validator</artifactId>
-				<version>${hibernate.validator.version}</version>
-				<scope>provided</scope>
-			</dependency>
-			<!-- QueryDSL -->
-			<dependency>
-				<groupId>com.querydsl</groupId>
-				<artifactId>querydsl-core</artifactId>
-				<version>${querydsl.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.querydsl</groupId>
-				<artifactId>querydsl-jpa</artifactId>
-				<version>${querydsl.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.querydsl</groupId>
-				<artifactId>querydsl-apt</artifactId>
-				<version>${querydsl.version}</version>
-			</dependency>
 			<!-- Excel -->
 			<dependency>
 				<groupId>org.apache.poi</groupId>
@@ -372,7 +210,6 @@
 				<artifactId>poi-ooxml</artifactId>
 				<version>${poi.version}</version>
 			</dependency>
-			<!-- CSV -->
 			<dependency>
 				<groupId>com.opencsv</groupId>
 				<artifactId>opencsv</artifactId>
@@ -391,11 +228,6 @@
 			</dependency>
 			<dependency>
 				<groupId>org.apache.commons</groupId>
-				<artifactId>commons-lang3</artifactId>
-				<version>${commons.lang.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-text</artifactId>
 				<version>1.6</version>
 			</dependency>
@@ -403,24 +235,6 @@
 				<groupId>commons-io</groupId>
 				<artifactId>commons-io</artifactId>
 				<version>${commons.io.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>junit</groupId>
-				<artifactId>junit</artifactId>
-				<version>${junit.version}</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.mockito</groupId>
-				<artifactId>mockito-core</artifactId>
-				<version>${mockito.version}</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>com.h2database</groupId>
-				<artifactId>h2</artifactId>
-				<version>${h2.version}</version>
-				<scope>test</scope>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -447,8 +261,7 @@
 					<version>${org.apache.maven.plugins.release.version}</version>
 					<configuration>
 						<autoVersionSubmodules>true</autoVersionSubmodules>
-						<!-- Disabling the release profile that is part of the Maven Super 
-							POM, since we are using our own profile. -->
+						<!-- Disabling the release profile that is part of the Maven Super POM, since we are using our own profile. -->
 						<useReleaseProfile>false</useReleaseProfile>
 						<!-- Select release profile during release:perform. -->
 						<releaseProfiles>release</releaseProfiles>
@@ -538,8 +351,7 @@
 						</execution>
 					</executions>
 				</plugin>
-				<!--This plugin's configuration is used to store Eclipse m2e settings 
-					only. It has no influence on the Maven build itself. -->
+				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself. -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>
@@ -719,8 +531,7 @@
 						<configuration>
 							<serverId>ossrh</serverId>
 							<nexusUrl>https://oss.sonatype.org/</nexusUrl>
-							<!-- Manually inspect the staging repository in the Nexus Repository 
-								Manager and trigger a release of the staging repository -->
+							<!-- Manually inspect the staging repository in the Nexus Repository Manager and trigger a release of the staging repository -->
 							<autoReleaseAfterClose>false</autoReleaseAfterClose>
 						</configuration>
 					</plugin>
