@@ -7,7 +7,6 @@
 *.iml
 /.idea
 dynamo-api/.checkstyle
-dynamo-frontend/target/.generated
 dynamo-frontend/target/
 dynamo-frontend/.classpath
 dynamo-frontend/.checkstyle
@@ -36,3 +35,11 @@ dynamo-envers/.checkstyle
 dynamo-showcase/target
 .travis.yml
 .idea
+dynamo-archetype-modules/target
+dynamo-archetype/target
+dynamo-core/target
+dynamo-impl/bin
+dynamo-jasperreports-fixes/target
+dynamo-jpa/target
+dynamo-spring/target
+dynamo-vaadin/target
