@@ -1,12 +1,25 @@
+/*
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+ */
 package com.monitorjbl.xlsx.impl;
 
 import com.monitorjbl.xlsx.exceptions.NotSupportedException;
-import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.ss.formula.FormulaParseException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Comment;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Hyperlink;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
@@ -218,7 +231,7 @@ public class StreamingCell implements Cell {
 		if (getCellType() == CellType.STRING) {
 			throw new IllegalStateException("Cell type cannot be CELL_TYPE_STRING");
 		}
-		return rawContents == null ? null : HSSFDateUtil.getJavaDate(getNumericCellValue(), use1904Dates);
+		return rawContents == null ? null : DateUtil.getJavaDate(getNumericCellValue(), use1904Dates);
 	}
 
 	/**
@@ -287,8 +300,9 @@ public class StreamingCell implements Cell {
 	 */
 	@Override
 	public String getCellFormula() {
-		if (!formulaType)
+		if (!formulaType) {
 			throw new IllegalStateException("This cell does not have a formula");
+		}
 		return formula;
 	}
 

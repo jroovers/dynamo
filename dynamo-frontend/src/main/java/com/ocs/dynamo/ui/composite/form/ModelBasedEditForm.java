@@ -437,7 +437,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 					AbstractComponent f = constructCustomField(entityModel, attributeModel, viewMode);
 					if (f instanceof UseInViewMode) {
 						constructField(parent, entityModel, attributeModel, true, tabIndex, sameRow);
-					} else {// otherwise display a label
+					} else { // otherwise display a label
 						constructLabel(parent, entityModel, attributeModel, tabIndex, sameRow);
 					}
 				}
@@ -982,7 +982,7 @@ public class ModelBasedEditForm<ID extends Serializable, T extends AbstractEntit
 				horizontal.addComponent(fl);
 
 				float ep = attributeModel.getExpansionFactor() / sums;
-				horizontal.setExpandRatio(fl, ep);// form layout for any of the other fields
+				horizontal.setExpandRatio(fl, ep); // form layout for any of the other fields
 				for (String path : attributeModel.getGroupTogetherWith()) {
 					AttributeModel nestedAm = getEntityModel().getAttributeModel(path);
 					if (nestedAm != null) {

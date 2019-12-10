@@ -30,7 +30,7 @@ public interface FieldFactory {
      * 
      * @return the singleton instance of the field factory
      */
-    public static FieldFactory getInstance() {
+    static FieldFactory getInstance() {
         return ServiceLocatorFactory.getServiceLocator().getServiceByName("fieldFactory", FieldFactory.class);
     }
 
@@ -51,7 +51,7 @@ public interface FieldFactory {
      * @param am the attribute model
      * @return
      */
-    public AbstractComponent constructField(AttributeModel am);
+    AbstractComponent constructField(AttributeModel am);
 
     /**
      * Constructs a field based on the provided context

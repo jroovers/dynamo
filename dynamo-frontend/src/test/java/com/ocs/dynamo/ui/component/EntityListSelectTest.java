@@ -47,7 +47,7 @@ public class EntityListSelectTest extends BaseMockitoTest {
 		EntityListSelect<Integer, TestEntity> select = new EntityListSelect<>(factory.getModel(TestEntity.class), null,
 				Lists.newArrayList(new TestEntity()));
 		Assert.assertEquals(EntityListSelect.SelectMode.FIXED, select.getSelectMode());
-		Mockito.verifyZeroInteractions(service);
+		Mockito.verifyNoInteractions(service);
 	}
 
 	@Test

@@ -51,7 +51,7 @@ public class EntityComboBoxTest extends BaseMockitoTest {
 		EntityComboBox<Integer, TestEntity> select = new EntityComboBox<>(factory.getModel(TestEntity.class), null,
 				Lists.newArrayList(new TestEntity()));
 		Assert.assertEquals(EntityComboBox.SelectMode.FIXED, select.getSelectMode());
-		Mockito.verifyZeroInteractions(service);
+		Mockito.verifyNoInteractions(service);
 	}
 
 	@Test

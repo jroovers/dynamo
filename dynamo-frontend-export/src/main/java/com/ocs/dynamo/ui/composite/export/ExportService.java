@@ -40,7 +40,7 @@ public interface ExportService {
 	 * @param joins       the joins to use when fetching data
 	 * @return
 	 */
-	public <ID extends Serializable, T extends AbstractEntity<ID>> byte[] exportCsv(EntityModel<T> entityModel,
+	<ID extends Serializable, T extends AbstractEntity<ID>> byte[] exportCsv(EntityModel<T> entityModel,
 			ExportMode mode, SerializablePredicate<T> predicate, List<SortOrder<?>> sortOrders,
 			FetchJoinInformation... joins);
 
@@ -55,7 +55,7 @@ public interface ExportService {
 	 * @param joins           the joins to use when fetching data
 	 * @return
 	 */
-	public <ID extends Serializable, T extends AbstractEntity<ID>> byte[] exportExcel(EntityModel<T> entityModel,
+	<ID extends Serializable, T extends AbstractEntity<ID>> byte[] exportExcel(EntityModel<T> entityModel,
 			ExportMode mode, SerializablePredicate<T> predicate, List<SortOrder<?>> sortOrders,
 			CustomXlsStyleGenerator<ID, T> customGenerator, FetchJoinInformation... joins);
 
@@ -67,7 +67,7 @@ public interface ExportService {
 	 * @param items       the set of items to export
 	 * @return
 	 */
-	public <ID extends Serializable, T extends AbstractEntity<ID>> byte[] exportExcelFixed(EntityModel<T> entityModel,
+	<ID extends Serializable, T extends AbstractEntity<ID>> byte[] exportExcelFixed(EntityModel<T> entityModel,
 			ExportMode mode, CustomXlsStyleGenerator<ID, T> customGenerator, List<T> items);
 
 	/**
@@ -78,6 +78,6 @@ public interface ExportService {
 	 * @param itemsthe    set of items to export
 	 * @return
 	 */
-	public <ID extends Serializable, T extends AbstractEntity<ID>> byte[] exportCsvFixed(EntityModel<T> entityModel,
+	<ID extends Serializable, T extends AbstractEntity<ID>> byte[] exportCsvFixed(EntityModel<T> entityModel,
 			ExportMode mode, List<T> items);
 }

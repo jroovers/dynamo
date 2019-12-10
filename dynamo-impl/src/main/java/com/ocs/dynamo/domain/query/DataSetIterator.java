@@ -32,12 +32,12 @@ public interface DataSetIterator<ID extends Serializable, T extends AbstractEnti
 	 * 
 	 * @return
 	 */
-	public T next();
+	T next();
 
 	/**
 	 * Returns the total number of entities
 	 * 
 	 * @return
 	 */
-	public int size();
+	int size();
 }

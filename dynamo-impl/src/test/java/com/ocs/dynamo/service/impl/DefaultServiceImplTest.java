@@ -27,7 +27,7 @@ public class DefaultServiceImplTest extends BaseMockitoTest {
 		service.findIdenticalEntity(te);
 
 		// no unique property known, no query for unique entity
-		Mockito.verifyZeroInteractions(dao);
+		Mockito.verifyNoInteractions(dao);
 	}
 
 	@Test
