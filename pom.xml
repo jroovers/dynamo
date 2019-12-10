@@ -92,28 +92,13 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<!-- Dependency versions. -->
 		<vaadin.version>8.7.2</vaadin.version>
-		<vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
 		<vaadin.icons.version>3.0.2</vaadin.icons.version>
-		<vaadin-spring.version>3.1.1</vaadin-spring.version>
 		<vaadin.confirmdialog.version>3.2.0</vaadin.confirmdialog.version>
 		<vaadin.switch.version>3.0.0</vaadin.switch.version>
-		<hibernate.version>5.3.7.Final</hibernate.version>
-		<hibernate.validator.version>6.0.13.Final</hibernate.validator.version>
-		<spring.version>5.2.2.RELEASE</spring.version>
-		<spring.security.version>5.2.1.RELEASE</spring.security.version>
-		<querydsl.version>4.2.1</querydsl.version>
-		<slf4j.version>1.7.25</slf4j.version>
-		<junit.version>4.12</junit.version>
-		<mockito.version>2.23.4</mockito.version>
 		<commons.io.version>2.6</commons.io.version>
-		<commons.lang.version>3.8.1</commons.lang.version>
-		<h2.version>1.4.197</h2.version>
 		<poi.version>4.0.0</poi.version>
 		<xlsx-streamer.version>2.1.0</xlsx-streamer.version>
 		<opencsv.version>4.4</opencsv.version>
-		<javax.servlet.api.version>4.0.0</javax.servlet.api.version>
-		<javax.validation.api.version>2.0.1.Final</javax.validation.api.version>
-		<aspectj.version>1.9.2</aspectj.version>
 		<spring.boot.version>2.2.2.RELEASE</spring.boot.version>
 		<!-- Maven plugin versions. -->
 		<org.apache.maven.plugins.compiler.version>3.8.0</org.apache.maven.plugins.compiler.version>
@@ -130,7 +115,6 @@
 		<vaadin.extended-token-field.version>0.3.0</vaadin.extended-token-field.version>
 		<javax.el-api.version>3.0.0</javax.el-api.version>
 		<glassfish.javax.el.version>3.0.1-b08</glassfish.javax.el.version>
-		<logback.version>1.2.3</logback.version>
 	</properties>
 
 	<dependencyManagement>
@@ -145,28 +129,15 @@
 			</dependency>
 			<dependency>
 				<groupId>com.vaadin</groupId>
-				<artifactId>vaadin-server</artifactId>
+				<artifactId>vaadin-bom</artifactId>
 				<version>${vaadin.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.vaadin</groupId>
-				<artifactId>vaadin-client-compiled</artifactId>
-				<version>${vaadin.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.vaadin</groupId>
 				<artifactId>vaadin-icons</artifactId>
 				<version>${vaadin.icons.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.vaadin</groupId>
-				<artifactId>vaadin-themes</artifactId>
-				<version>${vaadin.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.vaadin</groupId>
-				<artifactId>vaadin-spring</artifactId>
-				<version>${vaadin-spring.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.vaadin.addon</groupId>
@@ -413,7 +384,7 @@
 				<plugin>
 					<groupId>com.vaadin</groupId>
 					<artifactId>vaadin-maven-plugin</artifactId>
-					<version>${vaadin.plugin.version}</version>
+					<version>${vaadin.version}</version>
 					<configuration>
 						<extraJvmArgs>-Xmx1024M -Xss2048k</extraJvmArgs>
 						<webappDirectory>${project.basedir}/src/main/resources/VAADIN/widgetsets</webappDirectory>
