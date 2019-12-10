@@ -15,6 +15,7 @@ import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 
+import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -519,6 +520,26 @@ public class StreamingCell implements Cell {
 	 */
 	@Override
 	public boolean isPartOfArrayFormulaGroup() {
+		throw new NotSupportedException();
+	}
+
+	@Override
+	public void setBlank() {
+		throw new NotSupportedException();
+	}
+
+	@Override
+	public void setCellValue(LocalDateTime value) {
+		throw new NotSupportedException();
+	}
+
+	@Override
+	public void removeFormula() throws IllegalStateException {
+		throw new NotSupportedException();
+	}
+
+	@Override
+	public LocalDateTime getLocalDateTimeCellValue() {
 		throw new NotSupportedException();
 	}
 }
