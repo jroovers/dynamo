@@ -54,12 +54,18 @@ public class CurrencyDoubleConverter extends GroupingStringToDoubleConverter {
 			return Result.ok(null);
 		}
 
+		final String positivePrefix = this.getDecimalFormat(context.getLocale().orElse(VaadinUtils.getLocale())).getPositivePrefix();
 		if (!StringUtils.isEmpty(value) && !value.startsWith(currencySymbol)) {
 			String oldValue = value.trim();
 			value = currencySymbol;
-			value += this.getDecimalFormat(context.getLocale().orElse(VaadinUtils.getLocale())).getPositivePrefix()
-					.length() > 1 ? " " : "";
+			value += positivePrefix.length() > 1 ? " " : "";
 			value += oldValue;
+		}
+		// Java 11 does not use a proper space, so replace here
+		if (positivePrefix.length() > 1) {
+			value = value.replaceFirst("^" + currencySymbol + " ", positivePrefix);
+		} else {
+			value = value.replaceFirst("^" + currencySymbol, positivePrefix);
 		}
 		return super.convertToModel(value, context);
 	}
