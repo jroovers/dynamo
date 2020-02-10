@@ -687,4 +687,19 @@ public abstract class DetailsEditLayout<ID extends Serializable, T extends Abstr
 	public void signalModeChange(boolean viewMode) {
 		// override in subclasses
 	}
+
+	public Integer getFormCount() {
+		return forms.size();
+	}
+
+	public FormContainer getFormContainer(int index) {
+		if (index < this.forms.size()) {
+			return forms.get(index);
+		}
+		return null;
+	}
+
+	public ModelBasedEditForm<ID,T> getForm(int index) {
+		return getFormContainer(index).getForm();
+	}
 }
