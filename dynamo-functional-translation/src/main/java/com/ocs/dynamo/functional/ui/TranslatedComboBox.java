@@ -17,6 +17,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Locale;
 
+import com.ocs.dynamo.dao.SortOrder;
 import com.ocs.dynamo.domain.AbstractEntity;
 import com.ocs.dynamo.domain.model.AttributeModel;
 import com.ocs.dynamo.domain.model.EntityModel;
@@ -53,6 +54,7 @@ public class TranslatedComboBox<ID extends Serializable, T extends AbstractEntit
 	private static final String TRANSLATION_PROPERTY = "translations.locale";
 	private Filter originalFilter;
 	private Filter additionalFilter;
+	private SortOrder[] sortOrders;
 	private ComboBox comboBox;
 	
 	public TranslatedComboBox(BaseService<ID, T> service, EntityModel<T> entityModel, AttributeModel attributeModel,
@@ -151,7 +153,7 @@ public class TranslatedComboBox<ID extends Serializable, T extends AbstractEntit
 		}
 
 		// Query ids
-		List<Integer> ids = (List<Integer>) getService().findIds(cf);
+		List<Integer> ids = (List<Integer>) getService().findIds(cf, sortOrders);
 
 		// Query translations
 		TranslationService ts = (TranslationService) ServiceLocatorFactory.getServiceLocator()
@@ -198,5 +200,13 @@ public class TranslatedComboBox<ID extends Serializable, T extends AbstractEntit
 		if (comboBox != null) {
 			comboBox.setComponentError(componentError);
 		}
+	}
+
+	public SortOrder[] getSortOrders() {
+		return sortOrders;
+	}
+
+	public void setSortOrders(SortOrder[] sortOrders) {
+		this.sortOrders = sortOrders;
 	}
 }
