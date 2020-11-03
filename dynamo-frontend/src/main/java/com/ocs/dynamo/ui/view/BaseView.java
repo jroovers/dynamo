@@ -16,6 +16,7 @@ package com.ocs.dynamo.ui.view;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.ocs.dynamo.domain.model.EntityModelFactory;
 import com.ocs.dynamo.service.MessageService;
@@ -36,140 +37,134 @@ import com.vaadin.flow.router.BeforeLeaveObserver;
  * 
  * @author bas.rutten
  */
-@org.springframework.stereotype.Component
+@Component
 public abstract class BaseView extends VerticalLayout implements BeforeLeaveObserver {
 
-    public static final String SELECTED_ID = "selectedId";
+	public static final String SELECTED_ID = "selectedId";
 
-    private static final long serialVersionUID = 8340448520371840427L;
+	private static final long serialVersionUID = 8340448520371840427L;
 
-    @Autowired
-    private EntityModelFactory modelFactory;
+	@Autowired
+	private EntityModelFactory modelFactory;
 
-    @Autowired
-    private MessageService messageService;
+	@Autowired
+	private MessageService messageService;
 
-    @Autowired
-    private UIHelper uiHelper;
+	@Autowired
+	private UIHelper uiHelper;
 
-    @Autowired
-    private MenuService menuService;
+	@Autowired
+	private MenuService menuService;
 
-    /**
-     * Indicates whether the application must ask for confirmation before navigating to a 
-     * different view
-     */
-    private boolean confirmBeforeLeave;
+	/**
+	 * Indicates whether the application must ask for confirmation before navigating
+	 * to a different view
+	 */
+	private boolean confirmBeforeLeave;
 
-    public BaseView(boolean confirmBeforeLeave) {
-        this.confirmBeforeLeave = confirmBeforeLeave;
-    }
+	public BaseView(boolean confirmBeforeLeave) {
+		this.confirmBeforeLeave = confirmBeforeLeave;
+	}
 
-    public BaseView() {
-        this(false);
-    }
+	public BaseView() {
+		this(false);
+		setSpacing(false);
+	}
 
-    @PostConstruct
-    public final void init() {
-        VerticalLayout main = initLayout();
-        doInit(main);
-    }
+	@PostConstruct
+	public final void init() {
+		VerticalLayout main = initLayout();
+		doInit(main);
+	}
 
-    /**
-     * Performs the actual initialization
-     */
-    protected abstract void doInit(VerticalLayout main);
+	/**
+	 * Performs the actual initialization
+	 */
+	protected abstract void doInit(VerticalLayout main);
 
-    /**
-     * Clears the current screen mode
-     */
-    protected void clearScreenMode() {
-        uiHelper.setScreenMode(null);
-    }
+	public MessageService getMessageService() {
+		return messageService;
+	}
 
-    public MessageService getMessageService() {
-        return messageService;
-    }
+	public EntityModelFactory getModelFactory() {
+		return modelFactory;
+	}
 
-    public EntityModelFactory getModelFactory() {
-        return modelFactory;
-    }
+	/**
+	 * Sets up the outermost layout
+	 * 
+	 * @return
+	 */
+	protected VerticalLayout initLayout() {
+		VerticalLayout container = new DefaultVerticalLayout(true, false);
+		container.addClassName("baseViewParent");
+		add(container);
+		return container;
+	}
 
-    /**
-     * Returns the current screen mode
-     */
-    protected String getScreenMode() {
-        return uiHelper.getScreenMode();
-    }
+	/**
+	 * Retrieves a message based on its key
+	 * 
+	 * @param key the key of the message
+	 * @return
+	 */
+	protected String message(String key) {
+		return messageService.getMessage(key, VaadinUtils.getLocale());
+	}
 
-    /**
-     * Sets up the outermost layout
-     * 
-     * @return
-     */
-    protected VerticalLayout initLayout() {
-        VerticalLayout container = new DefaultVerticalLayout(false, true);
-        add(container);
-        return container;
-    }
+	/**
+	 * Retrieves a message based on its key
+	 * 
+	 * @param key  the key of the message
+	 * @param args any arguments to pass to the message
+	 * @return
+	 */
+	protected String message(String key, Object... args) {
+		return messageService.getMessage(key, VaadinUtils.getLocale(), args);
+	}
 
-    /**
-     * Retrieves a message based on its key
-     * 
-     * @param key the key of the message
-     * @return
-     */
-    protected String message(String key) {
-        return messageService.getMessage(key, VaadinUtils.getLocale());
-    }
+	/**
+	 * Navigates to the selected view
+	 * 
+	 * @param viewId the ID of the desired view
+	 */
+	protected void navigate(String viewId) {
 
-    /**
-     * Retrieves a message based on its key
-     * 
-     * @param key  the key of the message
-     * @param args any arguments to pass to the message
-     * @return
-     */
-    protected String message(String key, Object... args) {
-        return messageService.getMessage(key, VaadinUtils.getLocale(), args);
-    }
+		UI.getCurrent().navigate(viewId);
+	}
 
-    /**
-     * Navigates to the selected view
-     * 
-     * @param viewId the ID of the desired view
-     */
-    protected void navigate(String viewId) {
-        UI.getCurrent().navigate(viewId);
-    }
+	protected void navigate(String viewId, String mode) {
+		UI.getCurrent().navigate(viewId + "/" + mode);
+	}
 
-    public UIHelper getUiHelper() {
-        return uiHelper;
-    }
+	public UIHelper getUiHelper() {
+		return uiHelper;
+	}
 
-    @Override
-    public void beforeLeave(BeforeLeaveEvent event) {
-        if (confirmBeforeLeave && isEditing()) {
-            MenuBar menuBar = uiHelper.getMenuBar();
-            String lastVisited = menuBar == null ? null : menuService.getLastVisited();
+	@Override
+	public void beforeLeave(BeforeLeaveEvent event) {
+		if (confirmBeforeLeave && isEditing()) {
+			MenuBar menuBar = uiHelper.getMenuBar();
+			String lastVisited = menuBar == null ? null : menuService.getLastVisited();
 
-            ContinueNavigationAction postpone = event.postpone();
-            VaadinUtils.showConfirmDialog(getMessageService(), message("ocs.confirm.navigate"), () -> postpone.proceed(), () -> {
-                if (lastVisited != null) {
-                    menuService.setLastVisited(menuBar, lastVisited);
-                }
-            });
-        }
-    }
+			ContinueNavigationAction postpone = event.postpone();
+			VaadinUtils.showConfirmDialog(message("ocs.confirm.navigate"),
+					() -> postpone.proceed(), () -> {
+						if (lastVisited != null) {
+							menuService.setLastVisited(menuBar, lastVisited);
+						}
+					});
+		}
+	}
 
-    /**
-     * Callback method that is called when the user wants to navigate away from a
-     * page that is being edited
-     * 
-     * @return
-     */
-    protected boolean isEditing() {
-        return false;
-    }
+	/**
+	 * Callback method that is called when the user wants to navigate away from a
+	 * page that is being edited
+	 * 
+	 * @return
+	 */
+	protected boolean isEditing() {
+		return false;
+	}
 
 }

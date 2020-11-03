@@ -24,7 +24,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
  * @author Bas Rutten
  *
  */
-public class Panel extends VerticalLayout {
+public class Panel extends DefaultVerticalLayout {
 
     private static final long serialVersionUID = -4620931565010614799L;
 
@@ -36,11 +36,15 @@ public class Panel extends VerticalLayout {
 
     public Panel(String caption) {
         super();
+        setPadding(false);
+        setMargin(false);
+        
         addClassName(DynamoConstants.CSS_PANEL);
-        VerticalLayout titleLayout = new VerticalLayout();
+        VerticalLayout titleLayout = new DefaultVerticalLayout(false, false);
+        titleLayout.setPadding(true);
         captionText = new Text(caption);
         titleLayout.add(captionText);
-        titleLayout.addClassName(DynamoConstants.CSS_DIALOG_TITLE);
+        titleLayout.addClassName(DynamoConstants.CSS_PANEL_TITLE);
         add(titleLayout);
     }
 

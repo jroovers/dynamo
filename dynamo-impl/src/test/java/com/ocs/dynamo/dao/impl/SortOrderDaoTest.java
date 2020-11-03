@@ -13,8 +13,12 @@
  */
 package com.ocs.dynamo.dao.impl;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
+import org.junit.jupiter.api.Test;
 
 import com.ocs.dynamo.dao.SortOrder;
 import com.ocs.dynamo.dao.SortOrder.Direction;
@@ -26,37 +30,37 @@ public class SortOrderDaoTest {
     public void testDefaultAscending() {
         SortOrder order = new SortOrder("property");
 
-        Assert.assertEquals(Direction.ASC, order.getDirection());
-        Assert.assertEquals("property", order.getProperty());
+        assertEquals(Direction.ASC, order.getDirection());
+        assertEquals("property", order.getProperty());
     }
 
     @Test
     public void testPropertyAndDirection() {
         SortOrder order = new SortOrder("property", Direction.DESC);
 
-        Assert.assertEquals(Direction.DESC, order.getDirection());
-        Assert.assertEquals("property", order.getProperty());
+        assertEquals(Direction.DESC, order.getDirection());
+        assertEquals("property", order.getProperty());
     }
 
     @Test
     public void testPropertyAndDirectionFromString() {
         SortOrder order = new SortOrder("property", Direction.fromString("ASC"));
 
-        Assert.assertEquals(Direction.ASC, order.getDirection());
-        Assert.assertEquals("property", order.getProperty());
+        assertEquals(Direction.ASC, order.getDirection());
+        assertEquals("property", order.getProperty());
     }
 
     @Test
     public void testPropertyAndDirectionFromString2() {
         SortOrder order = new SortOrder("property", Direction.fromString("DESC"));
 
-        Assert.assertEquals(Direction.DESC, order.getDirection());
-        Assert.assertEquals("property", order.getProperty());
+        assertEquals(Direction.DESC, order.getDirection());
+        assertEquals("property", order.getProperty());
     }
 
-    @Test(expected = OCSRuntimeException.class)
+    @Test()
     public void testPropertyAndDirectionFromString_Wrong() {
-        new SortOrder("property", Direction.fromString("AS"));
+        assertThrows(OCSRuntimeException.class, () -> new SortOrder("property", Direction.fromString("AS")));
     }
 
     @Test
@@ -65,10 +69,10 @@ public class SortOrderDaoTest {
         SortOrder order2 = new SortOrder("property");
         SortOrder order3 = new SortOrder("property", Direction.DESC);
 
-        Assert.assertFalse(order.equals(null));
-        Assert.assertFalse(order.equals(new Object()));
-        Assert.assertTrue(order.equals(order));
-        Assert.assertTrue(order.equals(order2));
-        Assert.assertFalse(order.equals(order3));
+        assertFalse(order.equals(null));
+        assertFalse(order.equals(new Object()));
+        assertTrue(order.equals(order));
+        assertTrue(order.equals(order2));
+        assertFalse(order.equals(order3));
     }
 }

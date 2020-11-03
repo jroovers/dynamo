@@ -13,17 +13,19 @@
  */
 package com.ocs.dynamo.functional.dao;
 
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.List;
 
 import javax.inject.Inject;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.ocs.dynamo.BackendIntegrationTest;
-import com.ocs.dynamo.functional.FunctionalDomainIntegrationTestConfig;
 import com.ocs.dynamo.functional.domain.Country;
 import com.ocs.dynamo.functional.domain.Currency;
 import com.ocs.dynamo.functional.domain.Domain;
@@ -33,7 +35,7 @@ import com.ocs.dynamo.functional.domain.Region;
  * @author Patrick Deenen (patrick@opencircle.solutions)
  *
  */
-@SpringBootTest(classes = FunctionalDomainIntegrationTestConfig.class)
+@SpringBootTest()
 public class DomainDaoTest extends BackendIntegrationTest {
 
     @Inject
@@ -43,7 +45,7 @@ public class DomainDaoTest extends BackendIntegrationTest {
 
     private Region asia;
 
-    @Before
+    @BeforeEach
     public void setup() {
         europa = new Region("EU", "Europa");
         asia = new Region("AS", "Asia");
@@ -77,25 +79,25 @@ public class DomainDaoTest extends BackendIntegrationTest {
     @Test
     public void testAll() {
         List<Domain> all = domainDao.findAll();
-        Assert.assertEquals(12, all.size());
+        assertEquals(12, all.size());
     }
 
     @Test
     public void testFindAllByType() {
         List<? extends Domain> all = domainDao.findAllByType(Currency.class);
-        Assert.assertEquals(3, all.size());
+        assertEquals(3, all.size());
     }
 
     @Test
     public void testFindChildren() {
-        List<Domain> list = domainDao.findAll();
+        domainDao.findAll();
         Domain deu = domainDao.findByTypeAndUniqueProperty(Region.class, "code", "EU", false);
-        Assert.assertTrue(deu instanceof Region);
+        assertTrue(deu instanceof Region);
         Region eu = (Region) deu;
-        Assert.assertEquals(4, eu.getChildren().size());
+        assertEquals(4, eu.getChildren().size());
         List<Country> countries = domainDao.findChildren(eu);
-        Assert.assertEquals(4, countries.size());
+        assertEquals(4, countries.size());
         countries = domainDao.findChildren(eu);
-        Assert.assertEquals(4, countries.size());
+        assertEquals(4, countries.size());
     }
 }

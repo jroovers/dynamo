@@ -17,6 +17,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ocs.dynamo.constants.DynamoConstants;
 import com.ocs.dynamo.domain.AbstractEntity;
 import com.ocs.dynamo.ui.CanAssignEntity;
 import com.ocs.dynamo.ui.Reloadable;
@@ -33,77 +34,83 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
  * @author Bas Rutten
  *
  * @param <ID> the type of the ID of the entity
- * @param <T> the type of the entity
+ * @param <T>  the type of the entity
  */
-public abstract class CompositionLayout<ID extends Serializable, T extends AbstractEntity<ID>> extends BaseCustomComponent
-        implements Reloadable, CanAssignEntity<ID, T> {
+public abstract class CompositionLayout<ID extends Serializable, T extends AbstractEntity<ID>>
+		extends BaseCustomComponent implements Reloadable, CanAssignEntity<ID, T> {
 
-    private static final long serialVersionUID = 3696293073812817902L;
+	private static final long serialVersionUID = 3696293073812817902L;
 
-    private List<Component> nestedComponents = new ArrayList<>();
+	private List<Component> nestedComponents = new ArrayList<>();
 
-    private T entity;
+	private T entity;
 
-    public CompositionLayout(T entity) {
-        this.entity = entity;
-    }
+	private VerticalLayout main;
 
-    @Override
-    protected void onAttach(AttachEvent attachEvent) {
-        super.onAttach(attachEvent);
-        build();
-    }
+	public CompositionLayout(T entity) {
+		this.entity = entity;
+		addClassName(DynamoConstants.CSS_COMPOSITION_LAYOUT);
+		setMargin(false);
+	}
 
-    @Override
-    public void build() {
-        DefaultVerticalLayout main = new DefaultVerticalLayout();
-        doBuildLayout(main);
-        add(main);
-    }
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		super.onAttach(attachEvent);
+		build();
+	}
 
-    /**
-     * Place the logic for constructing the nested components in this method. Do not
-     * forget to call "addNestedComponent" for each component that you want to
-     * update automatically
-     * 
-     * @param main the layout
-     */
-    protected abstract void doBuildLayout(VerticalLayout main);
+	@Override
+	public void build() {
+		if (main == null) {
+			main = new DefaultVerticalLayout(false, true);
+			doBuildLayout(main);
+			add(main);
+		}
+	}
 
-    @Override
-    public void assignEntity(T entity) {
-        this.entity = entity;
-    }
+	/**
+	 * Place the logic for constructing the nested components in this method. Do not
+	 * forget to call "addNestedComponent" for each component that you want to
+	 * update automatically
+	 * 
+	 * @param main the layout
+	 */
+	protected abstract void doBuildLayout(VerticalLayout main);
 
-    /**
-     * Register a component with this layout, so that it will automatically be
-     * reloaded once the CompositionLayout is reloaded
-     * 
-     * @param c
-     */
-    protected void addNestedComponent(Component c) {
-        nestedComponents.add(c);
-    }
+	@Override
+	public void assignEntity(T entity) {
+		this.entity = entity;
+	}
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public void reload() {
-        for (Component c : nestedComponents) {
-            if (c instanceof CanAssignEntity) {
-                ((CanAssignEntity<ID, T>) c).assignEntity(entity);
-            }
-            if (c instanceof Reloadable) {
-                ((Reloadable) c).reload();
-            }
-        }
-    }
+	/**
+	 * Register a component with this layout, so that it will automatically be
+	 * reloaded once the CompositionLayout is reloaded
+	 * 
+	 * @param c
+	 */
+	protected void addNestedComponent(Component c) {
+		nestedComponents.add(c);
+	}
 
-    public T getEntity() {
-        return entity;
-    }
+	@Override
+	@SuppressWarnings("unchecked")
+	public void reload() {
+		for (Component c : nestedComponents) {
+			if (c instanceof CanAssignEntity) {
+				((CanAssignEntity<ID, T>) c).assignEntity(entity);
+			}
+			if (c instanceof Reloadable) {
+				((Reloadable) c).reload();
+			}
+		}
+	}
 
-    public void setEntity(T entity) {
-        this.entity = entity;
-    }
+	public T getEntity() {
+		return entity;
+	}
+
+	public void setEntity(T entity) {
+		this.entity = entity;
+	}
 
 }

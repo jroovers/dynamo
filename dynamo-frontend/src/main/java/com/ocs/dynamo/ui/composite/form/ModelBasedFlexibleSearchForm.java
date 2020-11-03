@@ -62,9 +62,10 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasValidation;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.HasValue.ValueChangeEvent;
+import com.vaadin.flow.component.HasValue.ValueChangeListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.FlexLayout.WrapMode;
@@ -81,7 +82,7 @@ import com.vaadin.flow.function.SerializablePredicate;
  * @author bas.rutten
  *
  * @param <ID> the type of the primary key
- * @param <T> the type of the entity
+ * @param <T>  the type of the entity
  */
 public class ModelBasedFlexibleSearchForm<ID extends Serializable, T extends AbstractEntity<ID>>
         extends AbstractModelBasedSearchForm<ID, T> {
@@ -95,15 +96,14 @@ public class ModelBasedFlexibleSearchForm<ID extends Serializable, T extends Abs
     private class FilterRegion {
 
         /**
-         * Indicates whether we are restoring an existing definition - if this is the
-         * case the we do not need to set a default filter value
-         */
-        private boolean restoring;
-
-        /**
          * The attribute model
          */
         private AttributeModel am;
+
+        /**
+         * The combo box that contains the attributes to filter on
+         */
+        private ComboBox<AttributeModel> attributeFilterComboBox;
 
         /**
          * The filter for the auxiliary field
@@ -120,16 +120,6 @@ public class ModelBasedFlexibleSearchForm<ID extends Serializable, T extends Abs
          * the mainFilter and the auxFieldFilter)
          */
         private SerializablePredicate<T> fieldFilter;
-
-        /**
-         * The combo box that contains the attributes to filter on
-         */
-        private ComboBox<AttributeModel> attributeFilterComboBox;
-
-        /**
-         * Label to display when no filter has been selected
-         */
-        private Label noFilterLabel;
 
         /**
          * The filter type
@@ -157,9 +147,20 @@ public class ModelBasedFlexibleSearchForm<ID extends Serializable, T extends Abs
         private HasValue<?, Object> mainValueComponent;
 
         /**
+         * Label to display when no filter has been selected
+         */
+        private Span noFilterLabel;
+
+        /**
          * The button used to remove the filter
          */
         private Button removeButton;
+
+        /**
+         * Indicates whether we are restoring an existing definition - if this is the
+         * case the we do not need to set a default filter value
+         */
+        private boolean restoring;
 
         /**
          * The combo box that contains the available filter types
@@ -208,10 +209,11 @@ public class ModelBasedFlexibleSearchForm<ID extends Serializable, T extends Abs
 
             // add a value change listener that fills the filter type combo box
             // after a change
-            attributeFilterComboBox.addValueChangeListener(e -> handleFilterAttributeChange(e, restoring));
+            ValueChangeListener<ValueChangeEvent<?>> vcl = e -> handleFilterAttributeChange(e, restoring);
+            attributeFilterComboBox.addValueChangeListener(vcl);
             layout.add(attributeFilterComboBox);
 
-            noFilterLabel = new Label(message("ocs.select.filter"));
+            noFilterLabel = new Span(message("ocs.select.filter"));
             noFilterLabel.setText("");
             layout.add(noFilterLabel);
         }
@@ -330,8 +332,9 @@ public class ModelBasedFlexibleSearchForm<ID extends Serializable, T extends Abs
             this.am = attributeModel;
             if (am != null) {
                 ComboBox<FlexibleFilterType> newTypeFilterCombo = new ComboBox<>(message("ocs.type"));
-                newTypeFilterCombo
-                        .addValueChangeListener(event -> handleFilterTypeChange((FlexibleFilterType) event.getSource().getValue()));
+                ValueChangeListener<ValueChangeEvent<FlexibleFilterType>> ccl = event -> handleFilterTypeChange(
+                        (FlexibleFilterType) event.getValue());
+                newTypeFilterCombo.addValueChangeListener(ccl);
                 newTypeFilterCombo.setItems(getFilterTypes(am));
                 newTypeFilterCombo.setItemLabelGenerator(
                         item -> getMessageService().getEnumMessage(FlexibleFilterType.class, item, VaadinUtils.getLocale()));
@@ -496,14 +499,16 @@ public class ModelBasedFlexibleSearchForm<ID extends Serializable, T extends Abs
 
             // add value change listener for adapting fields in response to input
             if (newComponent instanceof HasValue) {
-                ((HasValue<?, ?>) newComponent)
-                        .addValueChangeListener(event -> handleValueChange((HasValue<?, ?>) newComponent, event.getValue()));
+                ValueChangeListener<ValueChangeEvent<?>> listener = event -> handleValueChange((HasValue<?, ?>) newComponent,
+                        event.getValue());
+                ((HasValue<?, ?>) newComponent).addValueChangeListener(listener);
             }
 
             // cascading search
             if (am.getCascadeAttributes() != null && !am.getCascadeAttributes().isEmpty()) {
                 for (String cascadePath : am.getCascadeAttributes()) {
-                    ((HasValue<?, ?>) newComponent).addValueChangeListener(event -> handleCascade(event, am, cascadePath));
+                    ValueChangeListener<ValueChangeEvent<?>> listener = event -> handleCascade(event, am, cascadePath);
+                    ((HasValue<?, ?>) newComponent).addValueChangeListener(listener);
                 }
             }
 
@@ -518,8 +523,9 @@ public class ModelBasedFlexibleSearchForm<ID extends Serializable, T extends Abs
             if (FlexibleFilterType.BETWEEN.equals(filterType)) {
 
                 Component newAuxComponent = factory.constructField(context);
-                ((HasValue<?, ?>) newAuxComponent)
-                        .addValueChangeListener(event -> handleValueChange((HasValue<?, ?>) newAuxComponent, event.getValue()));
+                ValueChangeListener<ValueChangeEvent<?>> auxListener = event -> handleValueChange((HasValue<?, ?>) newAuxComponent,
+                        event.getValue());
+                ((HasValue<?, ?>) newAuxComponent).addValueChangeListener(auxListener);
 
                 if (auxValueComponent == null) {
                     layout.add(newAuxComponent);
@@ -601,11 +607,6 @@ public class ModelBasedFlexibleSearchForm<ID extends Serializable, T extends Abs
     private Button addFilterButton;
 
     /**
-     * The filter regions
-     */
-    private List<FilterRegion> regions = new ArrayList<>();
-
-    /**
      * Path of the properties for which to offer only basic String search
      * capabilities
      */
@@ -615,6 +616,11 @@ public class ModelBasedFlexibleSearchForm<ID extends Serializable, T extends Abs
      * The field factory
      */
     private FieldFactory factory = FieldFactory.getInstance();
+
+    /**
+     * The filter regions
+     */
+    private List<FilterRegion> regions = new ArrayList<>();
 
     /**
      * Constructor
@@ -901,6 +907,16 @@ public class ModelBasedFlexibleSearchForm<ID extends Serializable, T extends Abs
      */
     public void setBasicStringFilterProperties(Set<String> basicStringFilterProperties) {
         this.basicStringFilterProperties = basicStringFilterProperties;
+    }
+
+    @Override
+    protected boolean supportsAdvancedSearchMode() {
+        return false;
+    }
+
+    @Override
+    public void toggleAdvancedMode() {
+        // not needed
     }
 
 }

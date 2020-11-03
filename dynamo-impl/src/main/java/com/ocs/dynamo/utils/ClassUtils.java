@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.annotation.AnnotationUtils;
-import org.springframework.util.Assert;
 
 import com.ocs.dynamo.exception.OCSRuntimeException;
 
@@ -251,8 +250,6 @@ public final class ClassUtils {
      * @return
      */
     public static <T> Constructor<T> getConstructor(Class<T> clazz, Object... args) {
-        Assert.notNull(clazz, "[Assertion failed] - clazz argument is required; it must not be null");
-        Assert.noNullElements(args, "[Assertion failed] - the args must not contain any null elements");
         Constructor<T> constructor = null;
         List<Class<?>> types = new ArrayList<>();
         for (Object arg : args) {
@@ -283,7 +280,6 @@ public final class ClassUtils {
             try {
                 field = clazz.getDeclaredField(fieldName);
             } catch (NoSuchFieldException e) {
-                LOG.debug(e.getMessage(), e);
                 if (clazz.getSuperclass() != null) {
                     return getField(clazz.getSuperclass(), fieldName);
                 }

@@ -1,5 +1,8 @@
 package com.ocs.dynamo.functional.dao;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.List;
 import java.util.Set;
 
@@ -8,20 +11,21 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.ocs.dynamo.BackendIntegrationTest;
-import com.ocs.dynamo.functional.FunctionalDomainIntegrationTestConfig;
+import com.ocs.dynamo.functional.ParameterIntegrationTestConfig;
 import com.ocs.dynamo.functional.domain.Parameter;
 import com.ocs.dynamo.functional.domain.ParameterType;
 
 /**
- * Created by R.E.M. Claassen on 6-4-2017.
+ * 
+ * @author Bas Rutten
+ *
  */
-@SpringBootTest(classes = FunctionalDomainIntegrationTestConfig.class)
+@SpringBootTest(classes = ParameterIntegrationTestConfig.class)
 public class ParameterDaoTest extends BackendIntegrationTest {
 
 	@Inject
@@ -34,7 +38,7 @@ public class ParameterDaoTest extends BackendIntegrationTest {
 	@Inject
 	private ValidatorFactory factory;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		maxPrograms = new Parameter();
 		maxPrograms.setName("maximumPrograms");
@@ -53,7 +57,7 @@ public class ParameterDaoTest extends BackendIntegrationTest {
 	@Test
 	public void getAll() {
 		List<Parameter> all = parameterDao.findAll();
-		Assert.assertEquals(2, all.size());
+		assertEquals(2, all.size());
 	}
 
 	@Test
@@ -62,11 +66,11 @@ public class ParameterDaoTest extends BackendIntegrationTest {
 
 		Validator val = factory.getValidator();
 		Set<ConstraintViolation<Parameter>> errors = val.validate(maxPrograms);
-		Assert.assertTrue(errors.size() > 0);
+		assertTrue(errors.size() > 0);
 
 		maxPrograms.setValue("2");
 		errors = val.validate(maxPrograms);
-		Assert.assertTrue(errors.size() == 0);
+		assertTrue(errors.size() == 0);
 	}
 
 	@Test
@@ -79,11 +83,11 @@ public class ParameterDaoTest extends BackendIntegrationTest {
 
 		Validator val = factory.getValidator();
 		Set<ConstraintViolation<Parameter>> errors = val.validate(showPercentage);
-		Assert.assertTrue(errors.size() > 0);
+		assertTrue(errors.size() > 0);
 
 		showPercentage.setValue("true");
 		errors = val.validate(showPercentage);
-		Assert.assertTrue(errors.size() == 0);
+		assertTrue(errors.size() == 0);
 	}
 
 }

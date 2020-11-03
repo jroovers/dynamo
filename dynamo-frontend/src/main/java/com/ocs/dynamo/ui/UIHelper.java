@@ -32,107 +32,138 @@ import com.vaadin.flow.component.notification.NotificationVariant;
  */
 public class UIHelper {
 
-    /**
-     * Mapping for navigating to pages after clicking on a link
-     */
-    private Map<Class<?>, Consumer<?>> entityOnViewMapping = new HashMap<>();
+	/**
+	 * Mapping for navigating to pages after clicking on a link
+	 */
+	private Map<Class<?>, Consumer<?>> entityOnViewMapping = new HashMap<>();
 
-    private MenuBar menuBar;
+	private MenuBar menuBar;
 
-    private String screenMode;
+	private String screenMode;
 
-    private Object selectedEntity;
+	private Object selectedEntity;
 
-    private Integer selectedTab;
+	private Integer selectedTab;
 
-    /**
-     * Adds a mapping for carrying out navigation within the application
-     * 
-     * @param entityClass    the type of the entity
-     * @param navigateAction the action to carry out
-     */
-    public void addEntityNavigationMapping(Class<?> entityClass, Consumer<?> navigateAction) {
-        entityOnViewMapping.put(entityClass, navigateAction);
-    }
+	/**
+	 * The UI that is tied to this UIHelper
+	 */
+	private Object currentUI;
 
-    /**
-     * Clears the session state
-     */
-    public void clearState() {
-        setScreenMode(null);
-        setSelectedEntity(null);
-        setSelectedTab(null);
-    }
+	/**
+	 * Adds a mapping for carrying out navigation within the application
+	 * 
+	 * @param entityClass    the type of the entity
+	 * @param navigateAction the action to carry out
+	 */
+	public void addEntityNavigationMapping(Class<?> entityClass, Consumer<?> navigateAction) {
+		entityOnViewMapping.put(entityClass, navigateAction);
+	}
 
-    public MenuBar getMenuBar() {
-        return menuBar;
-    }
+	public void clearScreenMode() {
+		this.screenMode = null;
+	}
 
-    public String getScreenMode() {
-        return screenMode;
-    }
+	/**
+	 * Clears the session state
+	 */
+	public void clearState() {
+		this.screenMode = null;
+		setSelectedEntity(null);
+		setSelectedTab(null);
+	}
 
-    public Object getSelectedEntity() {
-        return selectedEntity;
-    }
+	public Object getCurrentUI() {
+		return currentUI;
+	}
 
-    public Integer getSelectedTab() {
-        return selectedTab;
-    }
+	@SuppressWarnings("unchecked")
+	public <T> T getCurrentUI(Class<T> clazz) {
+		return (T) currentUI;
+	}
 
-    /**
-     * Navigates to a view
-     * 
-     * @param viewName the name of the view to navigate to
-     */
-    public void navigate(String viewName) {
-        UI.getCurrent().navigate(viewName);
-    }
+	public MenuBar getMenuBar() {
+		return menuBar;
+	}
 
-    /**
-     * Navigate to a screen based on the actual type of parameter o. During
-     * initialization of the UI of your project a mapping from type to consumer must
-     * have been provided by adding it through the method addEntityOnViewMapping.
-     * 
-     * @param o The selected object to be displayed on the target screen.
-     */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public void navigateToEntityScreen(Object o) {
-        if (o != null) {
-            Consumer navigateToView = entityOnViewMapping.getOrDefault(o.getClass(),
-                    err -> VaadinUtils.showNotification("No view mapping registered for class: " + o.getClass(), Position.MIDDLE,
-                            NotificationVariant.LUMO_ERROR));
-            if (navigateToView != null) {
-                try {
-                    navigateToView.accept(o);
-                } catch (Exception e) {
-                    VaadinUtils.showNotification("An exception occurred while executing the mapped action for class: " + o.getClass()
-                            + " with message: " + e.getMessage(), Position.MIDDLE, NotificationVariant.LUMO_ERROR);
-                    throw e;
-                }
-            }
-        }
-    }
+	public String getScreenMode() {
+		return screenMode;
+	}
 
-    public void selectAndNavigate(Object selectedEntity, String viewName) {
-        setSelectedEntity(selectedEntity);
-        navigate(viewName);
-    }
+	public Object getSelectedEntity() {
+		return selectedEntity;
+	}
 
-    public void setMenuBar(MenuBar menuBar) {
-        this.menuBar = menuBar;
-    }
+	public Integer getSelectedTab() {
+		return selectedTab;
+	}
 
-    public void setScreenMode(String screenMode) {
-        this.screenMode = screenMode;
-    }
+	/**
+	 * Navigates to a view
+	 * 
+	 * @param viewName the name of the view to navigate to
+	 */
+	public void navigate(String viewName) {
+		UI.getCurrent().navigate(viewName);
+	}
 
-    public void setSelectedEntity(Object selectedEntity) {
-        this.selectedEntity = selectedEntity;
-    }
+	/**
+	 * Navigates to the screen and opens it in the desired mode
+	 * 
+	 * @param viewName the name of the view
+	 * @param mode     the mode
+	 */
+	public void navigate(String viewName, String mode) {
+		this.screenMode = mode;
+		UI.getCurrent().navigate(viewName + "/" + mode);
+	}
 
-    public void setSelectedTab(Integer selectedTab) {
-        this.selectedTab = selectedTab;
-    }
+	/**
+	 * Navigate to a screen based on the actual type of parameter o. During
+	 * initialization of the UI of your project a mapping from type to consumer must
+	 * have been provided by adding it through the method addEntityOnViewMapping.
+	 * 
+	 * @param o The selected object to be displayed on the target screen.
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void navigateToEntityScreen(Object o) {
+		if (o != null) {
+			Consumer navigateToView = entityOnViewMapping.getOrDefault(o.getClass(),
+					err -> VaadinUtils.showNotification("No view mapping registered for class: " + o.getClass(),
+							Position.MIDDLE, NotificationVariant.LUMO_ERROR));
+			if (navigateToView != null) {
+				try {
+					navigateToView.accept(o);
+				} catch (Exception e) {
+					VaadinUtils.showNotification(
+							"An exception occurred while executing the mapped action for class: " + o.getClass()
+									+ " with message: " + e.getMessage(),
+							Position.MIDDLE, NotificationVariant.LUMO_ERROR);
+					throw e;
+				}
+			}
+		}
+	}
+
+	public void selectAndNavigate(Object selectedEntity, String viewName) {
+		setSelectedEntity(selectedEntity);
+		navigate(viewName);
+	}
+
+	public void setCurrentUI(Object currentUI) {
+		this.currentUI = currentUI;
+	}
+
+	public void setMenuBar(MenuBar menuBar) {
+		this.menuBar = menuBar;
+	}
+
+	public void setSelectedEntity(Object selectedEntity) {
+		this.selectedEntity = selectedEntity;
+	}
+
+	public void setSelectedTab(Integer selectedTab) {
+		this.selectedTab = selectedTab;
+	}
 
 }

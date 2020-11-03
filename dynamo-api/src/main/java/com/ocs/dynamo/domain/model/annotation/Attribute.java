@@ -57,6 +57,11 @@ public @interface Attribute {
      * @return whether a currency symbol will be prepended to the value
      */
     boolean currency() default false;
+    
+    /**
+     * Custom settings
+     */
+    CustomSetting[] custom() default {};
 
     /**
      * 
@@ -208,7 +213,7 @@ public @interface Attribute {
      * 
      * @return whether the attribute is searchable
      */
-    boolean searchable() default false;
+    SearchMode searchable() default SearchMode.NONE;
 
     /**
      * 

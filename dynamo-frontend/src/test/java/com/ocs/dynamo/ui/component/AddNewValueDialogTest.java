@@ -1,10 +1,13 @@
 package com.ocs.dynamo.ui.component;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 
 import com.github.mvysny.kaributesting.v10.MockVaadin;
 import com.ocs.dynamo.domain.TestDomain;
@@ -29,11 +32,11 @@ public class AddNewValueDialogTest extends BaseMockitoTest {
 
     private EntityModelFactory factory = new EntityModelFactoryImpl();
 
-    @Before
+    @BeforeEach
     public void setup() {
         MockVaadin.setup();
         MockUtil.mockMessageService(messageService);
-        Mockito.when(baseService.createNewEntity()).thenReturn(new TestDomain());
+        when(baseService.createNewEntity()).thenReturn(new TestDomain());
     }
 
     @Test
@@ -58,7 +61,7 @@ public class AddNewValueDialogTest extends BaseMockitoTest {
 
         dialog.getValueField().setValue("value");
         dialog.getOkButton().click();
-        Assert.assertTrue(afterEntity);
+        assertTrue(afterEntity);
     }
     
     @Test
@@ -78,11 +81,10 @@ public class AddNewValueDialogTest extends BaseMockitoTest {
             }
 
         };
-        dialog.build();
-        dialog.open();
+        dialog.buildAndOpen();
 
         // no value set
         dialog.getOkButton().click();
-        Assert.assertFalse(afterEntity);
+        assertFalse(afterEntity);
     }
 }

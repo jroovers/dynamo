@@ -1,12 +1,15 @@
 package com.ocs.dynamo.ui.composite.layout;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
+
 import java.util.Comparator;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 
 import com.github.mvysny.kaributesting.v10.MockVaadin;
 import com.google.common.collect.Lists;
@@ -19,113 +22,114 @@ import com.ocs.dynamo.service.TestEntityService;
 import com.ocs.dynamo.test.BaseMockitoTest;
 import com.ocs.dynamo.ui.composite.layout.DetailsEditLayout.FormContainer;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
 public class DetailsEditLayoutTest extends BaseMockitoTest {
- 
-    private EntityModelFactory factory = new EntityModelFactoryImpl();
 
-    @Mock
-    private UI ui;
+	private EntityModelFactory factory = new EntityModelFactoryImpl();
 
-    private TestEntity e1;
+	@Mock
+	private UI ui;
 
-    private TestEntity e2;
+	private TestEntity e1;
 
-    @Mock
-    private TestEntityService service;
+	private TestEntity e2;
 
-    private boolean buttonBarPostconstruct = false;
+	@Mock
+	private TestEntityService service;
 
-    private boolean detailButtonBarPostconstruct = false;
+	private boolean buttonBarPostconstruct = false;
 
-    @Before
-    public void setUp() {
-        MockVaadin.setup();
-        e1 = new TestEntity(1, "Kevin", 12L);
-        e2 = new TestEntity(2, "Bob", 14L);
-        Mockito.when(service.getEntityClass()).thenReturn(TestEntity.class);
-    }
+	private boolean detailButtonBarPostconstruct = false;
 
-    /**
-     * Test a table in editable mode
-     */
-    @Test
-    public void testEditable() {
-        EntityModel<TestEntity> em = factory.getModel(TestEntity.class);
+	@BeforeEach
+	public void setUp() {
+		MockVaadin.setup();
+		e1 = new TestEntity(1, "Kevin", 12L);
+		e2 = new TestEntity(2, "Bob", 14L);
+		when(service.getEntityClass()).thenReturn(TestEntity.class);
+	}
 
-        DetailsEditLayout<Integer, TestEntity> layout = createLayout(em, em.getAttributeModel("testEntities"), false,
-                new FormOptions().setShowRemoveButton(true));
-        Assert.assertTrue(layout.getAddButton().isVisible());
-        Assert.assertTrue(buttonBarPostconstruct);
+	/**
+	 * Test a table in editable mode
+	 */
+	@Test
+	public void testEditable() {
+		EntityModel<TestEntity> em = factory.getModel(TestEntity.class);
 
-        layout.setValue(Lists.newArrayList(e1, e2));
-        Assert.assertTrue(detailButtonBarPostconstruct);
+		DetailsEditLayout<Integer, TestEntity> layout = createLayout(em, em.getAttributeModel("testEntities"), false,
+				new FormOptions().setShowRemoveButton(true));
+		assertTrue(layout.getAddButton().isVisible());
+		assertTrue(buttonBarPostconstruct);
 
-        Assert.assertEquals(2, layout.getFormCount().intValue());
+		layout.setValue(Lists.newArrayList(e1, e2));
+		assertTrue(detailButtonBarPostconstruct);
 
-        layout.getAddButton().click();
-        Assert.assertEquals(3, layout.getFormCount().intValue());
+		assertEquals(2, layout.getFormCount().intValue());
 
-        //
-        layout.setDeleteEnabled(0, false);
-        @SuppressWarnings("rawtypes")
-        FormContainer container = layout.getFormContainer(0);
-        Assert.assertFalse(container.getDeleteButton().isEnabled());
+		layout.getAddButton().click();
+		assertEquals(3, layout.getFormCount().intValue());
 
-        // out of bounds
-        layout.setDeleteEnabled(4, false);
+		//
+		layout.setDeleteEnabled(0, false);
+		@SuppressWarnings("rawtypes")
+		FormContainer container = layout.getFormContainer(0);
+		assertFalse(container.getDeleteButton().isEnabled());
 
-        layout.setDeleteVisible(0, false);
-        Assert.assertFalse(container.getDeleteButton().isVisible());
+		// out of bounds
+		layout.setDeleteEnabled(4, false);
 
-        // disable field
-        layout.setFieldEnabled(0, "age", false);
+		layout.setDeleteVisible(0, false);
+		assertFalse(container.getDeleteButton().isVisible());
 
-        // get first entity (sorted by name, some "Bob" comes first)
-        TestEntity t1 = layout.getEntity(0);
-        Assert.assertEquals(e2, t1);
+		// disable field
+		layout.setFieldEnabled(0, "age", false);
 
-        Assert.assertTrue(layout.validateAllFields());
-    }
+		// get first entity (sorted by name, some "Bob" comes first)
+		TestEntity t1 = layout.getEntity(0);
+		assertEquals(e2, t1);
 
-    /**
-     * Test read only with search functionality
-     */
-    @Test
-    public void testReadOnly() {
-        EntityModel<TestEntity> em = factory.getModel(TestEntity.class);
+		assertTrue(layout.validateAllFields());
+	}
 
-        DetailsEditLayout<Integer, TestEntity> layout = createLayout(em, em.getAttributeModel("testEntities"), true,
-                new FormOptions().setDetailsGridSearchMode(true));
+	/**
+	 * Test read only with search functionality
+	 */
+	@Test
+	public void testReadOnly() {
+		EntityModel<TestEntity> em = factory.getModel(TestEntity.class);
 
-        // adding is not possible
-        Assert.assertFalse(layout.getAddButton().isVisible());
-    }
+		DetailsEditLayout<Integer, TestEntity> layout = createLayout(em, em.getAttributeModel("testEntities"), true,
+				new FormOptions().setDetailsGridSearchMode(true));
 
-    private DetailsEditLayout<Integer, TestEntity> createLayout(EntityModel<TestEntity> em, AttributeModel am, boolean viewMode,
-            FormOptions fo) {
+		// adding is not possible
+		assertFalse(layout.getAddButton().isVisible());
+	}
 
-        DetailsEditLayout<Integer, TestEntity> layout = new DetailsEditLayout<Integer, TestEntity>(service, em, am, viewMode, fo,
-                Comparator.comparing(TestEntity::getName)) {
+	private DetailsEditLayout<Integer, TestEntity> createLayout(EntityModel<TestEntity> em, AttributeModel am,
+			boolean viewMode, FormOptions fo) {
 
-            private static final long serialVersionUID = -4333833542380882076L;
+		DetailsEditLayout<Integer, TestEntity> layout = new DetailsEditLayout<Integer, TestEntity>(service, em, am,
+				viewMode, fo, Comparator.comparing(TestEntity::getName)) {
 
-            @Override
-            protected void postProcessButtonBar(HorizontalLayout buttonBar) {
-                buttonBarPostconstruct = true;
-            }
+			private static final long serialVersionUID = -4333833542380882076L;
 
-            @Override
-            protected void postProcessDetailButtonBar(int index, HorizontalLayout buttonBar, boolean viewMode) {
-                detailButtonBarPostconstruct = true;
-            }
-        };
-        layout.setCreateEntitySupplier(() -> new TestEntity());
-        layout.setRemoveEntityConsumer(t -> {
-        });
+			@Override
+			protected void postProcessButtonBar(FlexLayout buttonBar) {
+				buttonBarPostconstruct = true;
+			}
 
-        layout.initContent();
-        return layout;
-    }
+			@Override
+			protected void postProcessDetailButtonBar(int index, HorizontalLayout buttonBar, boolean viewMode) {
+				detailButtonBarPostconstruct = true;
+			}
+		};
+		layout.setCreateEntitySupplier(p -> new TestEntity());
+		layout.setRemoveEntityConsumer((p, t) -> {
+		});
+
+		layout.initContent();
+		return layout;
+	}
 }

@@ -1,14 +1,15 @@
 package com.ocs.dynamo.ui.view;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 
 import java.util.Locale;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.ocs.dynamo.domain.model.EntityModelFactory;
@@ -19,65 +20,49 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 public class BaseViewTest extends BaseMockitoTest {
 
-    private static final String MODE = "mode";
+	private BaseView view;
 
-    private BaseView view;
+	@Mock
+	private EntityModelFactory modelFactory;
 
-    @Mock
-    private EntityModelFactory modelFactory;
+	@Mock
+	private MessageService messageService;
 
-    @Mock
-    private MessageService messageService;
+	@Mock
+	private UIHelper ui;
 
-    @Mock
-    private UIHelper ui;
+	@BeforeEach
+	public void setUp() {
 
-    @Before
-    public void setUp() {
+		view = new BaseView() {
 
-        view = new BaseView() {
+			private static final long serialVersionUID = 3811868898666414611L;
 
-            private static final long serialVersionUID = 3811868898666414611L;
+			@Override
+			protected void doInit(VerticalLayout layout) {
 
-            @Override
-            protected void doInit(VerticalLayout layout) {
+			}
 
-            }
+		};
+		ReflectionTestUtils.setField(view, "uiHelper", ui);
+		ReflectionTestUtils.setField(view, "messageService", messageService);
+	}
 
-        };
-        ReflectionTestUtils.setField(view, "uiHelper", ui);
-        ReflectionTestUtils.setField(view, "messageService", messageService);
-    }
+	@Test
+	public void testMessage() {
+		view.message("key");
+		verify(messageService).getMessage(eq("key"), any(Locale.class));
+	}
 
-    @Test
-    public void testGetScreenModeNull() {
-        Assert.assertNull(view.getScreenMode());
-    }
+	@Test
+	public void testMessageWithPars() {
+		view.message("key", "bob");
+		verify(messageService).getMessage(eq("key"), any(Locale.class), eq("bob"));
+	}
 
-    @Test
-    public void testGetViewMode() {
-        Mockito.when(ui.getScreenMode()).thenReturn(MODE);
-        Assert.assertEquals(MODE, view.getScreenMode());
-
-        view.clearScreenMode();
-        Mockito.verify(ui).setScreenMode(null);
-    }
-
-    @Test
-    public void testMessage() {
-        view.message("key");
-        Mockito.verify(messageService).getMessage(Mockito.eq("key"), Mockito.any(Locale.class));
-    }
-
-    @Test
-    public void testMessageWithPars() {
-        view.message("key", "bob");
-        Mockito.verify(messageService).getMessage(Mockito.eq("key"), Mockito.any(Locale.class), Mockito.eq("bob"));
-    }
-
-    @Test
-    public void testInit() {
-        view.init();
-        assertEquals(1, view.getComponentCount());
-    }
+	@Test
+	public void testInit() {
+		view.init();
+		assertEquals(1, view.getComponentCount());
+	}
 }
